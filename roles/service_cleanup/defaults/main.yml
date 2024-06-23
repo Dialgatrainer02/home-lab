@@ -1,2 +1,4 @@
 ---
 # defaults file for service_cleanup
+service_cleanup_vault_ip: 192.168.0.101
+# change to keepalived ip when it works

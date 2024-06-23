@@ -12,3 +12,4 @@
         keepalived_virtual_ip: 192.168.0.201
         keepalived_key: 12345
         keepalived_virtual_router_id: 101
+    - role: service_cleanup

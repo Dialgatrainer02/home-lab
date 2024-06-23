@@ -1,0 +1,3 @@
+TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem
+PermitRootLogin no
+PasswordAuthentication no

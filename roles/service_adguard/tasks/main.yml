@@ -1,13 +1,15 @@
 ---
 # tasks file for service_adguard
 - name: get release binary
-  ansible.builtin.shell: |
-    wget  https://github.com/AdguardTeam/AdGuardHome/releases/latest/download/AdGuardHome_linux_amd64.tar.gz
-- name: unpack binary
-  ansible.builtin.shell: tar -xvzf AdGuardHome_linux_amd64.tar.gz
-- name: copy binary to path
-  ansible.builtin.shell: |
-    cp ./AdGuardHome/AdGuardHome "{{ service_adguard_adguard_location }}"
+  ansible.builtin.unarchive:
+    src: https://github.com/AdguardTeam/AdGuardHome/releases/latest/download/AdGuardHome_linux_amd64.tar.gz
+    dest: /tmp
+    remote_src: true
+- name: copy binaries to path
+  ansible.builtin.copy:
+    src: "/tmp/AdGuardHome/AdGuardHome"
+    dest: "{{ service_adguard_adguard_location }}"
+    remote_src: true
 - name: copy adg config
   ansible.builtin.copy:
     src: "adguardhome.yml"
@@ -41,11 +43,4 @@
     daemon_reload: true
     state: started
     enabled: true
-- name: cleanup files
-  ansible.builtin.file:
-    name: "/root/"
-    state: absent
-- name: add back root dir
-  ansible.builtin.file:
-    name: "/root/"
-    state: directory
+  
