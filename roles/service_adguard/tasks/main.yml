@@ -1,2 +1,51 @@
 ---
 # tasks file for service_adguard
+- name: get release binary
+  ansible.builtin.shell: |
+    wget  https://github.com/AdguardTeam/AdGuardHome/releases/latest/download/AdGuardHome_linux_amd64.tar.gz
+- name: unpack binary
+  ansible.builtin.shell: tar -xvzf AdGuardHome_linux_amd64.tar.gz
+- name: copy binary to path
+  ansible.builtin.shell: |
+    cp ./AdGuardHome/AdGuardHome "{{ service_adguard_adguard_location }}"
+- name: copy adg config
+  ansible.builtin.copy:
+    src: "adguardhome.yml"
+    dest: /home/olivia/adguardhome.yml
+  ignore_errors: true
+- name: copy systemd service file over
+  ansible.builtin.template:
+    src: "adguard.service.j2"
+    dest: "/etc/systemd/system/adguard.service"
+- name: copy systemd updater service file
+  ansible.builtin.copy:
+    src: "update_adguard.service"
+    dest: "/etc/systemd/system/update_adguard.service"
+- name: copy systemd timer
+  ansible.builtin.copy:
+    src: "update_adguard.timer"
+    dest: "/etc/systemd/system/update_adguard.timer"
+- name: copy update script
+  ansible.builtin.template:
+    src: "update_adguard.sh.j2"
+    dest: "/home/olivia/update_adguard.sh"
+- name: start adguard
+  ansible.builtin.systemd_service:
+    name: adguard
+    daemon_reload: true
+    state: started
+    enabled: true
+- name: start adguard
+  ansible.builtin.systemd_service:
+    name: update_adguard.timer
+    daemon_reload: true
+    state: started
+    enabled: true
+- name: cleanup files
+  ansible.builtin.file:
+    name: "/root/"
+    state: absent
+- name: add back root dir
+  ansible.builtin.file:
+    name: "/root/"
+    state: directory

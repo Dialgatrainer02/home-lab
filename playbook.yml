@@ -1,0 +1,14 @@
+- name: Install adguard
+  hosts: adguards
+  roles:
+    - role: service_adguard
+      tags:
+        - adguard
+    - role: keepalived
+      tags:
+        - keepalived
+      vars:
+        keepalived_track_process: adguardhome
+        keepalived_virtual_ip: 192.168.0.201
+        keepalived_key: 12345
+        keepalived_virtual_router_id: 101

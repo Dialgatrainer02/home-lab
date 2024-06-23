@@ -12,7 +12,7 @@
     state: latest
 - name: make user 
   ansible.builtin.user:
-    name: {{ service_setup_user }}
+    name: "{{ service_setup_user }}"
     groups:
       - wheel
     create_home: true

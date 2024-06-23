@@ -1,0 +1,7 @@
+#!/bin/sh
+
+wget  https://github.com/AdguardTeam/AdGuardHome/releases/latest/download/AdGuardHome_linux_amd64.tar.gz
+tar -xvzf 
+cp ./AdGuardHome/AdGuardHome {{ service_adguard_adguard_location }}
+systemctl restart adguardhome
+rm -rf ./
