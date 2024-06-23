@@ -1,3 +1,9 @@
+- name: setup all hosts
+  hosts: services
+  roles:
+    - role: service_setup
+  tags:
+    - setup
 - name: Install adguard
   hosts: adguards
   roles:
@@ -12,4 +18,7 @@
         keepalived_virtual_ip: 192.168.0.201
         keepalived_key: 12345
         keepalived_virtual_router_id: 101
+- name: cleanup all services
+  hosts: services
+  roles:
     - role: service_cleanup
