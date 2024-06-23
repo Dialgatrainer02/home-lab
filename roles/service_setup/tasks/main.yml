@@ -1,0 +1,45 @@
+---
+# tasks file for service_setup
+- name: install packages
+  ansible.builtin.dnf:
+    name:
+      - nano
+      - openssh-server
+      - curl
+      - git
+      - wget
+      - tar
+    state: latest
+- name: make user 
+  ansible.builtin.user:
+    name: {{ service_setup_user }}
+    groups:
+      - wheel
+    create_home: true
+    state: present
+- name: install promtail
+  ansible.builtin.include_role:
+    name: promtail
+  tags:
+    - promtail
+  vars:
+    promtail_config_scrape_configs:
+      - job_name: journal
+        journal:
+          json: false
+          max_age: 12h
+          path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
+          labels:
+            job: systemd-journal
+        relabel_configs:
+        # make a clean label name without '.service'
+        - action: 'replace'
+          source_labels: ['__journal__systemd_unit']
+          regex: '(.*?)\.service'
+          replacement: '\$1'
+          target_label: 'unit'
+- name: install node_exporter
+  ansible.builtin.include_role:
+    name: node_exporter
+  tags:
+    - node-exporter 
