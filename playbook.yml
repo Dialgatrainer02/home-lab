@@ -61,10 +61,9 @@
         keepalived_virtual_router: 100
         keepalived_script: true
         keepalived_script_name: check_vault
-        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}/v1/sys/health -f
+        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200/v1/sys/health -f
       tags:
         - keepalived
-
 
 - name: setup vault for transit
   hosts: "{{ groups['cluster-autounseal'][0] }}"
@@ -74,6 +73,19 @@
         vault_initialise: true
         vault_unseal: true
         vault_configure_transit: true
+        vault_pause_duration: 7
+      tags:
+        - autounseal
+
+- name: unseal other vaults for clustering
+  hosts: cluster-autounseal
+  roles:
+    - role: vault_configure
+      vars:
+        vault_initialise: false
+        vault_unseal: true
+        vault_configure_transit: false
+        vault_pause_duration: 7
       tags:
         - autounseal
 
@@ -113,7 +125,7 @@
         keepalived_virtual_router: 101
         keepalvied_script: true
         keepalived_script_name: check_vault
-        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}/v1/sys/health -f
+        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200/v1/sys/health -f
       tags:
         - keepalived
 - name: setup vault for transit
@@ -126,6 +138,19 @@
         vault_configure_ssh_certs: true
       tags:
         - ssh_certs
+
+- name: unseal other vaults for clustering
+  hosts: cluster-main
+  roles:
+    - role: vault_configure
+      vars:
+        vault_initialise: false
+        vault_unseal: true
+        vault_configure_transit: false\
+        vault_pause_duration: 7
+      tags:
+        - ssh_certs
+
 
 #- name: install and setup prometheus
 #  hosts: prometheus
@@ -141,9 +166,9 @@
 #  tags:
 #    - prometheus
 
-- name: setup wireguard
-  hosts: wireguard
-  roles:
-    - role: wireguard
-  tags:
-    - wireguard
+#- name: setup wireguard
+#  hosts: wireguard
+#  roles:
+#    - role: wireguard
+#  tags:
+#    - wireguard
