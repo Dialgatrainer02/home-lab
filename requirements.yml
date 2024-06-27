@@ -1,9 +1,21 @@
-- name: promtail
-  src: https://github.com/patrickjahns/ansible-role-promtail
-  scm: git
-- name: node_exporter
-  src: https://github.com/geerlingguy/ansible-role-node_exporter
-  scm: git
-- name: keepalived
-  src: https://github.com/Dialgatrainer02/ansible-keepalived.git
-  scm: git
+collections:
+  - name: https://github.com/prometheus-community/ansible.git
+    version: main
+    type: git
+roles:
+  - name: promtail
+    src: https://github.com/patrickjahns/ansible-role-promtail
+    scm: git
+  - name: node_exporter
+    src: https://github.com/geerlingguy/ansible-role-node_exporter
+    scm: git
+  - name: keepalived
+    src: https://github.com/Dialgatrainer02/ansible-keepalived
+    scm: git
+  - src: https://github.com/ansible-community/ansible-vault.git
+    name: ansible-community.ansible-vault
+    scm: git
+    version: master
+  - name: vault_configure
+    src: https://github.com/Dialgatrainer02/ansible-vault-configure
+    scm: git
