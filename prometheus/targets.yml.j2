@@ -1,0 +1,8 @@
+
+- targets:
+{% for host in groups['all'] %}
+    - {{ hostvars[host].ansible_host | ansible.utils.ipv4 }}:9100
+{% endfor %}
+- labels:
+    env: home-lab
+    jobs: home-lab

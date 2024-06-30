@@ -1,6 +1,0 @@
-[Unit]
-Description=test job
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash /home/olivia/update_adguard.sh
