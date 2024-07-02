@@ -2,6 +2,7 @@ collections:
   - name: https://github.com/prometheus-community/ansible.git
     version: main
     type: git
+ # - name: community.dns
 roles:
   - name: promtail
     src: https://github.com/patrickjahns/ansible-role-promtail
@@ -18,4 +19,7 @@ roles:
     version: master
   - name: vault_configure
     src: https://github.com/Dialgatrainer02/ansible-vault-configure
+    scm: git
+  - name: loki
+    src: https://github.com/Dialgatrainer02/ansible-loki
     scm: git
