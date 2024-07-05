@@ -2,6 +2,7 @@ collections:
   - name: https://github.com/prometheus-community/ansible.git
     version: main
     type: git
+  - name: grafana.grafana
  # - name: community.dns
 roles:
   - name: promtail
@@ -24,5 +25,9 @@ roles:
     src: https://github.com/Dialgatrainer02/ansible-vault-operator
     scm: git
   - name: adguard
-    src: https://github.com/jimeh/ansible-adguardhome
+    src: https://github.com/bcook254/ansible-role-adguardhome
     scm: git
+  - src: https://github.com/O1ahmad/ansible-role-systemd
+    scm: git
+    name: 0x0i.systemd
+    version: master
