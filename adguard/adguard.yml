@@ -1,5 +1,5 @@
 - name: install and setup adhuard
-- hosts: adguard
+  hosts: adguards
   roles:
     - role: adguard 
   post_tasks:
@@ -8,3 +8,5 @@
         src: adguard-config.yml
         dest: /opt/AdGuardHome/config/AdGuardHome.yml
       ignore_errors: true
+  tags:
+    - adguard
