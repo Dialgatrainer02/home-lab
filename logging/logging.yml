@@ -78,4 +78,4 @@
         url: 'http://{{ hostvars["loki"].ansible_host | ansible.utils.ipv4 }}:3100'
         basicAuth: false
   tags:
-    - granfana
+    - grafana
