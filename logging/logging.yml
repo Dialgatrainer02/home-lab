@@ -11,13 +11,13 @@
       vars:
         promtail_loki_server_url: "http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100"
         promtail_config_scrape_configs:
-        - job_name: "{{ inventory_hostname }}-journal"
+        - job_name: journal
           journal:
             json: false
             max_age: 12h
             path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
             labels:
-              job: systemd-journal
+              job: "{{ inventory_hostname }}-journal"
           relabel_configs:
 #          # keep units you care about
 #          - action: 'keep'
@@ -58,3 +58,24 @@
     - role: loki
   tags:
     - loki
+- name: install and setup granfana
+  hosts: grafana
+  roles:
+    - role: grafana.grafana.grafana
+  vars:
+    grafana_security:
+      admin_user: olivia
+      admin_password: testing
+    grafana_datasources:
+      - name: prometheus
+        type: prometheus
+        access: proxy
+        url: 'http://{{ hostvars["prometheus"].ansible_host | ansible.utils.ipv4 }}:9090'
+        basicAuth: false
+      - name: loki
+        type: loki
+        access: proxy
+        url: 'http://{{ hostvars["loki"].ansible_host | ansible.utils.ipv4 }}:3100'
+        basicAuth: false
+  tags:
+    - granfana
