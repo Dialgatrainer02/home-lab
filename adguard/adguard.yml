@@ -1,0 +1,10 @@
+- name: install and setup adhuard
+- hosts: adguard
+  roles:
+    - role: adguard 
+  post_tasks:
+    - name: move config over
+      ansible.builtin.copy:
+        src: adguard-config.yml
+        dest: /opt/AdGuardHome/config/AdGuardHome.yml
+      ignore_errors: true

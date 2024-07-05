@@ -23,3 +23,6 @@ roles:
   - name: vault_operator
     src: https://github.com/Dialgatrainer02/ansible-vault-operator
     scm: git
+  - name: adguard
+    src: https://github.com/jimeh/ansible-adguardhome
+    scm: git

@@ -6,6 +6,7 @@
         file: ./setup/setup.yml
 - ansible.builtin.import_playbook: ./logging/logging.yml
 - ansible.builtin.import_playbook: ./wireguard/wireguard.yml
+- ansible.builtin.import_playbook: ./adguard/adguard.yml
 
 
 
