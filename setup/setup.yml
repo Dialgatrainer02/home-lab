@@ -1,28 +1,32 @@
-- name: install packages
-  ansible.builtin.dnf:
-    name:
-      - tar
-      - yum-utils
-#          - python3-cryptography
-    state: latest
-  become: true
-
-- name: system update
-  ansible.builtin.dnf:
-    name:
-      - "*"
-    state: latest
-  become: true
-  tags:
-    - update
-- name: check if nodes need rebooting
-  ansible.builtin.command:
-    cmd: needs-restarting -r
-  register: result
-  ignore_errors: true
-- name: reboot if needed
-  ansible.builtin.reboot:
-  when: result.rc == 1
-- name: wait for instances to come back online
-  ansible.builtin.wait_for_connection:
+- name: initial setup
+  hosts: all
+  tasks:
+    - name: install packages
+      ansible.builtin.dnf:
+        name:
+          - tar
+          - yum-utils
+    #          - python3-cryptography
+        state: latest
+      become: true
     
+    - name: system update
+      ansible.builtin.dnf:
+        name:
+          - "*"
+        state: latest
+      become: true
+      tags:
+        - update
+    - name: check if nodes need rebooting
+      ansible.builtin.command:
+        cmd: needs-restarting -r
+      register: result
+      ignore_errors: true
+    - name: reboot if needed
+      ansible.builtin.reboot:
+      when: result.rc == 1
+    - name: wait for instances to come back online
+      ansible.builtin.wait_for_connection:
+  tags:
+    - setup

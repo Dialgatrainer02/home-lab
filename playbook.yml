@@ -1,9 +1,4 @@
-- name: initial setup
-  hosts: all
-  tasks:
-    - name: run setup
-      ansible.builtin.include_tasks:
-        file: ./setup/setup.yml
+- ansible.builtin.import_playbook: ./setup/setup.yml
 - ansible.builtin.import_playbook: ./logging/logging.yml
 - ansible.builtin.import_playbook: ./wireguard/wireguard.yml
 - ansible.builtin.import_playbook: ./adguard/adguard.yml
