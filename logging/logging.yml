@@ -18,7 +18,7 @@
             path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
             labels:
               job: "{{ inventory_hostname }}-journal"
-          relabel_configs:
+          relabel_configs: # todo seperate per instance logging and get nice relabel configs
 #          # keep units you care about
 #          - action: 'keep'
 #            source_labels: ['__journal__systemd_unit']
@@ -27,7 +27,6 @@
           - action: 'replace'
             source_labels: ['__journal__systemd_unit']
             regex: '(.*?)\.service'
-            replacement: '\$1'
             target_label: 'unit'
   post_tasks:
     - name: reload promtail
