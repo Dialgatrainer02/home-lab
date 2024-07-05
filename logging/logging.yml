@@ -1,5 +1,5 @@
 - name: install matrics and log exporters
-  hosts: all:!logging
+  hosts: all
   become: true
   roles:
     - role: node_exporter
@@ -9,9 +9,9 @@
       tags:
         - promtail
       vars:
-        promtail_loki_server_url: "{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}"
+        promtail_loki_server_url: "http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100"
         promtail_config_scrape_configs:
-        - job_name: journal
+        - job_name: "{{ inventory_hostname }}-journal"
           journal:
             json: false
             max_age: 12h
@@ -29,6 +29,14 @@
             regex: '(.*?)\.service'
             replacement: '\$1'
             target_label: 'unit'
+  post_tasks:
+    - name: reload promtail
+      ansible.builtin.systemd_service:
+        name: promtail
+        state: restarted
+      ignore_errors: true
+      tags:
+        - promtail
 
 - name: install and setup prometheus
   hosts: prometheus
