@@ -17,9 +17,9 @@ roles:
     name: ansible-community.ansible-vault
     scm: git
     version: master
-  - name: vault_configure
-    src: https://github.com/Dialgatrainer02/ansible-vault-configure
-    scm: git
   - name: loki
     src: https://github.com/Dialgatrainer02/ansible-loki
+    scm: git
+  - name: vault_operator
+    src: https://github.com/Dialgatrainer02/ansible-vault-operator
     scm: git

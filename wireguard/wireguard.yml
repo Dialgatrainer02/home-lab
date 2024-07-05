@@ -1,0 +1,6 @@
+- name: setup wireguard
+  hosts: wireguard
+  roles:
+    - role: wireguard
+  tags:
+    - wireguard

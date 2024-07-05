@@ -1,0 +1,52 @@
+- name: install matrics and log exporters
+  hosts: all:!logging
+  become: true
+  roles:
+    - role: node_exporter
+      tags:
+        - node_exporter
+    - role: promtail
+      tags:
+        - promtail
+      vars:
+        promtail_loki_server_url: "{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}"
+        promtail_config_scrape_configs:
+        - job_name: journal
+          journal:
+            json: false
+            max_age: 12h
+            path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
+            labels:
+              job: systemd-journal
+          relabel_configs:
+#          # keep units you care about
+#          - action: 'keep'
+#            source_labels: ['__journal__systemd_unit']
+#            regex: '((^|, )(sshd|vault|wireguard|nginx|))+$'
+#          # make a clean label name without '.service'
+          - action: 'replace'
+            source_labels: ['__journal__systemd_unit']
+            regex: '(.*?)\.service'
+            replacement: '\$1'
+            target_label: 'unit'
+
+- name: install and setup prometheus
+  hosts: prometheus
+  roles:
+  - prometheus.prometheus.prometheus
+  post_tasks:
+    - name: add file sd targets
+      ansible.builtin.template:
+        src: "prometheus/targets.yml.j2"
+        dest: "/etc/prometheus/file_sd/node.yml" 
+      tags:
+        - prometheus
+        - service_discovery
+  tags:
+    - prometheus
+- name: install and setup loki
+  hosts: loki
+  roles:
+    - role: loki
+  tags:
+    - loki

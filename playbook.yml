@@ -1,178 +1,122 @@
-- name: install node_exporter and promtail
+- name: initial setup
   hosts: all
-  become: true
-  pre_tasks:
-    - name: install packages
-      ansible.builtin.dnf:
-        name:
-          - tar
-        state: latest
-      become: true
-      tags:
-        - node_exporter
-        - test
-  roles:
-    - role: node_exporter
-      tags:
-        - node_exporter
-    - role: promtail
-      tags:
-        - promtail
-      vars:
-        promtail_loki_server_url: http://192.168.0.107
-        promtail_config_scrape_configs:
-        - job_name: journal
-          journal:
-            json: false
-            max_age: 12h
-            path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
-            labels:
-              job: systemd-journal
-          relabel_configs:
-          # keep units you care about
-          - action: 'keep'
-            source_labels: ['__journal__systemd_unit']
-            regex: '((^|, )(sshd|vault))+$'
-          # make a clean label name without '.service'
-          - action: 'replace'
-            source_labels: ['__journal__systemd_unit']
-            regex: '(.*?)\.service'
-            replacement: '\$1'
-            target_label: 'unit'
+  tasks:
+    - name: run setup
+      ansible.builtin.include_tasks:
+        file: ./setup/setup.yml
+- ansible.builtin.import_playbook: ./logging/logging.yml
+- ansible.builtin.import_playbook: ./wireguard/wireguard.yml
 
-- name: install autounseal vault
-  hosts: cluster-autounseal
-  roles:
-    - role: ansible-community.ansible-vault
-      vars:
-        vault_listener_localhost_enable: true
-        vault_install_hashi_repo: true
-        vault_data_path: /opt/vault/data
-        vault_harden_file_perms: true
-        vault_raft_group_name: cluster-autounseal
-        vault_cluster_name: home-lab-autounseal
-        vault_datacenter: home-lab
-#        vault_tcp_listeners:
-#          - vault_address: "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}"
-#            vault_port: 8200
-#            vault_tls_disable: true
-#            vault_cluster_address: "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200"
-      tags:
-        - autounseal
-    - role: keepalived
-      vars:
-        keepalived_virtual_ip: 192.168.0.200
-        keepalived_virtual_router: 100
-        keepalived_script: true
-        keepalived_script_name: check_vault
-        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200/v1/sys/health -f
-      tags:
-        - keepalived
 
-- name: setup vault for transit
-  hosts: "{{ groups['cluster-autounseal'][0] }}"
-  roles:
-    - role: vault_configure
-      vars:
-        vault_initialise: true
-        vault_unseal: true
-        vault_configure_transit: true
-        vault_pause_duration: 9
-      tags:
-        - autounseal
 
-- name: unseal other vaults for clustering
-  hosts: cluster-autounseal
-  roles:
-    - role: vault_configure
-      vars:
-        vault_initialise: false
-        vault_unseal: true
-        vault_configure_transit: false
-        vault_pause_duration: 7
-      tags:
-        - autounseal
 
-- name: install vault cluster
-  hosts: cluster-main
-  pre_tasks:
-    - name: get unseal key
-      ansible.builtin.command:
-        cmd: cat "{{ lookup('ansible.builtin.env', 'HOME') }}"/servers/vault_keys/auto-unseal/unseal_key 
-      register: transit_token
-      delegate_to: localhost
-  roles:
-    - role: ansible-community.ansible-vault
-      vars:
-        vault_listener_localhost_enable: true
-        vault_install_hashi_repo: true
-        vault_start_pause_seconds: 3
-        vault_data_path: /opt/vault/data
-        vault_harden_file_perms: true
-        vault_raft_group_name: cluster-main
-        vault_cluster_name: home-lab-main
-        vault_datacenter: home-lab
-        vault_transit: true
-        vault_transit_tls_skip_verify: true
-        vault_transit_address: "http://192.168.0.100:8200" # change to vip later
-        vault_transit_token: "{{ transit_token.stdout }}"
-#        vault_tcp_listeners:
-#          - vault_address: "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}"
-#            vault_port: 8200
-#            vault_tls_disable: true
-#            vault_cluster_address: "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200"
-      tags:
-        - main_cluster
-    - role: keepalived
-      vars:
-        keepalived_virtual_ipaddress: 192.168.0.201
-        keepalived_virtual_router: 101
-        keepalvied_script: true
-        keepalived_script_name: check_vault
-        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}/v1/sys/health -f
-      tags:
-        - keepalived
-- name: setup vault for transit
-  hosts: "{{ groups['cluster-main'][0] }}"
-  roles:
-    - role: vault_configure
-      vars:
-        vault_initialise: true
-        vault_unseal: true
-        vault_configure_ssh_certs: true
-      tags:
-        - ssh_certs
 
-- name: unseal other vaults for clustering
-  hosts: cluster-main
-  roles:
-    - role: vault_configure
-      vars:
-        vault_initialise: false
-        vault_unseal: true
-        vault_configure_transit: false\
-        vault_pause_duration: 7
-      tags:
-        - ssh_certs
 
-- name: install and setup prometheus
-  hosts: prometheus
-  roles:
-  - prometheus.prometheus.prometheus
-  post_tasks:
-    - name: add file sd targets
-      ansible.builtin.template:
-        src: "prometheus/targets.yml.j2"
-        dest: "/etc/prometheus/file_sd/node.yml" 
-      tags:
-        - prometheus
-        - service_discovery
-  tags:
-    - prometheus
 
-- name: setup wireguard
-  hosts: wireguard
-  roles:
-    - role: wireguard
-  tags:
-    - wireguard
+
+#- name: install autounseal vault
+#  hosts: cluster_autounseal
+#  roles:
+#    - role: ansible-community.ansible-vault
+#      vars:
+#        vault_listener_localhost_enable: true
+#        vault_install_hashi_repo: true
+#        vault_data_path: /opt/vault/data
+#        vault_harden_file_perms: true
+#        vault_raft_group_name: cluster_autounseal
+#        vault_cluster_name: home-lab-autounseal
+#        vault_datacenter: home-lab
+#      tags:
+#        - autounseal
+#    - role: keepalived
+#      vars:
+#        keepalived_virtual_ip: 192.168.0.200
+#        keepalived_virtual_router: 100
+#        keepalived_script: true
+#        keepalived_script_name: check_vault
+#        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200/v1/sys/health -f
+#      tags:
+#        - keepalived
+#  post_tasks:
+#    - name: add tcp listener for keepalived
+#      ansible.builtin.template:
+#        src: vault/keepalived_listener.hcl.j2
+#        dest: /etc/vault.d/keepalived_listener.hcl
+#        owner: vault
+#        group: vault
+#        mode: 0644
+#
+#    # This should succeed regardless of seal state
+#    - name: Vault API reachable?
+#      # Attempt to help with long lines > 160 issues
+#      ansible.builtin.uri:
+#        url: "http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4  }}:8200/v1/sys/health"
+#        method: GET
+#        # 200 if initialized, unsealed, and active
+#        # 429 if unsealed and standby
+#        # 472 if data recovery mode replication secondary and active
+#        # 473 if performance standby
+#        # 501 if not initialized
+#        # 503 if sealed
+#        # See: https://www.vaultproject.io/api/system/health.html
+#        status_code: 200, 429, 472, 473, 501, 503
+#        body_format: json
+#      register: check_result
+#      retries: 6
+#      until: check_result is succeeded
+#      delay: 10
+#      changed_when: false
+#    - name: initalise vault
+#      ansible.builtin.include_role:
+#        name: vault_operator
+#      vars:
+#        vault_initialise: true
+#      when: "check_result | community.general.json_query('status') == 501"
+#
+#- name: install vault cluster
+#  hosts: cluster_main
+#  pre_tasks:
+#    - name: get unseal key
+#      ansible.builtin.command:
+#        cmd: cat "{{ lookup('ansible.builtin.env', 'HOME') }}"/servers/vault_keys/auto-unseal/unseal_key 
+#      register: transit_token
+#      delegate_to: localhost
+#  roles:
+#    - role: ansible-community.ansible-vault
+#      vars:
+#        vault_listener_localhost_enable: true
+#        vault_install_hashi_repo: true
+#        vault_start_pause_seconds: 3
+#        vault_data_path: /opt/vault/data
+#        vault_harden_file_perms: true
+#        vault_raft_group_name: cluster_main
+#        vault_cluster_name: home-lab-main
+#        vault_datacenter: home-lab
+#        vault_transit: true
+#        vault_transit_tls_skip_verify: true
+#        vault_transit_address: "http://192.168.0.100:8200" # change to vip later
+#        vault_transit_token: "{{ transit_token.stdout }}"
+#      tags:
+#        - main_cluster
+#    - role: keepalived
+#      vars:
+#        keepalived_virtual_ipaddress: 192.168.0.201
+#        keepalived_virtual_router: 101
+#        keepalvied_script: true
+#        keepalived_script_name: check_vault
+#        keepalived_script_check_command: curl http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8200/v1/sys/health -f
+#      tags:
+#        - keepalived
+#
+#
+#- name: unseal other vaults for clustering
+#  hosts: cluster-main
+#  roles:
+#    - role: vault_configure
+#      vars:
+#        vault_initialise: false
+#        vault_unseal: true
+#        vault_configure_transit: false
+#        vault_pause_duration: 7
+#      tags:
+#        - ssh_certs
