@@ -4,3 +4,4 @@
     - role: wireguard
   tags:
     - wireguard
+  become: true

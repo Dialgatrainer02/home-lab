@@ -1,5 +1,5 @@
 - name: initial setup
-  hosts: all
+  hosts: all:!laptop
   tasks:
     - name: install packages
       ansible.builtin.dnf:
@@ -25,6 +25,7 @@
       ignore_errors: true
     - name: reboot if needed
       ansible.builtin.reboot:
+      become: true
       when: result.rc == 1
     - name: wait for instances to come back online
       ansible.builtin.wait_for_connection:

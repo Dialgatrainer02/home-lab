@@ -31,3 +31,7 @@ roles:
     scm: git
     name: 0x0i.systemd
     version: master
+  - name: wireguard
+    src: https://github.com/githubixx/ansible-role-wireguard
+    scm: git
+    version: master
