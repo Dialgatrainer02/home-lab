@@ -1,5 +1,5 @@
 - name: initial setup
-  hosts: all:!laptop
+  hosts: all
   tasks:
     - name: install packages
       ansible.builtin.dnf:

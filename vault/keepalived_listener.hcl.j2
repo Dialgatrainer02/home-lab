@@ -1,5 +1,0 @@
-listener "tcp" {
-  address = "http://{{ keepalived_virtual_ip }}:8200"
-  cluster_addr = "http://{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}:8201"
-  tls_disable = true
-}

@@ -1,0 +1,176 @@
+---
+# Arr application Docker Compose stack with configuration management using Buildarr.
+
+version: "3.7"
+
+services:
+
+  # Qbittorrent instance for downloading torrents.
+  qbittorrent:
+    image: {{ arrstack_prowlarr_container_uri }}:{{ arrstack_qbitorrent_container_tag }}
+    hostname: qbittorrent
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config/qbittorrent:/config
+      - type: bind
+        source: "{{ arrstack_data_dir }}/torrents"
+        target: /data/torrents
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+      WEBUI_PORTS: 8080/tcp,8080/udp
+      VPN_ENABLED: true 
+      VPN_CONF: wg0
+      VPN_PROVIDER: generic 
+      VPN_LAN_NETWORK: 192.168.1.0/24
+      VPN_LAN_LEAK_ENABLED: false
+      VPN_AUTO_PORT_FORWARD: false
+      VPN_KEEP_LOCAL_DNS: false 
+      VPN_FIREWALL_TYPE: auto
+      VPN_HEALTHCHECK_ENABLED: true
+      PRIVOXY_ENABLED: true
+      UNBOUND_ENABLED: false
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+      
+
+  # FlareSolverr instance for bypassing CloudFlare.
+  flaresolverr:
+    image: "{{ arrstack_flaresolverr_container_uri }}:{{ arrstack_flaresolverr_container_tag }}"
+    hostname: flaresolverr
+    restart: always
+    ports:
+      - 127.0.0.1:8191:8191
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      LOG_LEVEL: "info"
+
+  # Sonarr instance for grabbing HD/SD TV shows.
+  sonarr-hd:
+    image: "{{ arrstack_sonarr_container_uri }}:{{ arrstack_sonarr_container_tag }}"
+    hostname: sonarr-hd
+    restart: always
+    ports:
+      - 127.0.0.1:8989:8989
+    volumes:
+      - "./sonarr-hd:/config"
+      - type: bind
+        source: "{{ arrstack_data_dir }}"
+        target: /data
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - transmission
+
+  # Sonarr instance for grabbing 4K TV shows.
+  sonarr-4k:
+    image: "{{ arrstack_sonarr_container_uri }}:{{ arrstack_sonarr_container_tag }}"
+    hostname: sonarr-4k
+    restart: always
+    ports:
+      - 127.0.0.1:8990:8989
+    volumes:
+      - "./sonarr-4k:/config"
+      - type: bind
+        source: "{{ arrstack_data_dir }}"
+        target: /data
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - transmission
+
+  
+  radarr-hd:
+    image: "{{ arrstack_radarr_container_uri }}:{{ arrstack_radarr_container_tag }}"
+    hostname: radarr-hd
+    restart: always
+    ports:
+      - 127.0.0.1:7878:7878
+    volumes:
+      - "./radarr-hd:/config"
+      - type: bind
+        source: "{{ arrstack_data_dir }}"
+        target: /data
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - transmission
+  radarr-4k:
+    image: "{{ arrstack_radarr_container_uri }}:{{ arrstack_radarr_container_tag }}"
+    hostname: radarr-4k
+    restart: always
+    ports:
+      - 127.0.0.1:7870:7878
+    volumes:
+      - "./radarr-4k:/config"
+      - type: bind
+        source: "{{ arrstack_data_dir }}"
+        target: /data
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - transmission
+
+  # Prowlarr instance for managing indexers.
+  prowlarr:
+    image: "{{ arrstack_prowlarr_container_uri }}:{{ arrstack_prowlarr_container_tag }}"
+    hostname: prowlarr
+    restart: always
+    ports:
+      - 127.0.0.1:9696:9696
+    volumes:
+      - "./prowlarr:/config"
+      - type: bind
+        source: "{{ arrstack_data_dir }}"
+        target: /data
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - transmission
+      - flaresolverr
+      - sonarr-hd
+      - sonarr-4k
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL: debug
+      - TZ: "{{ arrstack_timezone }}"
+    ports:
+      - 5055:5055
+    volumes:
+      - ./jellyseer/config:/app/config
+    restart: unless-stopped
+  # Buildarr instance for managing instance configurations.
+  buildarr:
+    image: "{{ arrstack_buildarr_container_uri }}:{{ arrstack_buildarr_container_tag }}"
+    hostname: buildarr
+    restart: always
+    volumes:
+      - type: bind
+        source: ./buildarr
+        target: /config
+    environment:
+      TZ: "{{ arrstack_timezone }}"
+      PUID: "{{ arrstack_volume_dir_owner }}"
+      PGID: "{{ arrstack_volume_dir_group }}"
+    depends_on:
+      - sonarr-hd
+      - sonarr-4k
+      - prowlarr

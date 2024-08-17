@@ -1,0 +1,9 @@
+---
+
+- name: Setup Arr stack with Buildarr
+  hosts: arrstack
+  become: true
+  roles:
+    - arrstack
+  tags: 
+    - arrstack

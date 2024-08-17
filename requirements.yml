@@ -3,16 +3,14 @@ collections:
     version: main
     type: git
   - name: grafana.grafana
- # - name: community.dns
+  - name: community.docker
+    version: 3.4.3
 roles:
   - name: promtail
     src: https://github.com/patrickjahns/ansible-role-promtail
     scm: git
   - name: node_exporter
     src: https://github.com/geerlingguy/ansible-role-node_exporter
-    scm: git
-  - name: keepalived
-    src: https://github.com/Dialgatrainer02/ansible-keepalived
     scm: git
   - src: https://github.com/ansible-community/ansible-vault.git
     name: ansible-community.ansible-vault
