@@ -5,8 +5,8 @@ arrstack_buildarr_container_uri: "callum027/buildarr"
 arrstack_buildarr_container_tag: latest
 arrstack_sonarr_container_uri: "lscr.io/linuxserver/sonarr"
 arrstack_sonarr_container_tag: latest
-arrstack_sonarr_container_uri: "lscr.io/linuxserver/radarr"
-arrstack_sonarr_container_tag: latest
+arrstack_radarr_container_uri: "lscr.io/linuxserver/radarr"
+arrstack_radarr_container_tag: latest
 arrstack_prowlarr_container_uri: "lscr.io/linuxserver/prowlarr"
 arrstack_prowlarr_container_tag: latest
 arrstack_flaresolverr_container_uri: "ghcr.io/flaresolverr/flaresolverr"
