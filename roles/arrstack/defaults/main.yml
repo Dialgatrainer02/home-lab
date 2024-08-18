@@ -11,7 +11,7 @@ arrstack_prowlarr_container_uri: "lscr.io/linuxserver/prowlarr"
 arrstack_prowlarr_container_tag: latest
 arrstack_flaresolverr_container_uri: "ghcr.io/flaresolverr/flaresolverr"
 arrstack_flaresolverr_container_tag: latest
-arrstack_qbitorrent_container_tag: ghcr.io/hotio/qbittorrent
+arrstack_qbittorrent_container_uri: "ghcr.io/hotio/qbittorrent"
 arrstack_qbittorrent_container_tag: latest
 
 # Arr stack Prowlarr configuration.

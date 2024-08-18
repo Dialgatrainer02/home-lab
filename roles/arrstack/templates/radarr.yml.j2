@@ -52,7 +52,7 @@ radarr:
       release_profiles:
         delete_unmanaged: true
     quality:
-      trash_id: "aed34b9f60ee115dfa7918b742336277 "  # series
+      trash_id: "aed34b9f60ee115dfa7918b742336277"  # series
     metadata:
       kodi_emby:
         enable: true
@@ -109,7 +109,7 @@ radarr:
             definitions:
               "HD/SD movies":
                 upgrades_allowed: true
-                upgrade_until: "Bluray-1080p"
+                upgrade_until_quality: "Bluray-1080p"
                 qualities:
                   - "Bluray-1080p"
                   - name: "WEB 1080p"
@@ -175,7 +175,7 @@ radarr:
             "qBittorrent (HD Movies)":
               type: "qbittorrent"
               enable: true
-              host: "qbittorrent"
+              hostname: "qbittorrent"
               port: 8080
               use_ssl: false
               username: olivia
@@ -200,7 +200,7 @@ radarr:
             definitions:
               "4K movies":
                 upgrades_allowed: true
-                upgrade_until: "Bluray-2160p"
+                upgrade_until_quality: "Bluray-2160p"
                 qualities:
                   - "Bluray-2160p"
                   - name: "WEB 2160p"
@@ -251,9 +251,9 @@ radarr:
         download_clients:
           definitions:
             "qBittorrent (4K Movies)":
-              type: "qbitorrent"
+              type: "qbittorrent"
               enable: true
-              host: "qbittorrent"
+              hostname: "qbittorrent"
               port: 8080
               use_ssl: false
               username: olivia

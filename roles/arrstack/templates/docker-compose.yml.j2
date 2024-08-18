@@ -1,13 +1,13 @@
 ---
 # Arr application Docker Compose stack with configuration management using Buildarr.
 
-version: "3.7"
+
 
 services:
 
   # Qbittorrent instance for downloading torrents.
   qbittorrent:
-    image: {{ arrstack_prowlarr_container_uri }}:{{ arrstack_qbitorrent_container_tag }}
+    image: "{{ arrstack_qbittorrent_container_uri }}:{{ arrstack_qbittorrent_container_tag }}"
     hostname: qbittorrent
     restart: always
     ports:
@@ -22,7 +22,7 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
       WEBUI_PORTS: 8080/tcp,8080/udp
-      VPN_ENABLED: "true"
+      VPN_ENABLED: "false"
       VPN_CONF: wg0
       VPN_PROVIDER: generic 
       VPN_LAN_NETWORK: 192.168.1.0/24
@@ -57,9 +57,9 @@ services:
     hostname: sonarr-hd
     restart: always
     ports:
-      - 127.0.0.1:8989:8989
+      - 8989:8989
     volumes:
-      - "./sonarr-hd:/config"
+      - "./config//sonarr-hd:/config"
       - type: bind
         source: "{{ arrstack_data_dir }}"
         target: /data
@@ -68,7 +68,7 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
     depends_on:
-      - transmission
+      - qbittorrent
 
   # Sonarr instance for grabbing 4K TV shows.
   sonarr-4k:
@@ -76,9 +76,9 @@ services:
     hostname: sonarr-4k
     restart: always
     ports:
-      - 127.0.0.1:8990:8989
+      - 8990:8989
     volumes:
-      - "./sonarr-4k:/config"
+      - "./config/sonarr-4k:/config"
       - type: bind
         source: "{{ arrstack_data_dir }}"
         target: /data
@@ -87,7 +87,7 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
     depends_on:
-      - transmission
+      - qbittorrent
 
   
   radarr-hd:
@@ -95,9 +95,9 @@ services:
     hostname: radarr-hd
     restart: always
     ports:
-      - 127.0.0.1:7878:7878
+      - 7878:7878
     volumes:
-      - "./radarr-hd:/config"
+      - "./config/radarr-hd:/config"
       - type: bind
         source: "{{ arrstack_data_dir }}"
         target: /data
@@ -106,15 +106,15 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
     depends_on:
-      - transmission
+      - qbittorrent
   radarr-4k:
     image: "{{ arrstack_radarr_container_uri }}:{{ arrstack_radarr_container_tag }}"
     hostname: radarr-4k
     restart: always
     ports:
-      - 127.0.0.1:7870:7878
+      - 7870:7878
     volumes:
-      - "./radarr-4k:/config"
+      - "./config/radarr-4k:/config"
       - type: bind
         source: "{{ arrstack_data_dir }}"
         target: /data
@@ -123,7 +123,7 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
     depends_on:
-      - transmission
+      - qbittorrent
 
   # Prowlarr instance for managing indexers.
   prowlarr:
@@ -131,9 +131,9 @@ services:
     hostname: prowlarr
     restart: always
     ports:
-      - 127.0.0.1:9696:9696
+      - 9696:9696
     volumes:
-      - "./prowlarr:/config"
+      - "./config/prowlarr:/config"
       - type: bind
         source: "{{ arrstack_data_dir }}"
         target: /data
@@ -142,19 +142,20 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
     depends_on:
-      - transmission
+      - qbittorrent
       - flaresolverr
       - sonarr-hd
       - sonarr-4k
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+    hostname: jellyseerr
     environment:
-      - TZ: "{{ arrstack_timezone }}"
+      TZ: "{{ arrstack_timezone }}"
     ports:
       - 5055:5055
     volumes:
-      - ./jellyseer/config:/app/config
+
+      - ./config/jellyseerr:/app/config
     restart: unless-stopped
   # Buildarr instance for managing instance configurations.
   buildarr:
@@ -163,7 +164,7 @@ services:
     restart: always
     volumes:
       - type: bind
-        source: ./buildarr
+        source: ./config/buildarr
         target: /config
     environment:
       TZ: "{{ arrstack_timezone }}"

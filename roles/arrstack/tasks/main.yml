@@ -1,4 +1,10 @@
 ---
+- name: Stop all Docker Compose services
+  community.docker.docker_compose_v2:
+    project_name: arrstack
+    project_src: "{{ arrstack_env_dir }}"
+    state: stopped
+  ignore_errors: true
 - name: remove podman docker
   ansible.builtin.dnf:
     name: 
@@ -89,15 +95,20 @@
   ansible.builtin.file:
     state: directory
     path: "{{arrstack_env_dir}}/{{item}}"
+    owner: "{{ arrstack_data_dir_owner }}"
+    group: "{{ arrstack_data_dir_group }}"
   loop:
     - config
     - config/qbittorrent
     - /config/qbittorrent/config/"
     - config/wireguard
+    - config/buildarr
 - name: create qbittorrent config file
   ansible.builtin.copy:
     src: qBittorrent.conf
     dest: "{{arrstack_env_dir}}/config/qbittorrent/config/qBittorrent.conf"
+    owner: "{{ arrstack_data_dir_owner }}"
+    group: "{{ arrstack_data_dir_group }}"
 - name: wg0 reminder
   ansible.builtin.debug:
     msg: "you are making wg0 via ansible you need to fix that before testingor place it there manually as this isnt doing it" 
@@ -114,7 +125,7 @@
       - radarr-hd
       - radarr-4k
       - prowlarr
-      - jellyseer
+      - jellyseerr
 
 - name: Wait for all Docker Compose services to be accessible
   ansible.builtin.uri:
@@ -142,7 +153,7 @@
       - "sed"
       - "-nE"
       - 's,.*<ApiKey>([A-Za-z0-9]+)</ApiKey>.*,\1,p'
-      - "{{ arrstack_env_dir }}/{{ item }}/config.xml"
+      - "{{ arrstack_env_dir }}/config/{{ item }}/config.xml"
   register: "arrstack_instance_apikeys_raw"
   loop:
       - sonarr-hd
@@ -150,7 +161,10 @@
       - radarr-hd
       - radarr-4k
       - prowlarr
-      - jellyseer
+- name: special handling for jellyseers api key
+  ansible.builtin.command:
+    cmd: jq -r '.main.apiKey' {{ arrstack_env_dir }}/config/jellyseerr/settings.json 
+  register: arrstack_jellyseer_api_key
 
 - name: Parse Buildarr-managed instance API keys
   ansible.builtin.set_fact:
@@ -169,7 +183,7 @@
 - name: Create Buildarr configuration files
   ansible.builtin.template:
     src: "{{ item }}.j2"
-    dest: "{{ arrstack_env_dir }}/buildarr/{{ item }}"
+    dest: "{{ arrstack_env_dir }}/config/buildarr/{{ item }}"
     owner: root
     group: "{{ arrstack_volume_dir_group }}"
     mode: 0640
@@ -177,7 +191,7 @@
     - buildarr.yml
     - sonarr.yml
     - prowlarr.yml
-    - jellyseer.yml
+    - jellyseerr.yml
     - radarr.yml
 
 - name: Start all Docker Compose services

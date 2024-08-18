@@ -2,9 +2,11 @@ collections:
   - name: https://github.com/prometheus-community/ansible.git
     version: main
     type: git
+  - name: https://github.com/buildarr/ansible-collection-mediastack.git
+    version: main
+    type: git
   - name: grafana.grafana
   - name: community.docker
-    version: main
 roles:
   - name: promtail
     src: https://github.com/patrickjahns/ansible-role-promtail
