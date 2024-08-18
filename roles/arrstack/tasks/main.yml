@@ -1,4 +1,28 @@
 ---
+- name: remove podman docker
+  ansible.builtin.dnf:
+    name: 
+      - docker
+      - podman-docker
+      - podman
+    state: absent
+- name: add docker ce repo
+  ansible.builtin.command:
+    cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+- name: update dnf
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+- name: install docker
+  ansible.builtin.dnf:
+    name: 
+      - docker-ce
+    state: latest
+- name: start docker service
+  ansible.builtin.systemd_service:
+    name: docker
+    state: started
+    enabled: true
 - name: set qbittorrent password
   ansible.builtin.set_fact:
     qbit_password: !vault |
@@ -57,7 +81,7 @@
 - name: Create Docker Compose environment file
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: /opt/arrstack/docker-compose.yml
+    dest: "{{ arrstack_env_dir }}/docker-compose.yml"
     owner: root
     group: root
     mode: 0600
@@ -68,6 +92,7 @@
   loop:
     - config
     - config/qbittorrent
+    - /config/qbittorrent/config/"
     - config/wireguard
 - name: create qbittorrent config file
   ansible.builtin.copy:
@@ -78,9 +103,9 @@
     msg: "you are making wg0 via ansible you need to fix that before testingor place it there manually as this isnt doing it" 
 
 - name: Start all Docker Compose services except for Buildarr
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_name: arrstack
-    project_src: /opt/arrstack
+    project_src: "{{ arrstack_env_dir }}"
     services:
       - qbittorrent
       - flaresolverr
@@ -117,7 +142,7 @@
       - "sed"
       - "-nE"
       - 's,.*<ApiKey>([A-Za-z0-9]+)</ApiKey>.*,\1,p'
-      - "/opt/arrstack/{{ item }}/config.xml"
+      - "{{ arrstack_env_dir }}/{{ item }}/config.xml"
   register: "arrstack_instance_apikeys_raw"
   loop:
       - sonarr-hd
@@ -136,7 +161,7 @@
 - name: Create Buildarr volume directory
   ansible.builtin.file:
     state: directory
-    path: /opt/arrstack/buildarr
+    path: "{{ arrstack_env_dir }}/buildarr"
     owner: "{{ arrstack_volume_dir_owner }}"
     group: "{{ arrstack_volume_dir_group }}"
     mode: 0770
@@ -144,7 +169,7 @@
 - name: Create Buildarr configuration files
   ansible.builtin.template:
     src: "{{ item }}.j2"
-    dest: "/opt/arrstack/buildarr/{{ item }}"
+    dest: "{{ arrstack_env_dir }}/buildarr/{{ item }}"
     owner: root
     group: "{{ arrstack_volume_dir_group }}"
     mode: 0640
@@ -156,6 +181,6 @@
     - radarr.yml
 
 - name: Start all Docker Compose services
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_name: arrstack
-    project_src: /opt/arrstack
+    project_src: "{{ arrstack_env_dir }}"

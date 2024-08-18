@@ -22,17 +22,17 @@ services:
       PUID: "{{ arrstack_volume_dir_owner }}"
       PGID: "{{ arrstack_volume_dir_group }}"
       WEBUI_PORTS: 8080/tcp,8080/udp
-      VPN_ENABLED: true 
+      VPN_ENABLED: "true"
       VPN_CONF: wg0
       VPN_PROVIDER: generic 
       VPN_LAN_NETWORK: 192.168.1.0/24
-      VPN_LAN_LEAK_ENABLED: false
-      VPN_AUTO_PORT_FORWARD: false
-      VPN_KEEP_LOCAL_DNS: false 
+      VPN_LAN_LEAK_ENABLED: "false"
+      VPN_AUTO_PORT_FORWARD: "false"
+      VPN_KEEP_LOCAL_DNS: "false"
       VPN_FIREWALL_TYPE: auto
-      VPN_HEALTHCHECK_ENABLED: true
-      PRIVOXY_ENABLED: true
-      UNBOUND_ENABLED: false
+      VPN_HEALTHCHECK_ENABLED: "true"
+      PRIVOXY_ENABLED: "true"
+      UNBOUND_ENABLED: "false"
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -150,7 +150,6 @@ services:
     image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     environment:
-      - LOG_LEVEL: debug
       - TZ: "{{ arrstack_timezone }}"
     ports:
       - 5055:5055
