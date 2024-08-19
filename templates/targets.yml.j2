@@ -1,0 +1,10 @@
+
+- targets:
+{% for host in groups['all'] %}
+{% if host != 'laptop' %}
+    - {{ hostvars[host].ansible_host | ansible.utils.ipv4 }}:9100
+{% endif %}
+{% endfor %}
+- labels:
+    env: home-lab
+    jobs: home-lab
