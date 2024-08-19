@@ -37,3 +37,5 @@ arrstack_volume_dir_group: "{{ arrstack_data_dir_group }}"
 #
 arrstack_timezone: Etc/UTC
 #   Default: Use target host timezone.
+
+arrstack_password: testing
