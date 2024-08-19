@@ -1,5 +1,13 @@
 - name: setup wireguard
   hosts: wireguard
+  pre_tasks:
+    - name: enable ip forwarding
+      ansible.builtin.command:
+        cmd: sysctl -w net.ipv4.ip_forward=1
+    - name: install nftables
+      ansible.builtin.dnf:
+        name: nftables
+        state: latest
   roles:
     - role: wireguard
   tags:

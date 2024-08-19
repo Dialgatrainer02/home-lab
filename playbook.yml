@@ -3,8 +3,8 @@
     - name: check all host are connected
       ansible.builtin.command:
         cmd: ping -c 1 google.com
-- ansible.builtin.import_playbook: setup.yml
-- ansible.builtin.import_playbook: logging.yml
-- ansible.builtin.import_playbook: wireguard.yml
-- ansible.builtin.import_playbook: adguard.yml
-- ansible.builtin.import_playbook: arrstack.yml
+- ansible.builtin.import_playbook: ./playbooks/setup.yml
+- ansible.builtin.import_playbook: ./playbooks/logging.yml
+- ansible.builtin.import_playbook: ./playbooks/wireguard.yml
+- ansible.builtin.import_playbook: ./playbooks/adguard.yml
+- ansible.builtin.import_playbook: ./playbooks/arrstack.yml

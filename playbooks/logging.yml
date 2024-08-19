@@ -40,7 +40,7 @@
   post_tasks:
     - name: add file sd targets
       ansible.builtin.template:
-        src: "prometheus/targets.yml.j2"
+        src: "../templates/targets.yml.j2"
         dest: "/etc/prometheus/file_sd/node.yml" 
       tags:
         - prometheus
@@ -60,7 +60,13 @@
   vars:
     grafana_security:
       admin_user: olivia
-      admin_password: testing
+      admin_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          36383833386262333733393430663632653331633063363134376535316232613438333331323535
+          3832333433343833376263656131633737613762336666660a356161333331666338363165383163
+          62303631373938646532623133393030313866353434663839623333626266303236366433363363
+          3961323536386637340a343065333633303630663362353764643832376666346138393965323338
+          65623437666665633162303163613064353565613530646435653537323366366438
     grafana_datasources:
       - name: prometheus
         type: prometheus
