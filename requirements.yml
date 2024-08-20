@@ -21,9 +21,6 @@ roles:
   - name: loki
     src: https://github.com/Dialgatrainer02/ansible-loki
     scm: git
-  - name: vault_operator
-    src: https://github.com/Dialgatrainer02/ansible-vault-operator
-    scm: git
   - name: adguard
     src: https://github.com/bcook254/ansible-role-adguardhome
     scm: git

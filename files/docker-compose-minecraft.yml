@@ -1,0 +1,29 @@
+services:
+  mc:
+    image: itzg/minecraft-server
+    container_name: mc
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE"
+      TYPE: fabric
+      UID: 1000
+      GID: 1000
+      USE_AIKAR_FLAGS: true
+      VERSION: latest
+      USE_SMID_FLAGS: true
+      MEMORY: 2G
+      MODRINTH_DOWNLOAD_DEPENDENCIES: 
+      MODRINTH_PROJECTS: |
+        P7dR8mSH
+        uXXizFIs
+        gvQqBUqZ
+        sGmHWmeL
+        4WWQxlQP
+        UL4bJFDY
+        nmDcB62a
+    restart: unless-stopped
+    volumes:
+      - ./data:/data

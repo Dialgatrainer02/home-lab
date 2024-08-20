@@ -1,8 +1,5 @@
----
-
-- name: Setup Arr stack with Buildarr
-  hosts: arrstack
-  become: true
+- name: install minecraft in docker Compose
+  hosts: minecraft
   pre_tasks:
     - name: remove podman docker
       ansible.builtin.dnf:
@@ -28,9 +25,18 @@
         name: docker
         state: started
         enabled: true
-  vars: 
-    arrstack_password: "{{ password }}"
-  roles:
-    - ../roles/arrstack
-  tags: 
-    - arrstack
+  tasks: 
+    - name: create minecraft dir
+      ansible.builtin.file:
+        name: /opt/minecraft
+        state: directory
+    - name: copy compose file
+      ansible.builtin.copy:
+        src: ../files/docker-compose-minecraft.yml
+        dest: /opt/minecraft/docker-compose.yml
+    - name: start doker compose
+      community.docker.docker_compose_v2:
+        project_name: minecraft_server
+        project_src: /opt/minecraft
+  tags:
+    - minecraft

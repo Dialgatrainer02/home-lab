@@ -9,7 +9,11 @@
     #          - python3-cryptography
         state: latest
       become: true
-    
+    - name: remove firewall
+      ansible.builtin.dnf:
+        name: firewalld
+        state: absent
+      become: true
     - name: system update
       ansible.builtin.dnf:
         name:
