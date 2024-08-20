@@ -1,267 +1,279 @@
 ---
-# radarr instance configuration in Buildarr.
-
-radarr:
-
-  # Configuration common to all instances.
+radarr-hd:
+  hostname: radarr-hd
   port: 7878
-  protocol: "http"
+  protocol: http
+  url_base: null
+  api_key: "{{ arrstack_instance_apikeys['radarr-hd'] }}"
+  version: 5.8.3.8933
+  image: lscr.io/linuxserver/radarr
   settings:
     media_management:
       rename_movies: true
       replace_illegal_characters: true
-      standard_movie_format: "\
-        {Movie CleanTitle} - \
-        {Edition Tags }\
-        {[Custom Formats] }\
-        {[Quality Full] }\
-        {[MediaInfo 3D] }\
-        {[MediaInfo VideoDynamicRangeType] }\
-        [{Mediainfo AudioCodec}{ Mediainfo AudioChannels}]\
-        { [Mediainfo VideoCodec]}\
-        { [Release Group]} - \
-        Default"
-      movie_folder_format: '{Movie CleanTitle} ({Release Year}) [imdbid-{ImdbId}]'
+      colon_replacement: delete
+      standard_movie_format: '{Movie CleanTitle} {(Release Year)} [tmdbid-{TmdbId}]
+        - {Edition Tags }{[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo
+        VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[Mediainfo
+        VideoCodec]}{-Release Group}'
+      movie_folder_format: '{Movie CleanTitle} ({Release Year}) [tmdbid-{TmdbId}]'
       create_missing_movie_folders: false
       delete_empty_folders: false
+      skip_free_space_check: false
+      minimum_free_space: 100
       use_hardlinks: true
+      import_using_script: false
+      import_script_path: null
       import_extra_files: false
-      unmonitor_deleted_files: false
-      propers_and_repacks: "do-not-prefer"
+      unmonitor_deleted_movies: false
+      propers_and_repacks: do-not-prefer
       analyze_video_files: true
-      rescan_folder_after_refresh: "always"
-      change_file_date: "none"
-      # recycling_bin: "/videos/shows/deleted"
+      rescan_folder_after_refresh: always
+      change_file_date: none
+      recycling_bin: null
       recycling_bin_cleanup: 7
-      # set_permissions: false
-      # chmod_folder: "drwxr-xr-x"
-      # chown_group: "1000"
-      # root_folders:
-      #  - "/data"
+      set_permissions: false
+      chmod_folder: drwxr-xr-x
+      chown_group: null
+      root_folders:
+      - /data/media/movie-hd
     profiles:
       quality_profiles:
-        delete_unmanaged: true
-      language_profiles:
-        delete_unmanaged: true
+        delete_unmanaged: false
+        definitions:
+          HD-1080p:
+            upgrades_allowed: true
+            qualities:
+            - name: Bluray/WEB 1080p
+              members:
+              - Bluray-720p
+              - WEBRip-1080p
+              - Bluray-1080p
+              - Remux-1080p
+              - WEBDL-1080p
+            upgrade_until_quality: Bluray/WEB 1080p
+            minimum_custom_format_score: 0
+            upgrade_until_custom_format_score: 0
+            custom_formats:
+            - name: HD Bluray Tier 01
+              score: 1800
+            - name: HD Bluray Tier 02
+              score: 1750
+            - name: HD Bluray Tier 03
+              score: 1700
+            - name: WEB Tier 01
+              score: 1700
+            - name: WEB Tier 02
+              score: 1650
+            - name: WEB Tier 03
+              score: 1600
+            - name: Repack3
+              score: 7
+            - name: Repack2
+              score: 6
+            - name: Repack/Proper
+              score: 5
+            - name: AV1
+              score: -1000
+            - name: BR-DISK
+              score: -1000
+            - name: Bad Dual Groups
+              score: -1000
+            - name: DV (WEBDL)
+              score: -1000
+            - name: DV HDR10+ Boost
+              score: -1000
+            - name: Extras
+              score: -1000
+            - name: HDR10+ Boost
+              score: -1000
+            - name: LQ
+              score: -1000
+            - name: LQ (Release Title)
+              score: -1000
+            - name: No-RlsGroup
+              score: -1000
+            - name: Obfuscated
+              score: -1000
+            - name: Retags
+              score: -1000
+            - name: Scene
+              score: -1000
+            - name: Upscaled
+              score: -1000
+            - name: VP9
+              score: -1000
+            - name: x265 (HD)
+              score: -1000
+            language: english
       delay_profiles:
         definitions:
-          - preferred_protocol: "torrent-prefer"
-            usenet_delay: 0
-            torrent_delay: 1440
-            bypass_if_highest_quality: true
-      release_profiles:
-        delete_unmanaged: true
+        - preferred_protocol: usenet-prefer
+          usenet_delay: 0
+          torrent_delay: 0
+          bypass_if_highest_quality: true
+          tags: []
+        delete_unmanaged: false
     quality:
-      trash_id: "aed34b9f60ee115dfa7918b742336277"  # series
+      trash_id: aed34b9f60ee115dfa7918b742336277
+    custom_formats:
+      delete_unmanaged: false
+      definitions:
+        AV1:
+          trash_id: cae4ca30163749b891686f95532519bd
+        BR-DISK:
+          trash_id: ed38b889b31be83fda192888e2286d83
+        LQ:
+          trash_id: 90a6f9a284dff5103f6346090e6280c8
+        LQ (Release Title):
+          trash_id: e204b80c87be9497a8a6eaff48f72905
+        x265 (HD):
+          trash_id: dc98083864ea246d05a42df0d05f81cc
+        Upscaled:
+          trash_id: bfd8eb01832d646a0a89c4deb46f8564
+        Extras:
+          trash_id: 0a3f082873eb454bde444150b70253cc
+        Bad Dual Groups:
+          trash_id: b6832f586342ef70d9c128d40c07b872
+        DV (WEBDL):
+          trash_id: 923b6abef9b17f937fab56cfcf89e1f1
+        HDR10+ Boost:
+          trash_id: b17886cb4158d9fea189859409975758
+        DV HDR10+ Boost:
+          trash_id: 55a5b50cb416dea5a50c4955896217ab
+        No-RlsGroup:
+          trash_id: ae9b7c9ebde1f3bd336a8cbd1ec4c5e5
+        Obfuscated:
+          trash_id: 7357cf5161efbf8c4d5d0c30b4815ee2
+        Retags:
+          trash_id: 5c44f52a8714fdd79bb4d98e2673be1f
+        Scene:
+          trash_id: f537cf427b64c38c8e36298f657e4828
+        VP9:
+          trash_id: ae4cfaa9283a4f2150ac3da08e388723
+        INTERNAL:
+          trash_id:  182fa1c42a2468f8488e6dcf75a81b81
+        SDR:
+          trash_id: 9c38ebb7384dada637be8899efa68e6f
+        DV (Disk):
+          trash_id: f700d29429c023a5734505e77daeaea7
+        HFR:
+          trash_id: 73613461ac2cea99d52c4cd6e177ab82
+        Repack/Proper:
+          trash_id: e7718d7a3ce595f289bfee26adc178f5
+        Repack2:
+          trash_id: ae43b294509409a6a13919dedd4764c4
+        Repack3:
+          trash_id: 5caaaa1c08c1742aa4342d8c4cc463f2
+        WEB Tier 01:
+          trash_id: c20f169ef63c5f40c2def54abaf4438e
+        WEB Tier 02:
+          trash_id: 403816d65392c79236dcb6dd591aeda4
+        WEB Tier 03:
+          trash_id: af94e0fe497124d1f9ce732069ec8c3b
+        HD Bluray Tier 03:
+          trash_id: 5608c71bcebba0a5e666223bae8c9227
+        HD Bluray Tier 02:
+          trash_id: c20c8647f2746a1f4c4262b0fbbeeeae
+        HD Bluray Tier 01:
+          trash_id: ed27ebfef2f323e964fb1f61391bcb35
+    download_clients:
+      delete_unmanaged: true
+      definitions:
+        qBittorrent:
+          enable: true
+          remove_completed_downloads: true
+          remove_failed_downloads: true
+          priority: 1
+          tags: []
+          type: qbittorrent
+          hostname: qbittorrent
+          port: 8080
+          use_ssl: false
+          url_base: null
+          username: olivia
+          password: {{ arrstack_password }}
+          category: radarr-hd
+          postimport_category: null
+          recent_priority: last
+          older_priority: last
+          initial_state: start
+          sequential_order: false
+          first_and_last_first: false
+    notifications:
+      delete_unmanaged: false
+      definitions: {}
     metadata:
-      kodi_emby:
-        enable: true
+      certification_country: us
+      emby_legacy:
+        enable: false
         movie_metadata: true
-        movie_metadata_url: true
+      kodi_emby:
+        enable: false
+        movie_metadata: true
+        movie_metadata_url: false
         movie_metadata_language: english
         movie_images: true
-        use_movie_nfo: true
+        use_movie_nfo: false
         add_collection_name: true
       roksbox:
-        enable: true
+        enable: false
         movie_metadata: true
         movie_images: true
       wdtv:
-        enable: true
+        enable: false
         movie_metadata: true
         movie_images: true
+    tags:
+      definitions: []
     general:
+      host:
+        bind_address: '*'
+        port: 7878
+        ssl_port: 9898
+        use_ssl: false
+        ssl_cert_path: null
+        ssl_cert_password: null
+        url_base: null
+        instance_name: radarr-hd
+      security:
+        authentication: form
+        authentication_required: enabled
+        username: olivia
+        password: {{ arrstack_password }}
+        certificate_validation: enabled
       proxy:
         enable: false
+        proxy_type: http
+        hostname: null
+        port: 8080
+        username: null
+        password: null
+        ignored_addresses: []
+        bypass_proxy_for_local_addresses: true
       logging:
-        log_level: "INFO"
+        log_level: INFO
       analytics:
-        send_anonymous_usage_data: false
+        send_anonymous_usage_data: true
       updates:
-        branch: "main"
+        branch: master
         automatic: false
-        mechanism: "docker"
+        mechanism: docker
+        script_path: null
       backup:
-        folder: "Backups"
+        folder: Backups
         interval: 7
         retention: 28
     ui:
-      first_day_of_week: "monday"
-      week_column_header: "day-first"
-      short_date_format: "word-month-second"
-      long_date_format: "day-first"
-      time_format: "twentyfour-hour"
+      first_day_of_week: sunday
+      week_column_header: month-first
+      runtime_format: hours-minutes
+      short_date_format: word-month-first
+      long_date_format: month-first
+      time_format: twelve-hour
       show_relative_dates: true
+      theme: auto
       enable_color_impaired_mode: false
-
-  # Instance-specific configuration.
-  instances:
-
-    # radarr instance for grabbing HD/SD TV shows.
-    radarr-hd:
-      api_key: "{{ arrstack_instance_apikeys['radarr-hd'] }}"
-      settings:
-        media_management:
-          root_folders:
-            - "/data/media/movies"
-        profiles:
-          quality_profiles:
-            definitions:
-              "HD/SD movies":
-                upgrades_allowed: true
-                upgrade_until_quality: "Bluray-1080p"
-                qualities:
-                  - "Bluray-1080p"
-                  - name: "WEB 1080p"
-                    members:
-                      - "WEBRip-1080p"
-                      - "WEBDL-1080p"
-                  - "HDTV-1080p"
-                  - "Bluray-720p"
-                  - name: "WEB 720p"
-                    members:
-                      - "WEBRip-720p"
-                      - "WEBDL-720p"
-                  - "HDTV-720p"
-                  - "Raw-HD"
-                  - "Bluray-480p"
-                  - "DVD"
-                  - name: "WEB 480p"
-                    members:
-                      - "WEBRip-480p"
-                      - "WEBDL-480p"
-                  - "SDTV"
-          language_profiles:
-            definitions:
-              "English":
-                upgrades_allowed: false
-                languages:
-                  - "English"
-          release_profiles:
-            definitions:
-              "Release Sources (Streaming Service)":
-                trash_id: 1B018E0C53EC825085DD911102E2CA36
-                strict_negative_scores: false
-                include_preferred_when_renaming: true
-              "P2P Groups + Repack/Proper":
-                trash_id: 71899E6C303A07AF0E4746EFF9873532
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-              "Low Quality Groups":
-                trash_id: EBC725268D687D588A20CBC5F97E538B
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-              "Optionals":
-                trash_id: 76e060895c5b8a765c310933da0a5357
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-                filter:
-                  include:
-                    - fa47da3377076d82d07c4e95b3f13d07  # Prefer Dolby Vision (HDR)
-                    - bc7a6383cbe88c3ee2d6396e1aacc0b3  # Prefer HDR
-                    - ea83f4740cec4df8112f3d6dd7c82751  # Prefer Season Packs
-                    - 6f2aefa61342a63387f2a90489e90790  # Dislike renamed/retagged releases
-                    - 19cd5ecc0a24bf493a75e80a51974cdd  # Dislike retagged/obfuscated groups
-                    - 6a7b462c6caee4a991a9d8aa38ce2405  # Dislike release ending: en
-                    - 236a3626a07cacf5692c73cc947bc280  # Dislike release containing: 1-
-                    - cec8880b847dd5d31d29167ee0112b57  # Ignore 720p/1080p HEVC re-encodes (Golden Rule)
-                    - 436f5a7d08fbf02ba25cb5e5dfe98e55  # Ignore Dolby Vision without HDR10 fallback
-                    - f3f0f3691c6a1988d4a02963e69d11f2  # Ignore The Group -SCENE
-                    - 5bc23c3a055a1a5d8bbe4fb49d80e0cb  # Ignore so-called scene releases
-                    - 538bad00ee6f8aced8e0db5218b8484c  # Ignore Bad Dual Audio Groups
-                    - 4861d8238f9234606df6721df6e27deb  # Ignore AV1
-        download_clients:
-          definitions:
-            "qBittorrent (HD Movies)":
-              type: "qbittorrent"
-              enable: true
-              hostname: "qbittorrent"
-              port: 8080
-              use_ssl: false
-              username: olivia
-              password: {{qbit_password}}
-              # category: "movies-hd"
-              directory: "/data/torrents/movies/hd"
-              recent_priority: "last"
-              older_priority: "last"
-        general:
-          host:
-            instance_name: "radarr (HD/SD TV Movies)"
-
-    # radarr instance for grabbing 4K TV shows.
-    radarr-4k:
-      api_key: "{{ arrstack_instance_apikeys['radarr-4k'] }}"
-      settings:
-        media_management:
-          root_folders:
-            - "/data/media/movies"
-        profiles:
-          quality_profiles:
-            definitions:
-              "4K movies":
-                upgrades_allowed: true
-                upgrade_until_quality: "Bluray-2160p"
-                qualities:
-                  - "Bluray-2160p"
-                  - name: "WEB 2160p"
-                    members:
-                      - "WEBRip-2160p"
-                      - "WEBDL-2160p"
-                  - "HDTV-2160p"
-          language_profiles:
-            definitions:
-              "English":
-                upgrades_allowed: false
-                languages:
-                  - "English"
-          release_profiles:
-            delete_unmanaged: true
-            definitions:
-              "Release Sources (Streaming Service)":
-                trash_id: 1B018E0C53EC825085DD911102E2CA36
-                strict_negative_scores: false
-                include_preferred_when_renaming: true
-              "P2P Groups + Repack/Proper":
-                trash_id: 71899E6C303A07AF0E4746EFF9873532
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-              "Low Quality Groups":
-                trash_id: EBC725268D687D588A20CBC5F97E538B
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-              "Optionals":
-                trash_id: 76e060895c5b8a765c310933da0a5357
-                strict_negative_scores: false
-                include_preferred_when_renaming: false  # Consistent with guide.
-                filter:
-                  include:
-                    - fa47da3377076d82d07c4e95b3f13d07  # Prefer Dolby Vision (HDR)
-                    - bc7a6383cbe88c3ee2d6396e1aacc0b3  # Prefer HDR
-                    - ea83f4740cec4df8112f3d6dd7c82751  # Prefer Season Packs
-                    - 6f2aefa61342a63387f2a90489e90790  # Dislike renamed/retagged releases
-                    - 19cd5ecc0a24bf493a75e80a51974cdd  # Dislike retagged/obfuscated groups
-                    - 6a7b462c6caee4a991a9d8aa38ce2405  # Dislike release ending: en
-                    - 236a3626a07cacf5692c73cc947bc280  # Dislike release containing: 1-
-                    # - cec8880b847dd5d31d29167ee0112b57  # Ignore 720p/1080p HEVC re-encodes (Golden Rule)
-                    - 436f5a7d08fbf02ba25cb5e5dfe98e55  # Ignore Dolby Vision without HDR10 fallback
-                    - f3f0f3691c6a1988d4a02963e69d11f2  # Ignore The Group -SCENE
-                    - 5bc23c3a055a1a5d8bbe4fb49d80e0cb  # Ignore so-called scene releases
-                    - 538bad00ee6f8aced8e0db5218b8484c  # Ignore Bad Dual Audio Groups
-                    - 4861d8238f9234606df6721df6e27deb  # Ignore AV1
-        download_clients:
-          definitions:
-            "qBittorrent (4K Movies)":
-              type: "qbittorrent"
-              enable: true
-              hostname: "qbittorrent"
-              port: 8080
-              use_ssl: false
-              username: olivia
-              password: {{qbit_password}}
-              # category: "4k"
-              directory: "/data/torrents/movies/4k"
-              recent_priority: "last"
-              older_priority: "last"
-        general:
-          host:
-            instance_name: "radarr (4K Movies)"
+      movie_info_language: english
+      ui_language: english
+  

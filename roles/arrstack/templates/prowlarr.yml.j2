@@ -1,149 +1,155 @@
 ---
-# Prowlarr instance configuration in Buildarr.
-
 prowlarr:
-
-  # Configuration common to all instances.
+  hostname: prowlarr
   port: 9696
-  protocol: "http"
+  protocol: http
+  url_base: null
+  api_key: "{{ arrstack_instance_apikeys['prowlarr'] }}"
+  image: lscr.io/linuxserver/prowlarr
+  version: 1.21.2.4649
   settings:
+    indexers:
+      indexers:
+        delete_unmanaged: false
+        definitions:
+          Badass Torrents:
+            type: badasstorrents
+            enable: true
+            sync_profile: Standard
+            redirect: false
+            priority: 25
+            query_limit: null
+            grab_limit: null
+            tags:
+            - flaresolverr
+            - privoxy
+            fields:
+              definitionFile: badasstorrents
+              baseUrl: null
+              baseSettings.limitsUnit: Day
+              torrentBaseSettings.appMinimumSeeders: null
+              torrentBaseSettings.seedRatio: null
+              torrentBaseSettings.seedTime: null
+              torrentBaseSettings.packSeedTime: null
+              downloadlink: magnet
+              downloadlink2: .torrent
+            secret_fields: {}
+          Internet Archive:
+            type: internetarchive
+            enable: true
+            sync_profile: Standard
+            redirect: false
+            priority: 25
+            query_limit: null
+            grab_limit: null
+            tags: []
+            fields:
+              definitionFile: internetarchive
+              baseUrl: null
+              baseSettings.limitsUnit: Day
+              torrentBaseSettings.appMinimumSeeders: null
+              torrentBaseSettings.seedRatio: null
+              torrentBaseSettings.seedTime: null
+              torrentBaseSettings.packSeedTime: null
+              titleOnly: true
+              noMagnet: false
+              sort: created
+              type: desc
+            secret_fields: {}
+      proxies:
+        delete_unmanaged: false
+        definitions:
+          FlareSolverr:
+            type: flaresolverr
+            tags:
+            - flaresolverr
+            host_url: http://flaresolverr:8191/
+            request_timeout: 60
+          privoxy:
+            type: http
+            tags: 
+              - privoxy
+            hostname: qbittorrent
+            port: 8080
+            username: null
+            password: null
+    apps:
+      applications:
+        delete_unmanaged: false
+        definitions:
+          Radarr:
+            type: radarr
+            prowlarr_url: http://prowlarr:9696
+            base_url: http://radarr-hd:7878
+            instance_name: "radarr-hd"
+          Sonarr:
+            type: sonarr
+            prowlarr_url: http://prowlarr:9696
+            base_url: http://sonarr-hd:8989
+            instance_name: "sonarr-hd"
+      sync_profiles:
+        delete_unmanaged: false
+        definitions:
+          Standard:
+            enable_rss: true
+            enable_interactive_search: true
+            enable_automatic_search: true
+            minimum_seeders: 1
+    download_clients:
+      delete_unmanaged: false
+      definitions: {}
+    notifications:
+      delete_unmanaged: false
+      definitions: {}
+    tags:
+      definitions:
+      - flaresolverr
+      - privoxy
     general:
       host:
-        bind_address: "*"
+        bind_address: '*'
         port: 9696
-        url_base: null
+        ssl_port: 6969
         use_ssl: false
+        ssl_cert_path: null
+        ssl_cert_password: null
+        url_base: null
+        instance_name: Prowlarr
+      security:
+        authentication: form
+        authentication_required: enabled
+        username: olivia
+        password: {{ arrstack_password }}
+        certificate_validation: enabled
       proxy:
         enable: false
+        proxy_type: http
+        hostname: null
+        port: 8080
+        username: null
+        password: null
+        ignored_addresses: []
+        bypass_proxy_for_local_addresses: true
       logging:
-        log_level: "INFO"
+        log_level: INFO
       analytics:
-        send_anonymous_usage_data: false
+        send_anonymous_usage_data: true
       updates:
-        branch: "master"
+        branch: master
         automatic: false
-        mechanism: "docker"
+        mechanism: docker
+        script_path: null
       backup:
-        folder: "Backups"
+        folder: Backups
         interval: 7
         retention: 28
     ui:
-      first_day_of_week: "monday"
-      week_column_header: "day-first"
-      short_date_format: "word-month-second"
-      long_date_format: "day-first"
-      time_format: "twentyfour-hour"
+      first_day_of_week: sunday
+      week_column_header: month-first
+      short_date_format: word-month-first
+      long_date_format: month-first
+      time_format: twelve-hour
       show_relative_dates: true
       enable_color_impaired_mode: false
-      theme: "auto"
-      ui_language: "en"
-
-  # Instance-specific configuration.
-  instances:
-
-    # Main Prowlarr instance.
-    "prowlarr":
-      host: "prowlarr"
-      api_key: "{{ arrstack_instance_apikeys['prowlarr'] }}"
-      settings:
-        indexers:
-          indexers:
-            definitions:
-              "1337x":
-                type: "1337x"
-                enable: true
-                sync_profile: "Standard"
-                redirect: false
-                priority: 25
-                grab_limit: {{ arrstack_prowlarr_grab_limit }}
-                query_limit: {{ arrstack_prowlarr_query_limit }}
-                tags:
-                  - "shows"
-                  - "movies"
-                fields:
-                  torrentBaseSettings.seedRatio: 3
-          proxies:
-            definitions:
-              "privoxy":
-                type: http
-                hostname: http://qbittorrent
-                port: 8080
-              "FlareSolverr":
-                type: "flaresolverr"
-                host_url: "http://flaresolverr:8191"
-                request_timeout: 60
-                tags:
-                  - "shows"
-                  - "movies"
-        apps:
-          applications:
-            definitions:
-              "Sonarr (SD/HD Shows)":
-                type: "sonarr"
-                instance_name: "sonarr-hd"
-                prowlarr_url: "http://prowlarr:9696"
-                base_url: "http://sonarr-hd:8989"
-                sync_level: "full-sync"
-                sync_categories:
-                  - "TV/WEB-DL"
-                  - "TV/Foreign"
-                  - "TV/SD"
-                  - "TV/HD"
-                  - "TV/Other"
-                anime_sync_categories: []
-                tags:
-                  - "shows"
-              "Sonarr (4K Shows)":
-                type: "sonarr"
-                instance_name: "sonarr-4k"
-                prowlarr_url: "http://prowlarr:9696"
-                base_url: "http://sonarr-4k:8989"
-                sync_level: "full-sync"
-                sync_categories:
-                  - "TV/WEB-DL"
-                  - "TV/Foreign"
-                  - "TV/UHD"
-                  - "TV/Other"
-                anime_sync_categories: []
-                tags:
-                  - "shows"
-              "Radarr (SD/HD movies)":
-                type: "radarr"
-                instance_name: "radarr-hd"
-                prowlarr_url: "http://prowlarr:9696"
-                base_url: "http://radarr-hd:7878"
-                sync_level: "full-sync"
-                sync_categories:
-                  - "Movies/WEB-DL"
-                  - "Movies/Foreign"
-                  - "Movies/SD"
-                  - "Movies/HD"
-                  - "Movies/Other"
-                tags:
-                  - "movies"
-              "Radarr (4k movies)":
-                type: "radarr"
-                instance_name: "radarr-4k"
-                prowlarr_url: "http://prowlarr:9696"
-                base_url: "http://radarr-hd:7870"
-                sync_level: "full-sync"
-                sync_categories:
-                  - "Movies/WEB-DL"
-                  - "Movies/Foreign"
-                  - "Movies/UHD"
-                  - "Movies/Other"
-                tags:
-                  - "movies"
-          sync_profiles:
-            definitions:
-              "Standard":
-                enable_rss: true
-                enable_interactive_search: true
-                enable_automatic_search: true
-                minimum_seeders: 5
-        tags:
-          definitions:
-            - "shows"
-        general:
-          host:
-            instance_name: "Prowlarr"
+      theme: auto
+      ui_language: en
