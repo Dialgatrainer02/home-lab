@@ -1,19 +1,23 @@
 - name: initial setup
-  hosts: all
+  hosts: all:!laptop
   tasks:
+    - name: remove firewalld
+      ansible.builtin.dnf:
+        name: firewalld
+        state: absent
+            become: true
     - name: install packages
       ansible.builtin.dnf:
         name:
           - tar
           - yum-utils
-    #          - python3-cryptography
+          - nftables
         state: latest
       become: true
-    - name: remove firewall
-      ansible.builtin.dnf:
-        name: firewalld
-        state: absent
-      become: true
+    - name: add nftable rules
+      ansible.builtin.template:
+        src: ../files/homelab-ruleset.nft.j2
+        dest: /etc/nfttables.conf #find right path later
     - name: system update
       ansible.builtin.dnf:
         name:

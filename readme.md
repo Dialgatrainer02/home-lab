@@ -8,4 +8,4 @@
 6. get immitch and nextcloud running and configured -[ ]
 7. get duckdns to point to home network -[ ]
 8. attach laptop to vpn -[ x]
-9. extra security with nftables -[ ]
+9. extra security with nftables -[x ]
