@@ -38,3 +38,21 @@
     - role: adguard
   tags:
     - adguard
+- name: change all dns servers to point at adguard
+  hosts: all:!laptop:!adguards
+  tasks:
+    - name: make pve ignore resolv conf #find way to diffrenciate between lxc and not 
+      ansible.builtin.file:
+        name: /etc/.pve-ignore.resolv
+        state: present
+    - name: insert name servers into resolv conf 
+      ansible.builtin.blockinfile:
+        path: /etc/resolv.conf
+        append_newline: true
+        prepend_newline: true
+        block: |
+          nameserver: {{ hostvars['adguard1'].ansible_host | ansible.utils.ipv4 }}
+          nameserver: {{ hostvars['adguard1'].ansible_host | ansible.utils.ipv4 }}  
+  tags:
+    - dns-servers
+    - adguard
