@@ -1,5 +1,5 @@
 ---
-sonarr-hd:
+sonarr:
   hostname: sonarr-hd
   port: 8989
   protocol: http
@@ -45,6 +45,7 @@ sonarr-hd:
       - /data/media/tv-hd
     profiles:
       quality_profiles:
+      delete_unmanaged: true
         definitions:
           Web-HD:
             upgrades_allowed: true
@@ -135,7 +136,7 @@ sonarr-hd:
         ssl_port: 9898
         use_ssl: false
         url_base: null
-        instance_name: sonarr-hd
+        instance_name: sonarr
       security:
         authentication: form
         authentication_required: enabled

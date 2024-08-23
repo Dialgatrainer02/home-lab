@@ -1,5 +1,5 @@
 ---
-radarr-hd:
+radarr:
   hostname: radarr-hd
   port: 7878
   protocol: http
@@ -39,7 +39,7 @@ radarr-hd:
       - /data/media/movie-hd
     profiles:
       quality_profiles:
-        delete_unmanaged: false
+        delete_unmanaged: true
         definitions:
           HD-1080p:
             upgrades_allowed: true
@@ -117,7 +117,7 @@ radarr-hd:
     quality:
       trash_id: aed34b9f60ee115dfa7918b742336277
     custom_formats:
-      delete_unmanaged: false
+      delete_unmanaged: true
       definitions:
         AV1:
           trash_id: cae4ca30163749b891686f95532519bd
@@ -235,7 +235,7 @@ radarr-hd:
         ssl_cert_path: null
         ssl_cert_password: null
         url_base: null
-        instance_name: radarr-hd
+        instance_name: radarr
       security:
         authentication: form
         authentication_required: enabled
