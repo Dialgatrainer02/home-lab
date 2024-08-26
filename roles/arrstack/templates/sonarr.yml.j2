@@ -45,7 +45,7 @@ sonarr:
       - /data/media/tv-hd
     profiles:
       quality_profiles:
-      delete_unmanaged: true
+#      delete_unmanaged: true
         definitions:
           Web-HD:
             upgrades_allowed: true
@@ -87,6 +87,7 @@ sonarr:
           remove_completed_downloads: true
           remove_failed_downloads: true
           tags: []
+          type: qbittorrent
           host: qbittorrent
           port: 8080
           use_ssl: false

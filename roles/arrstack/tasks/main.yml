@@ -88,6 +88,7 @@
 #      - radarr-4k
       - prowlarr
       - jellyseerr
+      - jellyfin
 
 - name: Wait for all Docker Compose services to be accessible
   ansible.builtin.uri:
@@ -101,13 +102,14 @@
   delay: 1
   loop:
     - "http://localhost:8080" # qbittorrent
-    - "http://localhost:8191" #flaresolverr
+    - "http://localhost:8191" # flaresolverr
     - "http://localhost:8989" # sonarr
     - "http://localhost:7878" # radarr
 #    - "http://localhost:7870"
 #    - "http://localhost:8990"
     - "http://localhost:9696" #prowlarr
     - "http://localhost:5055" #jellyseer
+    - "http://localhost:8096" # jellyfin
 
 - name: Fetch API keys for all Buildarr-managed instances
   ansible.builtin.command:
@@ -134,14 +136,6 @@
     arrstack_instance_apikeys: "{{ arrstack_instance_apikeys | default({}) | combine({item.item: item.stdout}) }}"
   no_log: true
   loop: "{{ arrstack_instance_apikeys_raw.results }}"
-
-- name: Create Buildarr volume directory
-  ansible.builtin.file:
-    state: directory
-    path: "{{ arrstack_env_dir }}/buildarr"
-    owner: "{{ arrstack_volume_dir_owner }}"
-    group: "{{ arrstack_volume_dir_group }}"
-    mode: 0770
 
 - name: Create Buildarr configuration files
   ansible.builtin.template:
