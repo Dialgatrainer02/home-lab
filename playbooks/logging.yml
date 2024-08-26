@@ -1,5 +1,5 @@
 - name: install matrics and log exporters
-  hosts: all
+  hosts: all:!laptop
   become: true
   roles:
     - role: node_exporter

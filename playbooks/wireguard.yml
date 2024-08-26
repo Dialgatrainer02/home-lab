@@ -4,10 +4,7 @@
     - name: enable ip forwarding
       ansible.builtin.command:
         cmd: sysctl -w net.ipv4.ip_forward=1
-    - name: install nftables
-      ansible.builtin.dnf:
-        name: nftables
-        state: latest
+      ignore_errors: true
   roles:
     - role: wireguard
   tags:
