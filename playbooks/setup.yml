@@ -1,7 +1,8 @@
-- name: reset opc password for debugging
+---
+- name: Reset opc password for debugging
   hosts: wireguard-oci
-  pre_tasks: 
-    - name: reset opc user password
+  pre_tasks:
+    - name: Reset opc user password
       ansible.builtin.user:
         name: opc
         password: $6$rounds=656000$mysecretsalt$bt4UIMNYnPD6yfAsuQs2.da7EBtjIJCS/GFDNkL6k0VsWKFVFbxhXuugCPrHDbire1lEiBe.5uF4iYeeI1EpJ.
@@ -9,15 +10,15 @@
   tags:
     - debug
 
-- name: initial setup
+- name: Initial setup
   hosts: all:!laptop
   tasks:
-    - name: remove firewalld
+    - name: Remove firewalld
       ansible.builtin.dnf:
         name: firewalld
         state: absent
       become: true
-    - name: install packages
+    - name: Install packages
       ansible.builtin.dnf:
         name:
           - tar
@@ -25,22 +26,25 @@
           - nftables
         state: latest
       become: true
-    - name: add nftable rules
+    - name: Add nftable rules
       ansible.builtin.template:
         src: ../templates/homelab-ruleset.nft.j2
         dest: /etc/nftables.nft
+        owner: root
+        group: root
+        mode: "0644"
       become: true
-    - name: check nftables is started
+    - name: Check nftables is started
       ansible.builtin.systemd_service:
         name: nftables
         state: started
         enabled: true
       become: true
-    - name: apply firewall rules
+    - name: Apply firewall rules
       ansible.builtin.command:
         cmd: nft -f /etc/nftables.nft
       become: true
-    - name: system update
+    - name: System update
       ansible.builtin.dnf:
         name:
           - "*"
@@ -48,16 +52,16 @@
       become: true
       tags:
         - update
-    - name: check if nodes need rebooting
+    - name: Check if nodes need rebooting
       ansible.builtin.command:
         cmd: needs-restarting -r
       register: result
       ignore_errors: true
-    - name: reboot if needed
+    - name: Reboot if needed
       ansible.builtin.reboot:
       become: true
       when: result.rc == 1
-    - name: wait for instances to come back online
+    - name: Wait for instances to come back online
       ansible.builtin.wait_for_connection:
   tags:
     - setup

@@ -1,69 +1,68 @@
 ---
-
 - name: Setup Arr stack with Buildarr
   hosts: arrstack
   become: true
   pre_tasks:
-    - name: install docker
+    - name: Install docker
       block:
-        - name: remove podman docker
+        - name: Remove podman docker
           ansible.builtin.dnf:
-            name: 
+            name:
               - docker
               - podman-docker
               - podman
             state: absent
-        - name: add docker ce repo
+        - name: Add docker ce repo
           ansible.builtin.command:
             cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-        - name: update dnf
+        - name: Update dnf
           ansible.builtin.dnf:
             name: "*"
             state: latest
-        - name: install docker
+        - name: Install docker
           ansible.builtin.dnf:
-            name: 
+            name:
               - docker-ce
-            state: latest  
-        - name: start docker service
+            state: latest
+        - name: Start docker service
           ansible.builtin.systemd_service:
             name: docker
             state: restarted
             enabled: true
-    - name: jellyfin install fixes
+    - name: Jellyfin install fixes
       block:
-        - name: stop jellyfin container 
+        - name: Stop jellyfin container
           community.docker.docker_container:
             name: jellyfin
             state: stopped
-          ignore_errors: true 
-        - name: make jellyfin config dir in advance
+          ignore_errors: true
+        - name: Make jellyfin config dir in advance
           ansible.builtin.file:
             name: /opt/arrstack/config/jellyfin
             recurse: true
             state: directory
             owner: 1000
             group: 1000
-        - name: make media directories to ensure jellyfin api doesnt fail with non existant dir
+        - name: Make media directories to ensure jellyfin api doesnt fail with non existant dir
           ansible.builtin.file:
             name: /opt/arrstack/data/media/{{ item }}
             recurse: true
             owner: 1000
             group: 1000
           loop:
-            - "movies-hd"
-            - "tv-hd"
-        - name: run tempory jellyfin to install and generte config files against
+            - movies-hd
+            - tv-hd
+        - name: Run tempory jellyfin to install and generte config files against
           community.docker.docker_container:
             name: jellyfin-tmp
             auto_remove: true
             image: lscr.io/linuxserver/jellyfin:latest
             ports:
-              - "8096:8096"
-#            user: "1000:1000"
+              - 8096:8096
+            #            user: "1000:1000"
             volumes:
-              - "/opt/arrstack/config/jellyfin:/config"
-              - "/opt/arrstack/data/media:/data/media"
+              - /opt/arrstack/config/jellyfin:/config
+              - /opt/arrstack/data/media:/data/media
             state: started
             env:
               PGID: "1000"
@@ -74,16 +73,17 @@
             status_code:
               - 200
               - 302
-          register: "arrstack_service_test"
-          until: "arrstack_service_test is not failed"
+          register: arrstack_service_test
+          until: arrstack_service_test is not failed
           retries: 300
           delay: 1
           loop:
-            - "http://localhost:8096"
-        - name: jellyfin first time setup
+            - http://localhost:8096
+        - name: Jellyfin first time setup
+          ignore_errors: true
           block:
-            - name: pull the config before setting it later
-              uri:
+            - name: Pull the config before setting it later
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/Configuration
                 method: POST
                 body:
@@ -95,14 +95,14 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: pull user before setting it latter
-              uri: 
+            - name: Pull user before setting it latter
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/User
                 method: GET
                 status_code: 200
               register: result
-            - name: set user name and password
-              uri:
+            - name: Set user name and password
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/User
                 method: POST
                 body:
@@ -113,8 +113,8 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: add movie libary
-              uri:
+            - name: Add movie libary
+              ansible.builtin.uri:
                 url: http://localhost:8096/Library/VirtualFolders?collectionType=movies&refreshLibrary=false&name=Movies
                 method: POST
                 body:
@@ -148,24 +148,23 @@
                     MetadataSavers:
                       - Nfo
                     TypeOptions:
-                      -
-                        Type: Movie
+                      - Type: Movie
                         MetadataFetchers:
-                          - 'TheMovieDb'
-                          - 'The Open Movie Database'
+                          - TheMovieDb
+                          - The Open Movie Database
                         MetadataFetcherOrder:
-                          - 'TheMovieDb'
-                          - 'The Open Movie Database'
+                          - TheMovieDb
+                          - The Open Movie Database
                         ImageFetchers:
-                          - 'TheMovieDb'
-                          - 'The Open Movie Database'
-                          - 'Embedded Image Extractor'
-                          - 'Screen Grabber'
+                          - TheMovieDb
+                          - The Open Movie Database
+                          - Embedded Image Extractor
+                          - Screen Grabber
                         ImageFetcherOrder:
-                          - 'TheMovieDb'
-                          - 'The Open Movie Database'
-                          - 'Embedded Image Extractor'
-                          - 'Screen Grabber'
+                          - TheMovieDb
+                          - The Open Movie Database
+                          - Embedded Image Extractor
+                          - Screen Grabber
                     LocalMetadataReaderOrder:
                       - Nfo
                     SubtitleDownloadLanguages: []
@@ -178,8 +177,8 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: add show libary
-              uri:
+            - name: Add show libary
+              ansible.builtin.uri:
                 url: http://localhost:8096/Library/VirtualFolders?collectionType=tvshows&refreshLibrary=false&name=TV%20Shows
                 method: POST
                 body:
@@ -212,20 +211,18 @@
                     AutomaticallyAddToCollection: false
                     MetadataSavers: []
                     TypeOptions:
-                      -
-                        Type: Series
+                      - Type: Series
                         MetadataFetchers:
                           - TheMovieDb
-                          - 'The Open Movie Database'
+                          - The Open Movie Database
                         MetadataFetcherOrder:
                           - TheMovieDb
-                          - 'The Open Movie Database'
+                          - The Open Movie Database
                         ImageFetchers:
                           - TheMovieDb
                         ImageFetcherOrder:
                           - TheMovieDb
-                      -
-                        Type: Season
+                      - Type: Season
                         MetadataFetchers:
                           - TheMovieDb
                         MetadataFetcherOrder:
@@ -234,24 +231,23 @@
                           - TheMovieDb
                         ImageFetcherOrder:
                           - TheMovieDb
-                      -
-                        Type: Episode
+                      - Type: Episode
                         MetadataFetchers:
                           - TheMovieDb
-                          - 'The Open Movie Database'
+                          - The Open Movie Database
                         MetadataFetcherOrder:
                           - TheMovieDb
-                          - 'The Open Movie Database'
+                          - The Open Movie Database
                         ImageFetchers:
                           - TheMovieDb
-                          - 'The Open Movie Database'
-                          - 'Embedded Image Extractor'
-                          - 'Screen Grabber'
+                          - The Open Movie Database
+                          - Embedded Image Extractor
+                          - Screen Grabber
                         ImageFetcherOrder:
                           - TheMovieDb
-                          - 'The Open Movie Database'
-                          - 'Embedded Image Extractor'
-                          - 'Screen Grabber'
+                          - The Open Movie Database
+                          - Embedded Image Extractor
+                          - Screen Grabber
                     LocalMetadataReaderOrder:
                       - Nfo
                     SubtitleDownloadLanguages: []
@@ -264,8 +260,8 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: set locales for jellyfin
-              uri:
+            - name: Set locales for jellyfin
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/Configuration
                 method: POST
                 body:
@@ -277,8 +273,8 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: configure remote access
-              uri:
+            - name: Configure remote access
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/RemoteAccess
                 method: POST
                 body:
@@ -289,20 +285,19 @@
                   Content-Type: application/json
                 status_code: 204
               register: result
-            - name: complete setup
-              uri:
+            - name: Complete setup
+              ansible.builtin.uri:
                 url: http://localhost:8096/Startup/Complete
                 method: POST
                 status_code: 204
               register: result
-          ignore_errors: true
-        - name: stop the container
+        - name: Stop the container
           community.docker.docker_container:
             name: jellyfin-tmp
             state: stopped
-  vars: 
+  vars:
     arrstack_password: "{{ password }}"
   roles:
     - ../roles/arrstack
-  tags: 
+  tags:
     - arrstack

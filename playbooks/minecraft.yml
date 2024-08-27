@@ -1,40 +1,47 @@
-- name: install minecraft in docker Compose
+---
+- name: Install minecraft in docker Compose
   hosts: minecraft
   pre_tasks:
-    - name: remove podman docker
+    - name: Remove podman docker
       ansible.builtin.dnf:
-        name: 
+        name:
           - docker
           - podman-docker
           - podman
         state: absent
-    - name: add docker ce repo
+    - name: Add docker ce repo
       ansible.builtin.command:
         cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-    - name: update dnf
+    - name: Update dnf
       ansible.builtin.dnf:
         name: "*"
         state: latest
-    - name: install docker
+    - name: Install docker
       ansible.builtin.dnf:
-        name: 
+        name:
           - docker-ce
         state: latest
-    - name: start docker service
+    - name: Start docker service
       ansible.builtin.systemd_service:
         name: docker
         state: started
         enabled: true
-  tasks: 
-    - name: create minecraft dir
+  tasks:
+    - name: Create minecraft dir
       ansible.builtin.file:
         name: /opt/minecraft
         state: directory
-    - name: copy compose file
+        mode: "0755"
+        owner: root
+        group: root
+    - name: Copy compose file
       ansible.builtin.copy:
         src: ../files/docker-compose-minecraft.yml
         dest: /opt/minecraft/docker-compose.yml
-    - name: start doker compose
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Start doker compose
       community.docker.docker_compose_v2:
         project_name: minecraft_server
         project_src: /opt/minecraft

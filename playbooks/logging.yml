@@ -1,4 +1,5 @@
-- name: install matrics and log exporters
+---
+- name: Install matrics and log exporters
   hosts: all:!laptop
   become: true
   roles:
@@ -9,22 +10,22 @@
       tags:
         - promtail
       vars:
-        promtail_loki_server_url: "http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100"
+        promtail_loki_server_url: http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100
         promtail_config_scrape_configs:
-        - job_name: journal
-          journal:
-            json: false
-            max_age: 12h
-            path: "/run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/"
-            labels:
-              node: "{{ inventory_hostname }}"
-          relabel_configs: # todo seperate per instance logging and get nice relabel configs
-            - action: keep
-              source_labels:
-                - __journal__systemd_unit
-              target_label: unit!
+          - job_name: journal
+            journal:
+              json: false
+              max_age: 12h
+              path: /run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/
+              labels:
+                node: "{{ inventory_hostname }}"
+            relabel_configs: # todo seperate per instance logging and get nice relabel configs
+              - action: keep
+                source_labels:
+                  - __journal__systemd_unit
+                target_label: unit!
   post_tasks:
-    - name: reload promtail
+    - name: Reload promtail
       ansible.builtin.systemd_service:
         name: promtail
         state: restarted
@@ -32,27 +33,27 @@
       tags:
         - promtail
 
-- name: install and setup prometheus
+- name: Install and setup prometheus
   hosts: prometheus
   roles:
-  - prometheus.prometheus.prometheus
+    - prometheus.prometheus.prometheus
   post_tasks:
-    - name: add file sd targets
+    - name: Add file sd targets
       ansible.builtin.template:
-        src: "../templates/targets.yml.j2"
-        dest: "/etc/prometheus/file_sd/node.yml" 
+        src: ../templates/targets.yml.j2
+        dest: /etc/prometheus/file_sd/node.yml
       tags:
         - prometheus
         - service_discovery
   tags:
     - prometheus
-- name: install and setup loki
+- name: Install and setup loki
   hosts: loki
   roles:
     - role: loki
   tags:
     - loki
-- name: install and setup granfana
+- name: Install and setup granfana
   hosts: grafana
   roles:
     - role: grafana.grafana.grafana
@@ -64,12 +65,12 @@
       - name: prometheus
         type: prometheus
         access: proxy
-        url: 'http://{{ hostvars["prometheus"].ansible_host | ansible.utils.ipv4 }}:9090'
+        url: http://{{ hostvars["prometheus"].ansible_host | ansible.utils.ipv4 }}:9090
         basicAuth: false
       - name: loki
         type: loki
         access: proxy
-        url: 'http://{{ hostvars["loki"].ansible_host | ansible.utils.ipv4 }}:3100'
+        url: http://{{ hostvars["loki"].ansible_host | ansible.utils.ipv4 }}:3100
         basicAuth: false
     grafana_dashboards:
       - dashboard_id: 1860

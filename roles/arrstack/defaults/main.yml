@@ -1,17 +1,17 @@
 ---
 
 # Arr stack container URIs and tags.
-arrstack_buildarr_container_uri: "callum027/buildarr"
+arrstack_buildarr_container_uri: callum027/buildarr
 arrstack_buildarr_container_tag: latest
-arrstack_sonarr_container_uri: "lscr.io/linuxserver/sonarr"
+arrstack_sonarr_container_uri: lscr.io/linuxserver/sonarr
 arrstack_sonarr_container_tag: latest
-arrstack_radarr_container_uri: "lscr.io/linuxserver/radarr"
+arrstack_radarr_container_uri: lscr.io/linuxserver/radarr
 arrstack_radarr_container_tag: latest
-arrstack_prowlarr_container_uri: "lscr.io/linuxserver/prowlarr"
+arrstack_prowlarr_container_uri: lscr.io/linuxserver/prowlarr
 arrstack_prowlarr_container_tag: latest
-arrstack_flaresolverr_container_uri: "ghcr.io/flaresolverr/flaresolverr"
+arrstack_flaresolverr_container_uri: ghcr.io/flaresolverr/flaresolverr
 arrstack_flaresolverr_container_tag: latest
-arrstack_qbittorrent_container_uri: "ghcr.io/hotio/qbittorrent"
+arrstack_qbittorrent_container_uri: ghcr.io/hotio/qbittorrent
 arrstack_qbittorrent_container_tag: latest
 
 # Arr stack Prowlarr configuration.
@@ -19,10 +19,10 @@ arrstack_prowlarr_grab_limit: 26
 arrstack_prowlarr_query_limit: 256
 
 # Arr stack environment directory location.
-arrstack_env_dir: "/opt/arrstack"
+arrstack_env_dir: /opt/arrstack
 
 # Arr stack data directory location, and ownership information, if created by the role.
-arrstack_data_dir: "/opt/arrstack/data"
+arrstack_data_dir: /opt/arrstack/data
 arrstack_data_dir_create: true
 arrstack_data_dir_owner: 1000
 arrstack_data_dir_group: 1000

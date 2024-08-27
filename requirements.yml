@@ -2,9 +2,6 @@ collections:
   - name: https://github.com/prometheus-community/ansible.git
     version: main
     type: git
-  - name: https://github.com/buildarr/ansible-collection-mediastack.git
-    version: main
-    type: git
   - name: grafana.grafana
   - name: community.docker
 roles:
@@ -14,10 +11,6 @@ roles:
   - name: node_exporter
     src: https://github.com/geerlingguy/ansible-role-node_exporter
     scm: git
-  - src: https://github.com/ansible-community/ansible-vault.git
-    name: ansible-community.ansible-vault
-    scm: git
-    version: master
   - name: loki
     src: https://github.com/Dialgatrainer02/ansible-loki
     scm: git

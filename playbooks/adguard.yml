@@ -1,4 +1,5 @@
-- name: install and setup adguard
+---
+- name: Install and setup adguard
   hosts: adguards
   vars:
     adguardhome_daemon: adguardhome
@@ -10,7 +11,7 @@
     adguardhome_webhost: "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}"
     adguardhome_dnshosts:
       - "{{ hostvars[inventory_hostname].ansible_host | ansible.utils.ipv4 }}"
-      - "127.0.0.1"
+      - 127.0.0.1
   roles:
     - role: 0x0i.systemd
       vars:
@@ -38,23 +39,24 @@
     - role: adguard
   tags:
     - adguard
-- name: change all dns servers to point at adguard
+- name: Change all dns servers to point at adguard
   hosts: all:!laptop:!adguards
   tasks:
-    - name: make pve ignore resolv conf #find way to diffrenciate between lxc and not 
+    - name: Make pve ignore resolv conf # find way to diffrenciate between lxc and not
       ansible.builtin.file:
         name: /etc/.pve-ignore.resolv
         state: touch
+        mode: "0777"
       become: true
-    - name: insert name servers into resolv conf 
+    - name: Insert name servers into resolv conf
       ansible.builtin.blockinfile:
         path: /etc/resolv.conf
         append_newline: true
         prepend_newline: true
-        insertafter: "/%^"
+        insertafter: /%^
         block: |
           nameserver: {{ hostvars['adguard1'].ansible_host | ansible.utils.ipv4 }}
-          nameserver: {{ hostvars['adguard1'].ansible_host | ansible.utils.ipv4 }}  
+          nameserver: {{ hostvars['adguard1'].ansible_host | ansible.utils.ipv4 }}
       become: true
   tags:
     - dns-servers
