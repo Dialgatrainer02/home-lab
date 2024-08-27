@@ -8,4 +8,5 @@
 6. get immitch and nextcloud running and configured -[ ]
 7. get duckdns to point to home network -[ ]
 8. attach laptop to vpn -[ x] (doesnt work needs debugging)
-9. extra security with nftables -[x ]
+9. extra security with nftables -[ x]
+10. dynamic inventory and provisioning with teraform/opentofu -[ ]

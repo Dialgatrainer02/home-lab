@@ -12,6 +12,9 @@
         3961323536386637340a343065333633303630663362353764643832376666346138393965323338
         65623437666665633162303163613064353565613530646435653537323366366438
 - ansible.builtin.import_playbook: ./playbooks/setup.yml
+- ansible.builtin.import_playbook: ./playbooks/duckdns.yml
+  vars: 
+    duckdns_token: testing
 - ansible.builtin.import_playbook: ./playbooks/logging.yml
   vars:
     password: !vault |

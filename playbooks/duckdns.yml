@@ -1,0 +1,31 @@
+- name: use duckdns for dynamics dns
+  hosts: wireguard
+  pre_tasks:
+    - name: clear old records
+      uri:
+        url: https://www.duckdns.org/update?domains={{ item }}&token={{ duckdns_token }}&clear=true
+        method: GET
+      register: result
+      loop:
+        - dialgatrainer
+        - dialgatrainer-staging
+        - olivia420
+        - oc-1-vps
+        - hn-1-prx
+      run_once: true
+  tasks:
+    - name: update domain for home network
+      uri:
+         url: https://www.duckdns.org/update?domains='hn-1-prx'&token={{ duckdns_token }}
+         method: GET
+      when: hostvars[inventory_hostname].ansible_host is regex_search("192.168.0.*")
+      run_once: true
+    - name: update the outside vps domain
+      uri:
+        url: https://www.duckdns.org/update?domains='oc-1-vps'&token={{ duckdns_token }}
+        method: GET
+      register: result
+      when: inventory_hostname == 'wireguard-oci'
+      run_once: true
+  tags:
+    - duckdns
