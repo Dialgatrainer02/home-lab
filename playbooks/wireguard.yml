@@ -2,10 +2,12 @@
 - name: Setup wireguard
   hosts: wireguard
   pre_tasks:
-    - name: Enable ip forwarding
+    - name: Enable ipv4 forwarding
       ansible.builtin.command:
         cmd: sysctl -w net.ipv4.ip_forward=1
-      ignore_errors: true
+    - name: enable ipv6 forwarding
+      ansible.builtin.command:
+        cmd: sysctl -w net.ipv6.conf.all.forwarding=1
   roles:
     - role: wireguard
   tags:
