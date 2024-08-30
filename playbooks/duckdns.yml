@@ -1,19 +1,19 @@
 ---
 - name: Use duckdns for dynamics dns
   hosts: wireguard
-#  pre_tasks:
-#    - name: Clear old records
-#      ansible.builtin.uri:
-#        url: https://www.duckdns.org/update?domains={{ item }}&token={{ duckdns_token }}&clear=true
-#        method: GET
-#      register: result
-#      loop:
-#        - dialgatrainer
-#        - dialgatrainer-staging
-#        - olivia420
-#        - oc-1-vps
-#        - hn-1-prx
-#      run_once: true
+  #  pre_tasks:
+  #    - name: Clear old records
+  #      ansible.builtin.uri:
+  #        url: https://www.duckdns.org/update?domains={{ item }}&token={{ duckdns_token }}&clear=true
+  #        method: GET
+  #      register: result
+  #      loop:
+  #        - dialgatrainer
+  #        - dialgatrainer-staging
+  #        - olivia420
+  #        - oc-1-vps
+  #        - hn-1-prx
+  #      run_once: true
   tasks:
     - name: Update domain for home network
       ansible.builtin.uri:
