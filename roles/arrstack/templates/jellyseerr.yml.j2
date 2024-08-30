@@ -15,15 +15,14 @@ jellyseerr:
       discover_languages: []
       hide_available_media: false
       allow_partial_series_requests: true
-#    jellyfin:
-#      server_url: "http://localhost:8096"  # Jellyfin server URL, preferably direct (no proxy).
-#      username: "testing"  # Jellyfin server admin user.
-#      password: "secure-password"  # Jellyfin server admin user password.
-#      email_address: "invalid@example.com"  # Jellyfin server admin email address.
-#      # Jellyfin media libraries to monitor.
-#      # This can be used to change what libraries Jellyseerr monitors,
-#      # even after it is initialised.
-#      libraries:
-#        - "Shows"
-#        - "Movies"
-#
+    jellyfin:
+      server_url: "http://localhost:8096"  # Jellyfin server URL, preferably direct (no proxy).
+      username: "olivia"  # Jellyfin server admin user.
+      password: "{{ arrstack_password }}"  # Jellyfin server admin user password.
+      email_address: "invalid@example.com"  # Jellyfin server admin email address.
+      # Jellyfin media libraries to monitor.
+      # This can be used to change what libraries Jellyseerr monitors,
+      # even after it is initialised.
+      libraries:
+        - "Shows"
+        - "Movies"

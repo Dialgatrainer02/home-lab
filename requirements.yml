@@ -11,9 +11,6 @@ roles:
   - name: node_exporter
     src: https://github.com/geerlingguy/ansible-role-node_exporter
     scm: git
-  - name: loki
-    src: https://github.com/Dialgatrainer02/ansible-loki
-    scm: git
   - name: adguard
     src: https://github.com/bcook254/ansible-role-adguardhome
     scm: git
