@@ -21,17 +21,17 @@
         method: GET
       when: inventory_hostname == 'docker'
       register: result
-    - name: show response
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+    # - name: show response
+      # ansible.builtin.debug:
+        # msg: "{{ result }}"
     - name: Update the outside vps domain
       ansible.builtin.uri:
         url: https://www.duckdns.org/update?domains=oc-1-vps&token={{ duckdns_token }}&verbose=true
         method: GET
       register: result
       when: inventory_hostname == 'wireguard-oci'
-    - name: show response
-      ansible.builtin.debug:
-        msg: "{{ result }}"
+    # - name: show response
+      # ansible.builtin.debug:
+        # msg: "{{ result }}"
   tags:
     - duckdns
