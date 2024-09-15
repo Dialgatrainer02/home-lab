@@ -45,7 +45,7 @@ table inet filter {
             meta l4proto {tcp, udp} th sport 53 ip daddr !=$lan_subnet drop
             meta l4proto {tcp, udp} th sport 853 ip daddr !=$lan_subnet drop
 {% if 'wireguard' in group_names %}
-#             iifname wg0 accept
+#             oifname wg0 accept
 {% endif %}
         }
 
