@@ -50,7 +50,7 @@
 - name: Install and setup loki
   hosts: loki
   roles:
-    - role: loki
+    - role: ../roles/loki
   tags:
     - loki
 - name: Install and setup granfana

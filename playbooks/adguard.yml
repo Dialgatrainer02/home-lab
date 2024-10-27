@@ -40,7 +40,7 @@
   tags:
     - adguard
 - name: Change all dns servers to point at adguard
-  hosts: all:!laptop:!adguards
+  hosts: all:!adguards
   tasks:
     - name: Make pve ignore resolv conf # find way to diffrenciate between lxc and not
       ansible.builtin.file:
