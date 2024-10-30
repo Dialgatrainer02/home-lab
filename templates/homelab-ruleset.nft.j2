@@ -32,6 +32,7 @@ table inet filter {
 {% endif %}
 {% if 'wireguard' in group_names %}
             iifname wg0 accept
+            udp dport 51820 accept
 {% endif %}
         }
         chain OUTPUT {
