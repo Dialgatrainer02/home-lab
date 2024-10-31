@@ -1,6 +1,8 @@
 ---
 - name: Use duckdns for dynamics dns
   hosts: wireguard
+  vars_files:
+    - ../secrets.yml
   #  pre_tasks:
   #    - name: Clear old records
   #      ansible.builtin.uri:

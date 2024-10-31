@@ -13,11 +13,11 @@
 - name: Initial setup
   hosts: all:!laptop
   tasks:
-    # - name: Remove firewalld
-      # ansible.builtin.dnf:
-        # name: firewalld
-        # state: absent
-      # become: true
+    - name: Remove firewalld
+      ansible.builtin.dnf:
+        name: firewalld
+        state: absent
+      become: true
     - name: System update
       ansible.builtin.dnf:
         name:

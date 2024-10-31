@@ -2,6 +2,8 @@
 - name: Setup Arr stack with Buildarr
   hosts: arrstack
   become: true
+  vars_files:
+    - ../secrets.yml
   pre_tasks:
     - name: Install docker
       block:

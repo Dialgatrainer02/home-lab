@@ -1,21 +1,13 @@
 ---
 - hosts: all
-  vars_files:
-    ./secrets.yml
   tasks:
     - name: Check all host can ping google
       ansible.builtin.command:
         cmd: ping -4 -c 1 google.com
 - ansible.builtin.import_playbook: ./playbooks/setup.yml
 - ansible.builtin.import_playbook: ./playbooks/duckdns.yml
-  vars_files:
-    ./secrets.yml
 - ansible.builtin.import_playbook: ./playbooks/logging.yml
-  vars_files:
-    ./secrets.yml
 - ansible.builtin.import_playbook: ./playbooks/wireguard.yml
 - ansible.builtin.import_playbook: ./playbooks/adguard.yml
 # - ansible.builtin.import_playbook: ./playbooks/arrstack.yml
-   # vars_files:
-     # ./secrets.yml
 - ansible.builtin.import_playbook: ./playbooks/minecraft.yml

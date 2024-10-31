@@ -36,19 +36,14 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
   datastore_id = "local"
   node_name    = "pve"
   url          = "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-9.4-20240507.x86_64.qcow2"
+  file_name    = "almalinux_9-4.img"
 }
 
-resource "tls_private_key" "lxc-key" {
-  algorithm = "ED25519"
-}
 
-output "lxc-key" {
-  value = tls_private_key.lxc-key.private_key_openssh
-  sensitive = true
-}
-resource "local_sensitive_file" "lxc_key" {
-  content = tls_private_key.lxc-key.private_key_openssh
-  filename = "${path.module}/lxc_key"
+
+data "proxmox_virtual_environment_nodes" "nodes" {}
+data "proxmox_virtual_environment_datastores" "datastores" {
+    node_name = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
 
 variable "groups" {
@@ -56,7 +51,7 @@ variable "groups" {
   default = [ "adguards", "logging","wireguard","arrstack","minecraft" ] 
 }
 
-variable "lxc-list" {
+variable "containers" {
     type = map(any)
 
     default = {
@@ -86,14 +81,14 @@ variable "lxc-list" {
                 wireguard_address = "10.50.0.1/24"
                 wireguard_endpoint = "oc-1-vps.duckdns.org"
                 wireguard_allowed_ips = "0.0.0.0/0"
-                wireguard_postup = "nft add table inet wireguard; nft add chain inet wireguard wireguard_chain {type nat hook postrouting priority srcnat\; policy accept\;}; nft add rule inet wireguard wireguard_chain counter packets 0 bytes 0 masquerade;"
-                wireguard_postdown =  "nft delete table inet wireguard;"
+                wireguard_postup = yamlencode(["nft add table inet wireguard; nft add chain inet wireguard wireguard_chain {type nat hook postrouting priority srcnat\; policy accept\;}; nft add rule inet wireguard wireguard_chain counter packets 0 bytes 0 masquerade;"])
+                wireguard_postdown =  yamlencode(["nft delete table inet wireguard;"])
             }
         }
     }
 }
 
-variable "qemu-list" {
+variable "vms" {
     type = map(any)
 
     default = {
@@ -115,20 +110,32 @@ variable "qemu-list" {
 }
 
 locals {
-  datastore_id = element(data.proxmox_virtual_environment_datastores.example.datastore_ids, index(data.proxmox_virtual_environment_datastores.example.datastore_ids, "local"))
+  datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.example.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
+  node = data.proxmox_virtual_environment_nodes.nodes.names[0]
+}
+
+
+resource "tls_private_key" "homelab-key" {
+  algorithm = "ED25519"
+}
+
+resource "local_sensitive_file" "lxc_key" {
+  content = tls_private_key.homelab-key.private_key_openssh
+  filename = "${path.module}/lxc_key"
 }
 
 resource "ansible_group" "group" {
-    for_each = var.lxc-list
+    for_each = var.containers
     name = each.key
 }
 
 resource "proxmox_virtual_environment_container" "almalinux_container" {
-  for_each = var.lxc-list
-  octet = index(var.lxc-list, each.value) + 100
+  for_each = var.containers
+  octet = index(var.containers, each.value) + 100
   description = "Managed by Terraform"
 
-  node_name = each.key
+  started = true
+  node_name = "${node}"
   vm_id     = "${octet}"
 
   initialization {
@@ -136,7 +143,8 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 
     ip_config {
       ipv4 {
-        address = "192.168.0.${octet}"
+        address = "192.168.0.${octet}/24"
+        gateway = "192.168.0.1"
       }
     }
 
@@ -173,56 +181,86 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 }
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
-    for_each = var.qemu-list
-  name      = each.key
-  bios = "ovmf"
-  octet = index(var.qemu-list, each.value) + 200 # technically limited to 54 vm's now but that will be engough
-  vm_id = "${octet}"
-
-  initialization {
-
-    ip_config {
-      ipv4 {
-        address = "192.168.0.233/24"
-        gateway = "192.168.0.1"
-      }
-    }
-
+    for_each = var.vms
+    octet = index(var.vms, each.value) + 200 # technically limited to 54 vm's now but that will be engough
+    name      = each.key
+    vm_id = "${octet}"
+    node_name = "${node}"
+    
+    started = "true"
+    on_boot = "true"
+    bios = "ovmf"
     machine = "q35"
-
-    user_account {
-      username = "root"
-      keys     = [trimspace(trimspace(tls_private_key.lxc_key.public_key_openssh))]
+    
+    initialization {
+        ip_config {
+        ipv4 {
+            address = "192.168.0.${octet}/24"
+            gateway = "192.168.0.1"
+        }
+        }
+    
+        machine = "q35"
+    
+        user_account {
+        keys     = [trimspace(tls_private_key.lxc_key.public_key_openssh)]
+        }
     }
-  }
 
-  disk {
-    datastore_id = local.datastore_id
-    file_id      = proxmox_virtual_environment_download_file.latest_almalinux_9-4_qcow2.id
-    interface    = "virtio0"
-    iothread     = true
-    discard      = "on"
-    size         = 20
-  }
+    cpu {
+        type = "host"
+        cores = 2
+    }
+    memory {
+        dedicated = 2048
+    }
+    
+    disk {
+        datastore_id = local.datastore_id
+        file_id      = proxmox_virtual_environment_download_file.latest_almalinux_9-4_qcow2.id
+        interface    = "virtio0"
+        iothread     = true
+        discard      = "on"
+        size         = 10
+    }
+    
+    efi_disk {
+        datastore_id = local.datastore_id
+        file_format  = "raw"
+        type         = "4m"
+    }
+    
+    network_device {
+        bridge = "vmbr0"
+    }
 
-  efi_disk {
-    datastore_id = local.datastore_id
-    file_format  = "raw"
-    type         = "4m"
-  }
-
-  network_device {
-    bridge = "vmbr0"
-  }
+    operating_system {
+        type = "l26"
+    }
 }
 
 # lxc hosts
 resource "ansible_host" "host" {
-    for_each = var.lxc-list
+    for_each = var.containers
 
     name =  each.key
-    groups = var.lxc-list[each.key].ansible_group
-    varibles = merge([var.lxc-list[each.key].ansible_varibles, {ansible_user = "root", ansible_host = "${proxmox_virtual_environment_container.almalinux_container[each.key].ip_config.ipv4.address}" }]) 
+    groups = var.containers[each.key].ansible_groups
+    varibles = merge([var.containers[each.key].ansible_varibles, {ansible_user = "root", ansible_host = "${proxmox_virtual_environment_container.almalinux_container[each.key].initalization.ip_config.ipv4.address}" }]) 
+}
+
+#qemu hosts
+resource "ansible_host" "host" {
+    forfor_each = var.vms  
+
+    name = each.key
+    groups = var.vms[each.key].ansible_groups
+    varibles = merge([var.containers[each.key].ansible_varibles, {ansible_user = "root", ansible_host = "${proxmox_virtual_environment_vm.almalinux_vm[each.key].initalization.ip_config.ipv4.address}" }]) 
 }
 
 
+
+#outputs the private key
+output "homelab-key" {
+  value = tls_private_key.homelab-key.private_key_openssh
+  sensitive = true
+}
