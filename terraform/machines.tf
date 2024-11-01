@@ -55,8 +55,8 @@ variable "oracle" {
                 wireguard_addresses = yamlencode(["10.50.0.1/24"])
                 wireguard_endpoint = "oc-1-vps.duckdns.org"
                 wireguard_allowed_ips = "0.0.0.0/0. ::/0"
-                wireguard_postup = yamlencode([])
-                wireguard_postdown =  yamlencode([])
+                wireguard_postup = yamlencode(["nft add table ip wireguard; nft add chain ip wireguard wireguard_chain {type nat hook postrouting priority srcnat\; policy accept\;}; nft add rule ip wireguard wireguard_chain counter packets 0 bytes 0 masquerade; nft add table ip6 wireguard; nft add chain ip6 wireguard wireguard_chain {type nat hook postrouting priority srcnat\; policy accept\;}; nft add rule ip6 wireguard wireguard_chain counter packets 0 bytes 0 masquerade"])
+                wireguard_postdown =  yamlencode(["nft delete table ip wireguard; nft delete table ip6 wireguard"])
             }
         }
     }  
