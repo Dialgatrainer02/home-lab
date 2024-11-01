@@ -1,5 +1,5 @@
 # todo 
-
+0. fix the wireguard tunnel!!!!
 1. fix buildarr and get arr stack operational -[]
 2. tidy and reformat loki role and requirements.yml -[ x]
 3. sort out storage for arr stack media and minecraft world -[]

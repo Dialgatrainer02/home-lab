@@ -1,4 +1,4 @@
 .vscode/
 inventory.yml
 secrets.yml
-terraform/secrets.auto.tfvars
+terraform/secrets.tf
