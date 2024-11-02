@@ -1,15 +1,15 @@
 terraform {
   required_providers {
     proxmox = {
-      source = "bpg/proxmox"
+      source  = "bpg/proxmox"
       version = "0.66.3"
     }
-     ansible = {
+    ansible = {
       version = "~> 1.3.0"
       source  = "ansible/ansible"
     }
     local = {
-      source = "hashicorp/local"
+      source  = "hashicorp/local"
       version = "2.5.2"
     }
   }
@@ -25,19 +25,19 @@ provider "proxmox" {
 }
 
 provider "oci" {
-  region           = var.region
-  tenancy_ocid     = var.tenancy_ocid
-  user_ocid        = var.user_ocid
-  fingerprint      = var.fingerprint
+  region       = var.region
+  tenancy_ocid = var.tenancy_ocid
+  user_ocid    = var.user_ocid
+  fingerprint  = var.fingerprint
 }
 
 
 
 resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_img" {
-  content_type       = "vztmpl"
-  datastore_id       = "local"
-  node_name          = "pve"
-  url                = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
+  content_type = "vztmpl"
+  datastore_id = "local"
+  node_name    = "pve"
+  url          = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
 }
 
 resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2" {
@@ -49,13 +49,13 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
 }
 
 resource "proxmox_virtual_environment_container" "almalinux_container" {
-  for_each = var.containers
-  octet = index(var.containers, each.value) + 100
+  for_each    = var.containers
+  octet       = index(var.containers, each.value) + 100
   description = "Managed by Terraform"
 
-  started = true
-  node_name = "${node}"
-  vm_id     = "${octet}"
+  started   = true
+  node_name = node
+  vm_id     = octet
 
   initialization {
     hostname = each.key
@@ -79,11 +79,11 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 
   disk {
     datastore_id = local.datastore_id
-    size = "4G"
+    size         = "4G"
   }
   memory {
     dedicated = "2048"
-    swap = "1024"
+    swap      = "1024"
   }
 
   network_interface {
@@ -94,68 +94,68 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
     template_file_id = proxmox_virtual_environment_download_file.latest_almalinux_9-4_lxc_img.id
     # Or you can use a volume ID, as obtained from a "pvesm list <storage>"
     # template_file_id = "local:vztmpl/jammy-server-cloudimg-amd64.tar.gz"
-    type             = "centos"
+    type = "centos"
   }
   start_on_boot = "true"
 }
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
-    for_each = var.vms
-    octet = index(var.vms, each.value) + 200 # technically limited to 54 vm's now but that will be engough
-    name      = each.key
-    vm_id = "${octet}"
-    node_name = "${node}"
-    
-    started = "true"
-    on_boot = "true"
-    bios = "ovmf"
+  for_each  = var.vms
+  octet     = index(var.vms, each.value) + 200 # technically limited to 54 vm's now but that will be engough
+  name      = each.key
+  vm_id     = octet
+  node_name = node
+
+  started = "true"
+  on_boot = "true"
+  bios    = "ovmf"
+  machine = "q35"
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "192.168.0.${octet}/24"
+        gateway = "192.168.0.1"
+      }
+    }
+
     machine = "q35"
-    
-    initialization {
-        ip_config {
-        ipv4 {
-            address = "192.168.0.${octet}/24"
-            gateway = "192.168.0.1"
-        }
-        }
-    
-        machine = "q35"
-    
-        user_account {
-        keys     = [trimspace(tls_private_key.lxc_key.public_key_openssh)]
-        }
-    }
 
-    cpu {
-        type = "host"
-        cores = 2
+    user_account {
+      keys = [trimspace(tls_private_key.lxc_key.public_key_openssh)]
     }
-    memory {
-        dedicated = 2048
-    }
-    
-    disk {
-        datastore_id = local.datastore_id
-        file_id      = proxmox_virtual_environment_download_file.latest_almalinux_9-4_qcow2.id
-        interface    = "virtio0"
-        iothread     = true
-        discard      = "on"
-        size         = 10
-    }
-    
-    efi_disk {
-        datastore_id = local.datastore_id
-        file_format  = "raw"
-        type         = "4m"
-    }
-    
-    network_device {
-        bridge = "vmbr0"
-    }
+  }
 
-    operating_system {
-        type = "l26"
-    }
+  cpu {
+    type  = "host"
+    cores = 2
+  }
+  memory {
+    dedicated = 2048
+  }
+
+  disk {
+    datastore_id = local.datastore_id
+    file_id      = proxmox_virtual_environment_download_file.latest_almalinux_9-4_qcow2.id
+    interface    = "virtio0"
+    iothread     = true
+    discard      = "on"
+    size         = 10
+  }
+
+  efi_disk {
+    datastore_id = local.datastore_id
+    file_format  = "raw"
+    type         = "4m"
+  }
+
+  network_device {
+    bridge = "vmbr0"
+  }
+
+  operating_system {
+    type = "l26"
+  }
 }
 
 # key generation
@@ -164,6 +164,6 @@ resource "tls_private_key" "homelab-key" {
 }
 
 resource "local_sensitive_file" "homelab_key" {
-  content = tls_private_key.homelab-key.private_key_openssh
+  content  = tls_private_key.homelab-key.private_key_openssh
   filename = "${path.module}/lxc_key"
 }

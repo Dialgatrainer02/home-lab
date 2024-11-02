@@ -16,7 +16,7 @@ resource "oci_core_virtual_network" "wireguard_instance" {
   dns_label      = "instancevcn"
 }
 
-resource "oci_core_subnet" "" {
+resource "oci_core_subnet" "wireguard_subnet" {
   cidr_block        = "10.1.20.0/24"
   display_name      = "instanceSubnet"
   dns_label         = "instancesubnet"
@@ -96,33 +96,33 @@ resource "oci_core_security_list" "wireguard_security_list" {
   }
   ingress_security_rules {
     protocol = "17"
-    source = "0.0.0.0/0"
+    source   = "0.0.0.0/0"
 
     udp_options {
-        max = "51820"
-        min = "51820"
+      max = "51820"
+      min = "51820"
     }
   }
 }
 
 
 resource "oci_core_instance" "wireguard_instance0" {
-    for_each = var.oracle
+  for_each            = var.oracle
   availability_domain = data.oci_identity_availability_domain.ad.name
   compartment_id      = var.compartment_ocid
-  display_name        = "${each.key}"
+  display_name        = each.key
   shape               = var.instance_shape
 
   shape_config {
-    ocpus = var.instance_ocpus
+    ocpus         = var.instance_ocpus
     memory_in_gbs = var.instance_shape_config_memory_in_gbs
   }
 
   create_vnic_details {
-    subnet_id        = oci_core_subnet.test_subnet.id
+    subnet_id        = oci_core_subnet.wireguard_subnet.id
     display_name     = "primaryvnic"
     assign_public_ip = true
-    hostname_label   = "${each.key}"
+    hostname_label   = each.key
   }
 
   source_details {
