@@ -25,10 +25,10 @@ provider "proxmox" {
 }
 
 provider "oci" {
-  region       = var.region
-  tenancy_ocid = var.tenancy_ocid
-  user_ocid    = var.user_ocid
-  fingerprint  = var.fingerprint
+  region           = var.region
+  tenancy_ocid     = var.tenancy_ocid
+  user_ocid        = var.user_ocid
+  fingerprint      = var.fingerprint
   private_key_path = var.private_key_path
 }
 
@@ -52,20 +52,20 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
 
 
 resource "proxmox_virtual_environment_container" "almalinux_container" {
-  for_each    = var.containers
- 
+  for_each = var.containers
+
   description = "Managed by Terraform"
 
   started   = true
-  node_name = "${local.node}"
-  vm_id     = "${local.container_id[each.key]}"
+  node_name = local.node
+  vm_id     = var.containers[each.key].id + 200
 
   initialization {
     hostname = each.key
 
     ip_config {
       ipv4 {
-        address = "192.168.0.${local.container_id[each.key]}/24"
+        address = "192.168.0.${var.containers[each.key].id + 200}/24"
         gateway = "192.168.0.1"
       }
     }
@@ -103,11 +103,11 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 }
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
-  for_each  = var.vms
-  
+  for_each = var.vms
+
   name      = each.key
-  node_name = "${local.node}"
-  vm_id     = "${local.virtual_machine_id[each.key]}"
+  node_name = local.node
+  vm_id     = var.vms[each.key].id + 100
 
   started = "true"
   on_boot = "true"
@@ -117,7 +117,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   initialization {
     ip_config {
       ipv4 {
-        address = "192.168.0.${local.virtual_machine_id[each.key]}/24"
+        address = "192.168.0.${var.vms[each.key].id + 100}/24"
         gateway = "192.168.0.1"
       }
     }

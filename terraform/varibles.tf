@@ -14,21 +14,8 @@ locals {
   node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
 
-locals {
-  container_id = {
-          for idx, machine in var.containers: 
-              machine.key => idx + 100
-          }
-}
-
-locals {
-  virtual_machine_id = {
-    {for k,v in keys(var.vms) : k => v + 200 }
-  }
-}
-
 data "oci_core_instance" "wireguard_instance" {
-  for_each = var.oracle
+  for_each    = var.oracle
   instance_id = oci_core_instance.wireguard_instance[each.key].id
 }
 
