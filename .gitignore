@@ -3,4 +3,4 @@ inventory.yml
 secrets.yml
 terraform/secrets.tf
 terraform/.terraform
-terraform/.terraform.lock.hcl
+terraform/*.lock.*
