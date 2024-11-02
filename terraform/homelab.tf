@@ -29,6 +29,7 @@ provider "oci" {
   tenancy_ocid = var.tenancy_ocid
   user_ocid    = var.user_ocid
   fingerprint  = var.fingerprint
+  private_key_path = var.private_key_path
 }
 
 
@@ -48,28 +49,30 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
   file_name    = "almalinux_9-4.img"
 }
 
+
+
 resource "proxmox_virtual_environment_container" "almalinux_container" {
   for_each    = var.containers
-  octet       = index(var.containers, each.value) + 100
+ 
   description = "Managed by Terraform"
 
   started   = true
-  node_name = node
-  vm_id     = octet
+  node_name = "${local.node}"
+  vm_id     = "${local.container_id[each.key]}"
 
   initialization {
     hostname = each.key
 
     ip_config {
       ipv4 {
-        address = "192.168.0.${octet}/24"
+        address = "192.168.0.${local.container_id[each.key]}/24"
         gateway = "192.168.0.1"
       }
     }
 
     user_account {
       keys = [
-        trimspace(tls_private_key.lxc_key.public_key_openssh)
+        trimspace(tls_private_key.homelab_key.public_key_openssh)
       ]
     }
   }
@@ -79,7 +82,7 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 
   disk {
     datastore_id = local.datastore_id
-    size         = "4G"
+    size         = 4
   }
   memory {
     dedicated = "2048"
@@ -91,7 +94,7 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   }
 
   operating_system {
-    template_file_id = proxmox_virtual_environment_download_file.latest_almalinux_9-4_lxc_img.id
+    template_file_id = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
     # Or you can use a volume ID, as obtained from a "pvesm list <storage>"
     # template_file_id = "local:vztmpl/jammy-server-cloudimg-amd64.tar.gz"
     type = "centos"
@@ -101,10 +104,10 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   for_each  = var.vms
-  octet     = index(var.vms, each.value) + 200 # technically limited to 54 vm's now but that will be engough
+  
   name      = each.key
-  vm_id     = octet
-  node_name = node
+  node_name = "${local.node}"
+  vm_id     = "${local.virtual_machine_id[each.key]}"
 
   started = "true"
   on_boot = "true"
@@ -114,15 +117,14 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   initialization {
     ip_config {
       ipv4 {
-        address = "192.168.0.${octet}/24"
+        address = "192.168.0.${local.virtual_machine_id[each.key]}/24"
         gateway = "192.168.0.1"
       }
     }
 
-    machine = "q35"
 
     user_account {
-      keys = [trimspace(tls_private_key.lxc_key.public_key_openssh)]
+      keys = [trimspace(tls_private_key.homelab_key.public_key_openssh)]
     }
   }
 
@@ -159,11 +161,11 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
 }
 
 # key generation
-resource "tls_private_key" "homelab-key" {
+resource "tls_private_key" "homelab_key" {
   algorithm = "ED25519"
 }
 
 resource "local_sensitive_file" "homelab_key" {
-  content  = tls_private_key.homelab-key.private_key_openssh
+  content  = tls_private_key.homelab_key.private_key_openssh
   filename = "${path.module}/lxc_key"
 }

@@ -9,7 +9,7 @@
 
 
 
-resource "oci_core_virtual_network" "wireguard_instance" {
+resource "oci_core_virtual_network" "wireguard_vcn" {
   cidr_block     = "10.1.0.0/16"
   compartment_id = var.compartment_ocid
   display_name   = "instanceVCN"
@@ -22,20 +22,20 @@ resource "oci_core_subnet" "wireguard_subnet" {
   dns_label         = "instancesubnet"
   security_list_ids = [oci_core_security_list.wireguard_security_list.id]
   compartment_id    = var.compartment_ocid
-  vcn_id            = oci_core_virtual_network.wireguard_instance.id
+  vcn_id            = oci_core_virtual_network.wireguard_vcn.id
   route_table_id    = oci_core_route_table.wireguard_route_table.id
-  dhcp_options_id   = oci_core_virtual_network.wireguard_instance.default_dhcp_options_id
+  dhcp_options_id   = oci_core_virtual_network.wireguard_vcn.default_dhcp_options_id
 }
 
 resource "oci_core_internet_gateway" "wireguard_internet_gateway" {
   compartment_id = var.compartment_ocid
   display_name   = "testIG"
-  vcn_id         = oci_core_virtual_network.test_vcn.id
+  vcn_id         = oci_core_virtual_network.wireguard_vcn.id
 }
 
 resource "oci_core_route_table" "wireguard_route_table" {
   compartment_id = var.compartment_ocid
-  vcn_id         = oci_core_virtual_network.test_vcn.id
+  vcn_id         = oci_core_virtual_network.wireguard_vcn.id
   display_name   = "testRouteTable"
 
   route_rules {
@@ -47,7 +47,7 @@ resource "oci_core_route_table" "wireguard_route_table" {
 
 resource "oci_core_security_list" "wireguard_security_list" {
   compartment_id = var.compartment_ocid
-  vcn_id         = oci_core_virtual_network.test_vcn.id
+  vcn_id         = oci_core_virtual_network.wireguard_vcn.id
   display_name   = "WireguardSecurityList"
 
   egress_security_rules {
@@ -106,7 +106,7 @@ resource "oci_core_security_list" "wireguard_security_list" {
 }
 
 
-resource "oci_core_instance" "wireguard_instance0" {
+resource "oci_core_instance" "wireguard_instance" {
   for_each            = var.oracle
   availability_domain = data.oci_identity_availability_domain.ad.name
   compartment_id      = var.compartment_ocid
@@ -127,7 +127,7 @@ resource "oci_core_instance" "wireguard_instance0" {
 
   source_details {
     source_type = "image"
-    source_id   = lookup(data.oci_core_images.test_images.images[0], "id")
+    source_id   = lookup(data.oci_core_images.images.images[0], "id")
   }
 
   metadata = {

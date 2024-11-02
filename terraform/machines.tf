@@ -1,5 +1,5 @@
 variable "containers" {
-  type = map(any)
+  type = map(object({ansible_groups = list(string), ansible_varibles = optional(any)}))
 
   default = {
     adguard1 = {
@@ -23,7 +23,7 @@ variable "containers" {
 
 
 variable "vms" {
-  type = map(any)
+  type = map(object({ansible_groups = list(string), ansible_varibles = optional(any)}))
 
   default = {
     docker = {
@@ -44,7 +44,7 @@ variable "vms" {
 }
 
 variable "oracle" {
-  type = map(any)
+  type = map(object({ansible_groups = list(string), ansible_varibles = optional(any)}))
   default = {
     wireguard-oci = {
       ansible_groups = ["wireguard"]
