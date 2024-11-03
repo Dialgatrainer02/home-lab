@@ -5,3 +5,4 @@ terraform/secrets.tf
 terraform/.terraform
 terraform/*.lock.*
 terraform/*.tfstate*
+*key*
