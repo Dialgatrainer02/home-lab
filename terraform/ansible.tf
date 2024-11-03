@@ -20,7 +20,7 @@
 # 
 # name      = each.key
 # groups    = var.vms[each.key].ansible_groups
-# variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "root", ansible_host = "${proxmox_virtual_environment_vm.almalinux_vm[each.key].initalization.ip_config.ipv4.address}" }])
+# variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "almalinux", ansible_host = "${proxmox_virtual_environment_vm.almalinux_vm[each.key].initalization.ip_config.ipv4.address}" }])
 # }
 # 
 # oracle vps

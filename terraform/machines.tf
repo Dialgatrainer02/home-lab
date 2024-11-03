@@ -15,11 +15,11 @@ variable "containers" {
       ansible_groups = ["logging"]
     }
     loki = {
-      id             = 3
+      id             = 4
       ansible_groups = ["logging"]
     }
     grafana = {
-      id             = 4
+      id             = 5
       ansible_groups = ["logging"]
     }
   }
@@ -32,7 +32,7 @@ variable "vms" {
 
   default = {
     docker = {
-      id             = 5
+      id             = 6
       ansible_groups = ["wireguard", "arrstack", "minecraft"]
       ansible_varibles = {
         wireguard_remote_directory     = "/opt/arrstack/config/wireguard"
@@ -53,7 +53,7 @@ variable "oracle" {
   type = map(object({ id = number, ansible_groups = list(string), ansible_varibles = optional(map(any)) }))
   default = {
     wireguard-oci = {
-      id             = 6
+      id             = 7
       ansible_groups = ["wireguard"]
       ansible_varibles = {
         wireguard_interface         = "wg0"
@@ -63,7 +63,7 @@ variable "oracle" {
         wireguard_endpoint          = "oc-1-vps.duckdns.org"
         wireguard_allowed_ips       = "0.0.0.0/0. ::/0"
         wireguard_postup            = "nft add table ip wireguard; nft add chain ip wireguard wireguard_chain {type nat hook postrouting priority srcnat\\; policy accept\\;}; nft add rule ip wireguard wireguard_chain counter packets 0 bytes 0 masquerade; nft add table ip6 wireguard; nft add chain ip6 wireguard wireguard_chain {type nat hook postrouting priority srcnat\\; policy accept\\;}; nft add rule ip6 wireguard wireguard_chain counter packets 0 bytes 0 masquerade" # should be yaml list
-        wireguard_postdown          = "nft delete table ip wireguard; nft delete table ip6 wireguard" # should be yaml list
+        wireguard_postdown          = "nft delete table ip wireguard; nft delete table ip6 wireguard"                                                                                                                                                                                                                                                                                                                                                                                     # should be yaml list
       }
     }
   }

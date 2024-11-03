@@ -3,10 +3,10 @@ data "proxmox_virtual_environment_datastores" "datastores" {
   node_name = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
 
-variable "groups" {
-  type    = list(string)
-  default = ["adguards", "logging", "wireguard", "arrstack", "minecraft"]
-}
+# variable "groups" {
+  # type    = list(string)
+  # default = ["adguards", "logging", "wireguard", "arrstack", "minecraft"]
+# }
 
 
 locals {
@@ -25,7 +25,7 @@ variable "instance_shape" {
 
 variable "instance_ocpus" { default = 1 }
 
-variable "instance_shape_config_memory_in_gbs" { default = 6 }
+variable "instance_shape_config_memory_in_gbs" { default = 1 }
 
 data "oci_identity_availability_domain" "ad" {
   compartment_id = var.tenancy_ocid
@@ -34,5 +34,7 @@ data "oci_identity_availability_domain" "ad" {
 
 data "oci_core_images" "images" {
   compartment_id = var.compartment_ocid
-  # operating_system = "almalinux"
+  operating_system = "Oracle Linux"
+  operating_system_version = 9
+  shape = var.instance_shape
 }

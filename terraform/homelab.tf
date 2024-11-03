@@ -34,7 +34,19 @@ provider "oci" {
 
 
 
+
 resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_img" {
+  connection {
+    host = "192.168.0.90"
+    type = "ssh"
+    user = "root"
+    password = var.pve_password
+  }
+  provisioner "remote-exec" {
+    inline = [ 
+      "mkdir -p /mnt/bindmounts/terraform"
+     ]
+  }
   content_type = "vztmpl"
   datastore_id = "local"
   node_name    = "pve"
@@ -59,6 +71,8 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   started   = true
   node_name = local.node
   vm_id     = var.containers[each.key].id + 200
+
+  unprivileged = true
 
   initialization {
     hostname = each.key
@@ -100,6 +114,29 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
     type = "centos"
   }
   start_on_boot = "true"
+
+  connection {
+    host = "192.168.0.90"
+    type = "ssh"
+    user = "root"
+    password = var.pve_password
+  }
+  provisioner "file" {
+    source = "./enable_ssh.sh"
+    destination = "/mnt/bindmounts/terraform/enable_ssh.sh"
+    
+  }
+
+  provisioner "remote-exec" {
+    inline = [ 
+      "pct exec ${var.containers[each.key].id + 200} bash /terraform/enable_ssh.sh"
+    ]
+  }
+  mount_point {
+    volume = "/mnt/bindmounts/terraform"
+    path = "/terraform"
+    shared = "true"
+  }  
 }
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
@@ -107,7 +144,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
 
   name      = each.key
   node_name = local.node
-  vm_id     = var.vms[each.key].id + 100
+  vm_id     = var.vms[each.key].id + 150
 
   started = "true"
   on_boot = "true"
@@ -115,6 +152,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   machine = "q35"
 
   initialization {
+    datastore_id = local.datastore_id
     ip_config {
       ipv4 {
         address = "192.168.0.${var.vms[each.key].id + 100}/24"
@@ -167,5 +205,5 @@ resource "tls_private_key" "homelab_key" {
 
 resource "local_sensitive_file" "homelab_key" {
   content  = tls_private_key.homelab_key.private_key_openssh
-  filename = "${path.module}/lxc_key"
+  filename = "${path.module}/homelab_key"
 }
