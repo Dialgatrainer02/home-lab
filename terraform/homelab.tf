@@ -116,7 +116,7 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   start_on_boot = "true"
 
   connection {
-    host = "192.168.0.90"
+    host = "192.168.0.90" # TODO change pve endpoint to ip 
     type = "ssh"
     user = "root"
     password = var.pve_password
@@ -150,6 +150,11 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   on_boot = "true"
   bios    = "ovmf"
   machine = "q35"
+
+
+  agent {
+    enabled = true
+  }
 
   initialization {
     datastore_id = local.datastore_id
@@ -195,7 +200,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
 
   operating_system {
     type = "l26"
-  }
+  }    
 }
 
 # key generation
