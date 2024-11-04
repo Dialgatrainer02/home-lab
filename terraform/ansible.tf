@@ -4,7 +4,6 @@
 # name     = each.key
 # }
 
-# 
 # lxc hosts
 # resource "ansible_host" "container_host" {
 # for_each = var.containers
@@ -13,7 +12,7 @@
 # groups    = var.containers[each.key].ansible_groups
 # variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "root", ansible_host = "${proxmox_virtual_environment_container.almalinux_container[each.key].initalization.ip_config.ipv4.address}" }])
 # }
-# 
+
 # qemu hosts
 # resource "ansible_host" "qemu_host" {
 # for_each = var.vms

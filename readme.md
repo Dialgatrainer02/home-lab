@@ -9,6 +9,6 @@
 7. get duckdns to point to home network -[x ]
 8. attach laptop to vpn -[ x] (doesnt work needs debugging)
 9. extra security with nftables -[ x]
-10. dynamic inventory and provisioning with teraform/opentofu -[ ]
+10. dynamic inventory and provisioning with teraform/opentofu -[ ](provisioning is finished however intergration with ansible is stil needed)
 11. go through and fix all the ansible lint errors which cant be easily fixed -[ ]
 12. keep track of open ports by using unpnp to open them on the router -[ ]

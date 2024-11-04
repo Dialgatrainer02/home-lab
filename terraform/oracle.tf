@@ -51,7 +51,7 @@ resource "oci_core_security_list" "wireguard_security_list" {
   display_name   = "WireguardSecurityList"
 
   egress_security_rules {
-    protocol    = "6"
+    protocol    = "all"
     destination = "0.0.0.0/0"
   }
 
@@ -62,36 +62,6 @@ resource "oci_core_security_list" "wireguard_security_list" {
     tcp_options {
       max = "22"
       min = "22"
-    }
-  }
-
-  ingress_security_rules {
-    protocol = "6"
-    source   = "0.0.0.0/0"
-
-    tcp_options {
-      max = "3000"
-      min = "3000"
-    }
-  }
-
-  ingress_security_rules {
-    protocol = "6"
-    source   = "0.0.0.0/0"
-
-    tcp_options {
-      max = "3005"
-      min = "3005"
-    }
-  }
-
-  ingress_security_rules {
-    protocol = "6"
-    source   = "0.0.0.0/0"
-
-    tcp_options {
-      max = "80"
-      min = "80"
     }
   }
   ingress_security_rules {
@@ -132,6 +102,22 @@ resource "oci_core_instance" "wireguard_instance" {
 
   metadata = {
     ssh_authorized_keys = trimspace(tls_private_key.homelab_key.public_key_openssh)
+  }
+
+  connection {
+    type = "ssh"
+    host = "${data.oci_core_instance.wireguard_instance[each.key].public_ip}"
+    user = "opc"
+    private_key = tls_private_key.homelab_key.private_key_openssh
+  }
+  provisioner "remote-exec" {
+    inline = [ # add swap as 1 g memory nd 1 g swap isnt enough for dnf to work
+      "sudo swapoff -a",
+      "sudo dd if=/dev/zero of=/.swapfile bs=512M count=16", #512M * 16 = 8GB
+      "sudo mkswap /.swapfile",
+      "sudo swapon /.swapfile"
+     ]
+    
   }
 }
 

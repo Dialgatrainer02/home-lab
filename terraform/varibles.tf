@@ -4,8 +4,8 @@ data "proxmox_virtual_environment_datastores" "datastores" {
 }
 
 # variable "groups" {
-  # type    = list(string)
-  # default = ["adguards", "logging", "wireguard", "arrstack", "minecraft"]
+# type    = list(string)
+# default = ["adguards", "logging", "wireguard", "arrstack", "minecraft"]
 # }
 
 
@@ -33,8 +33,8 @@ data "oci_identity_availability_domain" "ad" {
 }
 
 data "oci_core_images" "images" {
-  compartment_id = var.compartment_ocid
-  operating_system = "Oracle Linux"
+  compartment_id           = var.compartment_ocid
+  operating_system         = "Oracle Linux"
   operating_system_version = 9
-  shape = var.instance_shape
+  shape                    = var.instance_shape
 }

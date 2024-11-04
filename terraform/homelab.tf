@@ -37,15 +37,15 @@ provider "oci" {
 
 resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_img" {
   connection {
-    host = "192.168.0.90"
-    type = "ssh"
-    user = "root"
+    host     = "192.168.0.90"
+    type     = "ssh"
+    user     = "root"
     password = var.pve_password
   }
   provisioner "remote-exec" {
-    inline = [ 
+    inline = [
       "mkdir -p /mnt/bindmounts/terraform"
-     ]
+    ]
   }
   content_type = "vztmpl"
   datastore_id = "local"
@@ -116,27 +116,27 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   start_on_boot = "true"
 
   connection {
-    host = "192.168.0.90" # TODO change pve endpoint to ip 
-    type = "ssh"
-    user = "root"
+    host     = "192.168.0.90" # TODO change pve endpoint to ip 
+    type     = "ssh"
+    user     = "root"
     password = var.pve_password
   }
   provisioner "file" {
-    source = "./enable_ssh.sh"
+    source      = "./enable_ssh.sh"
     destination = "/mnt/bindmounts/terraform/enable_ssh.sh"
-    
+
   }
 
   provisioner "remote-exec" {
-    inline = [ 
+    inline = [
       "pct exec ${var.containers[each.key].id + 200} bash /terraform/enable_ssh.sh"
     ]
   }
   mount_point {
     volume = "/mnt/bindmounts/terraform"
-    path = "/terraform"
+    path   = "/terraform"
     shared = "true"
-  }  
+  }
 }
 
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
@@ -144,7 +144,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
 
   name      = each.key
   node_name = local.node
-  vm_id     = var.vms[each.key].id + 150
+  vm_id     = var.vms[each.key].id + 100
 
   started = "true"
   on_boot = "true"
@@ -200,7 +200,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
 
   operating_system {
     type = "l26"
-  }    
+  }
 }
 
 # key generation
