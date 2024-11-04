@@ -1,31 +1,3 @@
-# 
-# resource "ansible_group" "group" {
-# for_each = var.containers
-# name     = each.key
-# }
-
-# lxc hosts
-# resource "ansible_host" "container_host" {
-# for_each = var.containers
-# 
-# name      = each.key
-# groups    = var.containers[each.key].ansible_groups
-# variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "root", ansible_host = "${proxmox_virtual_environment_container.almalinux_container[each.key].initalization.ip_config.ipv4.address}" }])
-# }
-
-# qemu hosts
-# resource "ansible_host" "qemu_host" {
-# for_each = var.vms
-# 
-# name      = each.key
-# groups    = var.vms[each.key].ansible_groups
-# variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "almalinux", ansible_host = "${proxmox_virtual_environment_vm.almalinux_vm[each.key].initalization.ip_config.ipv4.address}" }])
-# }
-# 
-# oracle vps
-# resource "ansible_host" "oracle_host" {
-# for_each = var.oracle
-# name      = each.key
-# groups    = var.oracle[each.key].ansible_groups
-# variables = concat([var.containers[each.key].ansible_varibles, { ansible_user = "opc", ansible_host = "${data.oci_core_instance.wireguard_instance[each.key].public_ip}" }])
-# }
+# try ansible provider
+# edit existing inventory file for ip addresses
+#generate on in terraform using yamlencode
