@@ -1,7 +1,7 @@
 .vscode/
 inventory.yml
 secrets.yml
-terraform/secrets.tf
+terraform/secrets_override.tf
 terraform/.terraform
 terraform/*.lock.*
 terraform/*.tfstate*
