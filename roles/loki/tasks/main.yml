@@ -1,35 +1,41 @@
 ---
 # tasks file for ansible-loki
-- name: create loki user
+- name: Create loki user
   ansible.builtin.user:
     name: loki
     create_home: false
     system: true
     state: present
-- name: create loki group
+- name: Create loki group
   ansible.builtin.group:
     name: loki
     state: present
-- name: install latest  loki release
+- name: Install latest  loki release
   ansible.builtin.unarchive:
     src: https://github.com/grafana/loki/releases/latest/download/loki-linux-amd64.zip
     dest: /usr/bin/
-    remote_src: yes
-- name: create loki config directory
+    remote_src: true
+- name: Create loki config directory
   ansible.builtin.file:
     name: /etc/loki
     state: directory
+    mode: "755"
+    owner: loki
+    group: loki
 - name: Download loki config
   ansible.builtin.copy:
     src: loki.yml
     dest: /etc/loki/loki.yml
     mode: '0755'
     owner: root
-- name: copy service file
+- name: Copy service file
   ansible.builtin.copy:
     src: loki.service
     dest: /etc/systemd/system/loki.service
-- name: start loki service
+    mode: "755"
+    owner: root
+    group: root
+- name: Start loki service
   ansible.builtin.systemd_service:
     name: loki
     state: started
