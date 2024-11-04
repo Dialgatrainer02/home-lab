@@ -29,6 +29,7 @@ table inet filter {
 {% if 'adguards' in group_names %}
             meta l4proto {tcp, udp} th dport 53 accept # allow dns 
             meta l4proto {tcp, udp} th dport 853 accept # allow dns over tls
+            tcp dport 80 ip saddr $lan_subnet accept
 {% endif %}
 {% if 'wireguard' in group_names %}
             iifname wg0 accept
