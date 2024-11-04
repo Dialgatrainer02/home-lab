@@ -4,10 +4,6 @@ terraform {
       source  = "bpg/proxmox"
       version = "0.66.3"
     }
-    ansible = {
-      version = "~> 1.3.0"
-      source  = "ansible/ansible"
-    }
     local = {
       source  = "hashicorp/local"
       version = "2.5.2"
@@ -83,9 +79,9 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
         gateway = "192.168.0.1"
       }
     }
-    dns {
-      servers = ["${proxmox_virtual_environment_container.almalinux_container[adguard1].initalisation.ip_config.ipv4.address}","${proxmox_virtual_environment_container.almalinux_container[adguard1].initalisation.ip_config.ipv4.address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
-    }
+    # dns {
+      # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization.ip_config.ipv4.address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization.ip_config.ipv4.address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
+    # }
 
     user_account {
       keys = [
@@ -167,9 +163,9 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
         gateway = "192.168.0.1"
       }
     }
-    dns {
-      servers = ["${proxmox_virtual_environment_container.almalinux_container[adguard1].initalisation.ip_config.ipv4.address}","${proxmox_virtual_environment_container.almalinux_container[adguard1].initalisation.ip_config.ipv4.address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
-    }
+    # dns {
+      # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization.ip_config.ipv4.address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization.ip_config.ipv4.address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
+    # }
     
 
 
