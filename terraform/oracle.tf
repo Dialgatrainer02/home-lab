@@ -116,14 +116,15 @@ resource "terraform_data" "provision" {
   provisioner "remote-exec" {
     inline = [ # add swap as 1 g memory nd 1 g swap isnt enough for dnf to work
       "sudo swapoff -a",
-      "sudo dd if=/dev/zero of=/.swapfile bs=512M count=16", #512M * 16 = 8GB
+      "sudo dd if=/dev/zero of=/.swapfile bs=512M count=8", #512M * 8 = 4GB
       "sudo mkswap /.swapfile",
       "sudo swapon /.swapfile"
      ]
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i '0,//^nameserver//{s//nameserver [0-9.]\\+//nameserver 1.1.1.1//}' /etc/resolv.conf" # change dns server to 1.1.1.1 
+        "sudo nmcli conn mod 'Wired Connection' ipv4.dns '1.1.1.1'", # change dns server to 1.1.1.1 
+        "sudo systemctl restart NetworkManager sshd"
       ]
   }
 
