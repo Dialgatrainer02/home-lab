@@ -1,15 +1,4 @@
 ---
-- name: Reset opc password for debugging
-  hosts: wireguard-oci
-  pre_tasks:
-    - name: Reset opc user password
-      ansible.builtin.user:
-        name: opc
-        password: $6$rounds=656000$mysecretsalt$bt4UIMNYnPD6yfAsuQs2.da7EBtjIJCS/GFDNkL6k0VsWKFVFbxhXuugCPrHDbire1lEiBe.5uF4iYeeI1EpJ.
-      become: true
-  tags:
-    - debug
-
 - name: Initial setup
   hosts: all:!laptop
   tasks:
