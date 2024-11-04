@@ -117,7 +117,11 @@ resource "oci_core_instance" "wireguard_instance" {
       "sudo mkswap /.swapfile",
       "sudo swapon /.swapfile"
      ]
-    
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo sed -i '0,/^nameserver/{s/nameserver [0-9.]\+/nameserver 1.1.1.1/}' /etc/resolv.conf" # change dns server to 1.1.1.1 
+      ]
   }
 }
 

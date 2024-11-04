@@ -44,11 +44,11 @@ table inet filter {
             # drop promtail packets if not goignt to loki as otherwise they are exposed 
             tcp dport 3100 ip daddr !=$loki_server drop
             tcp dport 9100 ip daddr !=$prometheus_server drop
-{% if inventory_hostname = "wireguard-oci" %}
-            meta l4proto {tcp, udp} th sport 53 ip addr != 1.1.1.1 drop
-{% else %}
-            meta l4proto {tcp, udp} th sport 53 ip daddr !=$lan_subnet drop
+{% if inventory_hostname != "wireguard-oci" %}
             meta l4proto {tcp, udp} th sport 853 ip daddr !=$lan_subnet drop
+            meta l4proto {tcp, udp} th sport 53 ip daddr !=$lan_subnet drop
+{% else %}
+            meta l4proto {tcp, udp} th sport 53 ip daddr != 1.1.1.1 drop
 {%endif%}
 {% if 'wireguard' in group_names %}
 #             oifname wg0 accept
