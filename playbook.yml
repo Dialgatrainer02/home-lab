@@ -1,14 +1,19 @@
 ---
-- hosts: all
+- name: Home-lab playbook
+  hosts: all
   tasks:
     - name: Check all host can ping google
       ansible.builtin.command:
-        cmd: ping -4 -c 1 google.com
+        cmd: ping -c 1 google.com
+    - name: Check aall host can ping me
+      ansible.builtin.ping:
+
+
 - ansible.builtin.import_playbook: ./playbooks/setup.yml
 - ansible.builtin.import_playbook: ./playbooks/duckdns.yml
-- ansible.builtin.import_playbook: ./playbooks/logging.yml
-  
+- ansible.builtin.import_playbook: ./playbooks/logging.yml 
 - ansible.builtin.import_playbook: ./playbooks/wireguard.yml
 - ansible.builtin.import_playbook: ./playbooks/adguard.yml
-# - ansible.builtin.import_playbook: ./playbooks/arrstack.yml
 - ansible.builtin.import_playbook: ./playbooks/minecraft.yml
+
+# - ansible.builtin.import_playbook: ./playbooks/arrstack.yml
