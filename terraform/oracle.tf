@@ -103,7 +103,10 @@ resource "oci_core_instance" "wireguard_instance" {
   metadata = {
     ssh_authorized_keys = trimspace(tls_private_key.homelab_key.public_key_openssh)
   }
-
+}
+resource "terraform_data" "provision" {
+  for_each = var.oracle
+  input = data.oci_core_instance.wireguard_instance[each.key].public_ip
   connection {
     type = "ssh"
     host = "${data.oci_core_instance.wireguard_instance[each.key].public_ip}"
@@ -120,9 +123,9 @@ resource "oci_core_instance" "wireguard_instance" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo sed -i '0,/^nameserver/{s/nameserver [0-9.]\+/nameserver 1.1.1.1/}' /etc/resolv.conf" # change dns server to 1.1.1.1 
+      "sudo sed -i '0,//^nameserver//{s//nameserver [0-9.]\\+//nameserver 1.1.1.1//}' /etc/resolv.conf" # change dns server to 1.1.1.1 
       ]
   }
-}
 
+}
 
