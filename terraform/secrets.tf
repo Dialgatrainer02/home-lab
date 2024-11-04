@@ -8,7 +8,7 @@ variable "pve_password" {
   default = ""
 }
 
-variable "pve_endpoint" {
+variable "pve_address" {
   type    = string
   default = ""
 }

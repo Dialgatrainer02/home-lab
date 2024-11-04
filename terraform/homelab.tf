@@ -12,7 +12,7 @@ terraform {
 }
 
 provider "proxmox" {
-  endpoint = var.pve_endpoint
+  endpoint = "https://${var.pve_address}:8006"
 
   username = var.pve_username
   password = var.pve_password
@@ -115,7 +115,7 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   start_on_boot = "true"
 
   connection {
-    host     = "192.168.0.90" # TODO change pve endpoint to ip 
+    host     = var.pve_address
     type     = "ssh"
     user     = "root"
     password = var.pve_password
