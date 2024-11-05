@@ -13,6 +13,7 @@
 11. go through and fix all the ansible lint errors which cant be easily fixed -[ ]
 12. keep track of open ports by using unpnp to open them on the router -[ ]
 
+(this project expects to be in the subnet 192.168.0.0/24)
 
 # how to use 
 1. place proxmox and oci credentials in terraform/secrets_override.tf
