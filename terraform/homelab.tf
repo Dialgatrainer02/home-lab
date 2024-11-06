@@ -80,8 +80,11 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
       }
     }
     # dns {
-      # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
+    # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
     # }
+    dns {
+      servers = ["1.1.1.1", "1.0.0.1"]
+    }
 
     user_account {
       keys = [
@@ -164,13 +167,15 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
       }
     }
     # dns {
-      # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
+    # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
     # }
-    
+    dns {
+      servers = ["1.1.1.1"]
+    }
 
 
     user_account {
-      keys = [trimspace(tls_private_key.homelab_key.public_key_openssh)]
+      keys     = [trimspace(tls_private_key.homelab_key.public_key_openssh)]
       username = "almalinux"
     }
   }

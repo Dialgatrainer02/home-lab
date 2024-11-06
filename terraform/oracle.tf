@@ -16,6 +16,18 @@ resource "oci_core_virtual_network" "wireguard_vcn" {
   dns_label      = "instancevcn"
 }
 
+resource "oci_core_dhcp_options" "wireguard_dhcp_options" {
+  #Required
+  compartment_id = var.compartment_ocid
+  options {
+    type               = "DomainNameServer"
+    server_type        = "CustomDnsServer"
+    custom_dns_servers = ["1.1.1.1"]
+  }
+  display_name = "Wireguard DHCP Options"
+  vcn_id       = oci_core_virtual_network.wireguard_vcn.id
+}
+
 resource "oci_core_subnet" "wireguard_subnet" {
   cidr_block        = "10.1.20.0/24"
   display_name      = "instanceSubnet"
@@ -24,7 +36,7 @@ resource "oci_core_subnet" "wireguard_subnet" {
   compartment_id    = var.compartment_ocid
   vcn_id            = oci_core_virtual_network.wireguard_vcn.id
   route_table_id    = oci_core_route_table.wireguard_route_table.id
-  dhcp_options_id   = oci_core_virtual_network.wireguard_vcn.default_dhcp_options_id
+  dhcp_options_id   = oci_core_dhcp_options.wireguard_dhcp_options.id
 }
 
 resource "oci_core_internet_gateway" "wireguard_internet_gateway" {
@@ -106,11 +118,11 @@ resource "oci_core_instance" "wireguard_instance" {
 }
 resource "terraform_data" "provision" {
   for_each = var.oracle
-  input = data.oci_core_instance.wireguard_instance[each.key].public_ip
+  input    = data.oci_core_instance.wireguard_instance[each.key].public_ip
   connection {
-    type = "ssh"
-    host = "${data.oci_core_instance.wireguard_instance[each.key].public_ip}"
-    user = "opc"
+    type        = "ssh"
+    host        = data.oci_core_instance.wireguard_instance[each.key].public_ip
+    user        = "opc"
     private_key = tls_private_key.homelab_key.private_key_openssh
   }
   provisioner "remote-exec" {
@@ -119,14 +131,14 @@ resource "terraform_data" "provision" {
       "sudo dd if=/dev/zero of=/.swapfile bs=512M count=8", #512M * 8 = 4GB
       "sudo mkswap /.swapfile",
       "sudo swapon /.swapfile"
-     ]
+    ]
   }
-  provisioner "remote-exec" {
-    inline = [
-        "sudo nmcli conn mod 'Wired Connection' ipv4.dns '1.1.1.1'", # change dns server to 1.1.1.1 
-        "sudo systemctl restart NetworkManager sshd"
-      ]
-  }
+  # provisioner "remote-exec" {
+  # inline = [
+  # "sudo nmcli conn mod 'Wired Connection' ipv4.dns '1.1.1.1'", # change dns server to 1.1.1.1 
+  # "sudo systemctl restart NetworkManager sshd"
+  # ]
+  # }
 
 }
 
