@@ -3,7 +3,7 @@
 1. fix buildarr and get arr stack operational -[](testing recyclarr to automate part of sonarr + radarr jellyfin is already automated unsure as to jellyseer prowlarr and non trash related config)
 3. sort out storage for arr stack media and minecraft world -[] (done in terraform then point ansible to correct directory)
 4. figure out how to get metrics from vps without exposing them -[] (potemtial solution with ca and mtls)
-5. find way to properly automate jellyfin -[x] # pottential fix using https://gist.github.com/aslafy-z/dce9fd98bbe42f21095eb231687ae4f5 (only part of arr stack thats automated)
+5. find way to properly automate jellyfin -[x] # pottential fix using https://gist.github.com/aslafy-z/dce9fd98bbe42f21095eb231687ae4f5 (needs fixing cureently gives 503's)
 7. get duckdns to point to home network -[] (needs work in terraform for dns provisioning as sky doesnt like duckdns)
 10. dynamic inventory and provisioning with teraform/opentofu -[ ](provisioning is finished however intergration with ansible is stil needed)
 
