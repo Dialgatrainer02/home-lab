@@ -1,279 +1,79 @@
----
+###################################################################################################
+# Recyclarr Configuration Template: Remux + WEB 1080p                                             #
+# Updated: 2024-10-02                                                                             #
+# Documentation: https://recyclarr.dev                                                            #
+# Note: If you are using multiple profiles in a single instance, please read the following        #
+# documentation about file merging:                                                               #
+# https://recyclarr.dev/wiki/yaml/config-examples/#merge-single-instance                          #
+###################################################################################################
+
+# Instance Definition: https://recyclarr.dev/wiki/yaml/config-reference/basic/
 radarr:
-  hostname: radarr-hd
-  port: 7878
-  protocol: http
-  url_base: null
-  api_key: "{{ arrstack_instance_apikeys['radarr-hd'] }}"
-  version: 5.8.3.8933
-  image: lscr.io/linuxserver/radarr
-  settings:
-    media_management:
-      rename_movies: true
-      replace_illegal_characters: true
-      colon_replacement: delete
-      standard_movie_format: '{Movie CleanTitle} {(Release Year)} [tmdbid-{TmdbId}]
-        - {Edition Tags }{[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo
-        VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels]}{[Mediainfo
-        VideoCodec]}{-Release Group}'
-      movie_folder_format: '{Movie CleanTitle} ({Release Year}) [tmdbid-{TmdbId}]'
-      create_missing_movie_folders: false
-      delete_empty_folders: false
-      skip_free_space_check: false
-      minimum_free_space: 100
-      use_hardlinks: true
-      import_using_script: false
-      import_script_path: null
-      import_extra_files: false
-      unmonitor_deleted_movies: false
-      propers_and_repacks: do-not-prefer
-      analyze_video_files: true
-      rescan_folder_after_refresh: always
-      change_file_date: none
-      recycling_bin: null
-      recycling_bin_cleanup: 7
-      set_permissions: false
-      chmod_folder: drwxr-xr-x
-      chown_group: null
-      root_folders:
-      - /data/media/movies-hd
-    profiles:
-      quality_profiles:
-        delete_unmanaged: true
-        definitions:
-          HD-1080p:
-            upgrades_allowed: true
-            qualities:
-            - name: Bluray/WEB 1080p
-              members:
-              - Bluray-720p
-              - WEBRip-1080p
-              - Bluray-1080p
-              - Remux-1080p
-              - WEBDL-1080p
-            upgrade_until_quality: Bluray/WEB 1080p
-            minimum_custom_format_score: 0
-            upgrade_until_custom_format_score: 0
-            custom_formats:
-            - name: HD Bluray Tier 01
-              score: 1800
-            - name: HD Bluray Tier 02
-              score: 1750
-            - name: HD Bluray Tier 03
-              score: 1700
-            - name: WEB Tier 01
-              score: 1700
-            - name: WEB Tier 02
-              score: 1650
-            - name: WEB Tier 03
-              score: 1600
-            - name: Repack3
-              score: 7
-            - name: Repack2
-              score: 6
-            - name: Repack/Proper
-              score: 5
-            - name: AV1
-              score: -1000
-            - name: BR-DISK
-              score: -1000
-            - name: Bad Dual Groups
-              score: -1000
-            - name: DV (WEBDL)
-              score: -1000
-            - name: DV HDR10+ Boost
-              score: -1000
-            - name: Extras
-              score: -1000
-            - name: HDR10+ Boost
-              score: -1000
-            - name: LQ
-              score: -1000
-            - name: LQ (Release Title)
-              score: -1000
-            - name: No-RlsGroup
-              score: -1000
-            - name: Obfuscated
-              score: -1000
-            - name: Retags
-              score: -1000
-            - name: Scene
-              score: -1000
-            - name: Upscaled
-              score: -1000
-            - name: VP9
-              score: -1000
-            - name: x265 (HD)
-              score: -1000
-            language: english
-      delay_profiles:
-        definitions:
-        - preferred_protocol: usenet-prefer
-          usenet_delay: 0
-          torrent_delay: 0
-          bypass_if_highest_quality: true
-          tags: []
-        delete_unmanaged: false
-    quality:
-      trash_id: aed34b9f60ee115dfa7918b742336277
+  remux-web-1080p:
+    base_url: raddar-hd:7878
+    api_key: "{{ arrstack_instance_apikeys['radarr-hd'] }}"
+
+    include:
+      # Comment out any of the following includes to disable them
+      - template: radarr-quality-definition-movie
+      - template: radarr-quality-profile-remux-web-1080p
+      - template: radarr-custom-formats-remux-web-1080p
+
+# Custom Formats: https://recyclarr.dev/wiki/yaml/config-reference/custom-formats/
     custom_formats:
-      delete_unmanaged: true
-      definitions:
-        AV1:
-          trash_id: cae4ca30163749b891686f95532519bd
-        BR-DISK:
-          trash_id: ed38b889b31be83fda192888e2286d83
-        LQ:
-          trash_id: 90a6f9a284dff5103f6346090e6280c8
-        LQ (Release Title):
-          trash_id: e204b80c87be9497a8a6eaff48f72905
-        x265 (HD):
-          trash_id: dc98083864ea246d05a42df0d05f81cc
-        Upscaled:
-          trash_id: bfd8eb01832d646a0a89c4deb46f8564
-        Extras:
-          trash_id: 0a3f082873eb454bde444150b70253cc
-        Bad Dual Groups:
-          trash_id: b6832f586342ef70d9c128d40c07b872
-        DV (WEBDL):
-          trash_id: 923b6abef9b17f937fab56cfcf89e1f1
-        HDR10+ Boost:
-          trash_id: b17886cb4158d9fea189859409975758
-        DV HDR10+ Boost:
-          trash_id: 55a5b50cb416dea5a50c4955896217ab
-        No-RlsGroup:
-          trash_id: ae9b7c9ebde1f3bd336a8cbd1ec4c5e5
-        Obfuscated:
-          trash_id: 7357cf5161efbf8c4d5d0c30b4815ee2
-        Retags:
-          trash_id: 5c44f52a8714fdd79bb4d98e2673be1f
-        Scene:
-          trash_id: f537cf427b64c38c8e36298f657e4828
-        VP9:
-          trash_id: ae4cfaa9283a4f2150ac3da08e388723
-        INTERNAL:
-          trash_id:  182fa1c42a2468f8488e6dcf75a81b81
-        SDR:
-          trash_id: 9c38ebb7384dada637be8899efa68e6f
-        DV (Disk):
-          trash_id: f700d29429c023a5734505e77daeaea7
-        HFR:
-          trash_id: 73613461ac2cea99d52c4cd6e177ab82
-        Repack/Proper:
-          trash_id: e7718d7a3ce595f289bfee26adc178f5
-        Repack2:
-          trash_id: ae43b294509409a6a13919dedd4764c4
-        Repack3:
-          trash_id: 5caaaa1c08c1742aa4342d8c4cc463f2
-        WEB Tier 01:
-          trash_id: c20f169ef63c5f40c2def54abaf4438e
-        WEB Tier 02:
-          trash_id: 403816d65392c79236dcb6dd591aeda4
-        WEB Tier 03:
-          trash_id: af94e0fe497124d1f9ce732069ec8c3b
-        HD Bluray Tier 03:
-          trash_id: 5608c71bcebba0a5e666223bae8c9227
-        HD Bluray Tier 02:
-          trash_id: c20c8647f2746a1f4c4262b0fbbeeeae
-        HD Bluray Tier 01:
-          trash_id: ed27ebfef2f323e964fb1f61391bcb35
-    download_clients:
-      delete_unmanaged: true
-      definitions:
-        qBittorrent:
-          enable: true
-          remove_completed_downloads: true
-          remove_failed_downloads: true
-          priority: 1
-          tags: []
-          type: qbittorrent
-          hostname: qbittorrent
-          port: 8080
-          use_ssl: false
-          url_base: null
-          username: olivia
-          password: {{ arrstack_password }}
-          category: radarr-hd
-          postimport_category: null
-          recent_priority: last
-          older_priority: last
-          initial_state: start
-          sequential_order: false
-          first_and_last_first: false
-    notifications:
-      delete_unmanaged: false
-      definitions: {}
-    metadata:
-      certification_country: us
-      emby_legacy:
-        enable: false
-        movie_metadata: true
-      kodi_emby:
-        enable: false
-        movie_metadata: true
-        movie_metadata_url: false
-        movie_metadata_language: english
-        movie_images: true
-        use_movie_nfo: false
-        add_collection_name: true
-      roksbox:
-        enable: false
-        movie_metadata: true
-        movie_images: true
-      wdtv:
-        enable: false
-        movie_metadata: true
-        movie_images: true
-    tags:
-      definitions: []
-    general:
-      host:
-        bind_address: '*'
-        port: 7878
-        ssl_port: 9898
-        use_ssl: false
-        ssl_cert_path: null
-        ssl_cert_password: null
-        url_base: null
-        instance_name: radarr
-      security:
-        authentication: form
-        authentication_required: enabled
-        username: olivia
-        password: {{ arrstack_password }}
-        certificate_validation: enabled
-      proxy:
-        enable: false
-        proxy_type: http
-        hostname: null
-        port: 8080
-        username: null
-        password: null
-        ignored_addresses: []
-        bypass_proxy_for_local_addresses: true
-      logging:
-        log_level: INFO
-      analytics:
-        send_anonymous_usage_data: true
-      updates:
-        branch: master
-        automatic: false
-        mechanism: docker
-        script_path: null
-      backup:
-        folder: Backups
-        interval: 7
-        retention: 28
-    ui:
-      first_day_of_week: sunday
-      week_column_header: month-first
-      runtime_format: hours-minutes
-      short_date_format: word-month-first
-      long_date_format: month-first
-      time_format: twelve-hour
-      show_relative_dates: true
-      theme: auto
-      enable_color_impaired_mode: false
-      movie_info_language: english
-      ui_language: english
-  
+      # Audio
+      - trash_ids:
+          # Uncomment the next section to enable Advanced Audio Formats
+          # - 496f355514737f7d83bf7aa4d24f8169 # TrueHD Atmos
+          # - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+          # - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
+          # - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+          # - 3cafb66171b47f226146a0770576870f # TrueHD
+          # - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+          # - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
+          # - e7c2fcae07cbada050a0af3357491d7b # PCM
+          # - 8e109e50e0a0b83a5098b056e13bf6db # DTS-HD HRA
+          # - 185f1dd7264c4562b9022d963ac37424 # DD+
+          # - f9f847ac70a0af62ea4a08280b859636 # DTS-ES
+          # - 1c1a4c5e823891c75bc50380a6866f73 # DTS
+          # - 240770601cc226190c367ef59aba7463 # AAC
+          # - c2998bd0d90ed5621d8df281e839436e # DD
+        assign_scores_to:
+          - name: Remux + WEB 1080p
+
+      # Movie Versions
+      - trash_ids:
+      # Uncomment any of the following lines to prefer these movie versions
+           - 0f12c086e289cf966fa5948eac571f44 # Hybrid
+           - 570bc9ebecd92723d2d21500f4be314c # Remaster
+           - eca37840c13c6ef2dd0262b141a5482f # 4K Remaster
+           - e0c07d59beb37348e975a930d5e50319 # Criterion Collection
+           - 9d27d9d2181838f76dee150882bdc58c # Masters of Cinema
+           - db9b4c4b53d312a3ca5f1378f6440fc9 # Vinegar Syndrome
+           - 957d0f44b592285f26449575e8b1167e # Special Edition
+           - eecf3a857724171f968a66cb5719e152 # IMAX
+           - 9f6cbff8cfe4ebbc1bde14c7b7bec0de # IMAX Enhanced
+        assign_scores_to:
+          - name: Remux + WEB 1080p
+
+      # Optional
+      - trash_ids:
+           - b6832f586342ef70d9c128d40c07b872 # Bad Dual Groups
+           - 90cedc1fea7ea5d11298bebd3d1d3223 # EVO (no WEBDL)
+           - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
+           - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
+           - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
+           - f537cf427b64c38c8e36298f657e4828 # Scene
+        assign_scores_to:
+          - name: Remux + WEB 1080p
+
+      - trash_ids:
+          # Uncomment the next six lines to allow x265 HD releases with HDR/DV
+          # - dc98083864ea246d05a42df0d05f81cc # x265 (HD)
+        # assign_scores_to:
+          # - name: Remux + WEB 1080p
+            # score: 0
+      # - trash_ids:
+          # - 839bea857ed2c0a8e084f3cbdbd65ecb # x265 (no HDR/DV)
+        assign_scores_to:
+          - name: Remux + WEB 1080p

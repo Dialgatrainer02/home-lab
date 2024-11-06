@@ -11,7 +11,7 @@
 
 - ansible.builtin.import_playbook: ./playbooks/setup.yml
 - ansible.builtin.import_playbook: ./playbooks/duckdns.yml
-- ansible.builtin.import_playbook: ./playbooks/logging.yml 
+# - ansible.builtin.import_playbook: ./playbooks/logging.yml #while ansible galaxy needs a lower lib an arch can provide i cant install prometheus
 - ansible.builtin.import_playbook: ./playbooks/wireguard.yml
 - ansible.builtin.import_playbook: ./playbooks/adguard.yml
 - ansible.builtin.import_playbook: ./playbooks/minecraft.yml

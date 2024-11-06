@@ -168,17 +168,12 @@ services:
       - 7359:7359/udp #optional
       - 1900:1900/udp #optional
     restart: unless-stopped
-  buildarr:
-    image: callum027/buildarr:latest
-    container_name: buildarr
-    hostname: buildarr
-    restart: always
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr
+    user: 1000:1000
     volumes:
-      - type: bind
-        source: ./config/buildarr
-        target: /config
+      - ./config/recyclarr:/config
     environment:
-      TZ: Etc/Utc
-      PUID: 1000
-      PGID: 1000
- 
+      - RECYCLARR_CREATE_CONFIG: true
+      - TZ: Etc/Utc
