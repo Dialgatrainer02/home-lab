@@ -22,3 +22,5 @@ roles:
     src: https://github.com/githubixx/ansible-role-wireguard
     scm: git
     version: master
+  - name: ngine_io.blocky_dns
+    src: https://github.com/ngine-io/ansible-role-blocky-dns

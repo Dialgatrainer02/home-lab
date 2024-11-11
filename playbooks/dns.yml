@@ -1,0 +1,30 @@
+---
+- name: Setup dns servers
+  hosts: dns
+  roles:
+    - role: ngine_io.blocky_dns
+  # vars:
+    # blocky__custom_dns: {% for host in groups["all"] %} host : {{ hostvars[host].ansible_host | ansible.utils.ipv4 }} {%% endif %}
+
+- name: Change all dns servers to point at dns servers
+  hosts: all:!dns
+  tasks:
+    - name: Make pve ignore resolv conf # find way to diffrenciate between lxc and not
+      ansible.builtin.file:
+        name: /etc/.pve-ignore.resolv
+        state: touch
+        mode: "0777"
+      become: true
+    - name: Insert name servers into resolv conf
+      ansible.builtin.blockinfile:
+        path: /etc/resolv.conf
+        append_newline: true
+        prepend_newline: true
+        insertafter: /%^
+        block: |
+          nameserver: {{ hostvars['dns1'].ansible_host | ansible.utils.ipv4 }}
+          nameserver: {{ hostvars['dns2'].ansible_host | ansible.utils.ipv4 }}
+      become: true
+  tags:
+    - dns-servers
+    - adguard
