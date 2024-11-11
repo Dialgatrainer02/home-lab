@@ -26,14 +26,14 @@ table inet filter {
             # allow service's ports to comunicate
             tcp dport 9100 ip saddr $prometheus_server accept
             tcp dport 3100 ip saddr $loki_server accept
-{% if 'adguards' in group_names %}
+{% if 'dns' in group_names %}
             meta l4proto {tcp, udp} th dport 53 accept # allow dns 
             meta l4proto {tcp, udp} th dport 853 accept # allow dns over tls
             tcp dport 80 ip saddr $lan_subnet accept
 {% endif %}
 {% if 'wireguard' in group_names %}
             iifname wg0 accept
-            udp dport 51820 accept
+            udp dport {53,51820} accept
 {% endif %}
         }
         chain OUTPUT {
@@ -48,11 +48,26 @@ table inet filter {
             meta l4proto {tcp, udp} th sport 853 ip daddr !=$lan_subnet drop
             meta l4proto {tcp, udp} th sport 53 ip daddr !=$lan_subnet drop
 {% else %}
-            meta l4proto {tcp, udp} th sport 53 ip daddr != 1.1.1.1 drop
+             # meta l4proto {tcp, udp} th sport 53 ip daddr != 1.1.1.1 drop
 {%endif%}
 {% if 'wireguard' in group_names %}
 #             oifname wg0 accept
 {% endif %}
         }
-
 }
+
+{% if inventory_hostname == "wireguard-oci" %}
+table ip wireguard {
+	chain wireguard_chain {
+		type nat hook postrouting priority srcnat; policy accept;
+		counter packets 0 bytes 0 masquerade
+	}
+}
+table ip6 wireguard {
+	chain wireguard_chain {
+		type nat hook postrouting priority srcnat; policy accept;
+		counter packets 0 bytes 0 masquerade
+	}
+}
+
+{% endif %}

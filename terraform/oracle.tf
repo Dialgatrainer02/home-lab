@@ -14,6 +14,7 @@ resource "oci_core_virtual_network" "wireguard_vcn" {
   compartment_id = var.compartment_ocid
   display_name   = "instanceVCN"
   dns_label      = "instancevcn"
+  is_ipv6enabled = true
 }
 
 resource "oci_core_dhcp_options" "wireguard_dhcp_options" {
@@ -37,6 +38,7 @@ resource "oci_core_subnet" "wireguard_subnet" {
   vcn_id            = oci_core_virtual_network.wireguard_vcn.id
   route_table_id    = oci_core_route_table.wireguard_route_table.id
   dhcp_options_id   = oci_core_dhcp_options.wireguard_dhcp_options.id
+  ipv6cidr_block    = "${substr(oci_core_virtual_network.wireguard_vcn.ipv6cidr_blocks[0], 0, length(oci_core_virtual_network.wireguard_vcn.ipv6cidr_blocks[0]) - 2)}${64}"
 }
 
 resource "oci_core_internet_gateway" "wireguard_internet_gateway" {
@@ -66,6 +68,10 @@ resource "oci_core_security_list" "wireguard_security_list" {
     protocol    = "all"
     destination = "0.0.0.0/0"
   }
+  egress_security_rules {
+    protocol    = "all"
+    destination = "::/0"
+  }
 
   ingress_security_rules {
     protocol = "6"
@@ -77,12 +83,30 @@ resource "oci_core_security_list" "wireguard_security_list" {
     }
   }
   ingress_security_rules {
+    protocol = "6"
+    source   = "::/0"
+
+    tcp_options {
+      max = "22"
+      min = "22"
+    }
+  }
+  ingress_security_rules {
     protocol = "17"
     source   = "0.0.0.0/0"
 
     udp_options {
-      max = "51820"
-      min = "51820"
+      max = "53"
+      min = "53"
+    }
+  }
+  ingress_security_rules {
+    protocol = "17"
+    source   = "::/0"
+
+    udp_options {
+      max = "53"
+      min = "53"
     }
   }
 }
@@ -105,6 +129,7 @@ resource "oci_core_instance" "wireguard_instance" {
     display_name     = "primaryvnic"
     assign_public_ip = true
     hostname_label   = each.key
+    assign_ipv6ip    = true
   }
 
   source_details {
@@ -133,12 +158,6 @@ resource "terraform_data" "provision" {
       "sudo swapon /.swapfile"
     ]
   }
-  # provisioner "remote-exec" {
-  # inline = [
-  # "sudo nmcli conn mod 'Wired Connection' ipv4.dns '1.1.1.1'", # change dns server to 1.1.1.1 
-  # "sudo systemctl restart NetworkManager sshd"
-  # ]
-  # }
 
 }
 
