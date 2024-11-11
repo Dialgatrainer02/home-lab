@@ -1,5 +1,5 @@
 # todo 
-0. fix the wireguard tunnel!!!! -[] (ipv6 still needs work)
+0. fix the wireguard tunnel!!!! -[] (ipv6 still needs work)(fix nft rules for tunneling issues)(fix docker eendpoint failure)
 1. fix buildarr and get arr stack operational -[](testing recyclarr to automate part of sonarr + radarr jellyfin is already automated unsure as to jellyseer prowlarr and non trash related config)
 3. sort out storage for arr stack media and minecraft world -[] (done in terraform then point ansible to correct directory)
 4. figure out how to get metrics from vps without exposing them -[] (potemtial solution with ca and mtls)
