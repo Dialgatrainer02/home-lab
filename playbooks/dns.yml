@@ -19,10 +19,13 @@
       become: true
     - name: Insert name servers into resolv conf
       ansible.builtin.shell:
-        cmd: |
+        cmd: >-
           set -o pipefail
-          for connection in $(nmcli con show --active | grep ethernet | awk '{print $3 }');
-          do nmcli con mod "$connection" ipv4.dns "{{ hostvars["dns1"].ansible_host | ansible.utils.ipv4 }} {{ hostvars["dns2"].ansible_host | ansible.utils.ipv4 }}";
+          for connection in $(nmcli con show --active | grep ethernet | awk '{print $3 }');do
+          nmcli con mod "$connection" ipv4.dns
+           "{{ hostvars["dns1"].ansible_host | ansible.utils.ipv4 }} {{ hostvars["dns2"].ansible_host | ansible.utils.ipv4 }}";
           done
+      register: result
+      changed_when: result.rc != 0
   tags:
     - dns-servers

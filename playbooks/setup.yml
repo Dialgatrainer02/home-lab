@@ -12,6 +12,7 @@
         name:
           - "*"
         state: latest
+        update_only: true
       become: true
       tags:
         - update
@@ -21,13 +22,13 @@
           - tar
           - yum-utils
           - nftables
-        state: latest
+        state: present
       become: true
       tags:
         - nftables
     - name: Add nftable rules
       ansible.builtin.template:
-        src: ../templates/homelab-ruleset.nft.j2
+        src: ../templates/homelab-ruleset.nft.j2 # noqa: no-relative-paths
         dest: /etc/nftables.nft
         owner: root
         group: root
@@ -47,6 +48,8 @@
       ansible.builtin.command:
         cmd: nft -f /etc/nftables.nft
       become: true
+      register: result
+      changed_when: result.rc != 0
       tags:
         - nftables
     - name: System update
@@ -54,6 +57,7 @@
         name:
           - "*"
         state: latest
+        update_only: true
       become: true
       tags:
         - update

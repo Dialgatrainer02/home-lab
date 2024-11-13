@@ -126,11 +126,13 @@
     - radarr-hd
     #      - radarr-4k
     - prowlarr
+  changed_when: arrstack_instance_apikeys_raw.rc != 0
 
 - name: Special handling for jellyseers api key
   ansible.builtin.command:
     cmd: jq -r '.main.apiKey' {{ arrstack_env_dir }}/config/jellyseerr/settings.json
   register: arrstack_jellyseer_api_key
+  changed_when: arrstack_jellyseer_api_key.rc != 0
 
 - name: Parse Buildarr-managed instance API keys
   ansible.builtin.set_fact:

@@ -5,6 +5,7 @@ collections:
     type: git
   - name: grafana.grafana
   - name: community.docker
+  - name: ansible.posix
 roles:
   - name: promtail
     src: https://github.com/patrickjahns/ansible-role-promtail

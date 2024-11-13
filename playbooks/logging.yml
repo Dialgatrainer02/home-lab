@@ -43,7 +43,7 @@
   post_tasks:
     - name: Add file sd targets
       ansible.builtin.template:
-        src: ../templates/targets.yml.j2
+        src: ../templates/targets.yml.j2 # noqa: no-relative-paths
         dest: /etc/prometheus/file_sd/node.yml
         mode: "755"
         owner: prometheus
@@ -56,7 +56,7 @@
 - name: Install and setup loki
   hosts: loki
   roles:
-    - role: ../roles/loki
+    - role: loki
   tags:
     - loki
 - name: Install and setup granfana

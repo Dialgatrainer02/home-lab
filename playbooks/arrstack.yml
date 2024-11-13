@@ -300,6 +300,6 @@
   vars:
     arrstack_password: "{{ password }}"
   roles:
-    - ../roles/arrstack
+    - arrstack
   tags:
     - arrstack
