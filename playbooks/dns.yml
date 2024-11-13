@@ -4,8 +4,8 @@
   roles:
     - role: ngine_io.blocky_dns
   vars:
-    blocky_hosts_dns_enabled: true
-    blocky_hosts_dns_domain: .olivia420.duckdns.org
+    blocky__hosts_dns_enabled: true
+    blocky__hosts_dns_domain: .hn-1-prx.duckdns.org
   tags:
     - dns-servers
 - name: Change all dns servers to point at dns servers

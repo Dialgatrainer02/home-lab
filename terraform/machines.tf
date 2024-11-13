@@ -4,11 +4,11 @@ variable "containers" {
   default = {
     dns1 = {
       id             = 1
-      ansible_groups = ["adguards"]
+      ansible_groups = ["dns"]
     }
     dns2 = {
       id             = 2
-      ansible_groups = ["adguards"]
+      ansible_groups = ["dns"]
     }
     prometheus = {
       id             = 3
