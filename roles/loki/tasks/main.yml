@@ -26,7 +26,7 @@
   ansible.builtin.copy:
     src: loki.yml
     dest: /etc/loki/loki.yml
-    mode: '0755'
+    mode: "0755"
     owner: root
 - name: Copy service file
   ansible.builtin.copy:

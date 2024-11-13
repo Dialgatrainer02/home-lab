@@ -4,299 +4,299 @@
   become: true
   vars_files:
     - ../secrets.yml
-  pre_tasks:
-    - name: Install docker
-      block:
-        - name: Remove podman docker
-          ansible.builtin.dnf:
-            name:
-              - docker
-              - podman-docker
-              - podman
-            state: absent
-        - name: Add docker ce repo
-          ansible.builtin.command:
-            cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-        - name: Update dnf
-          ansible.builtin.dnf:
-            name: "*"
-            state: latest
-        - name: Install docker
-          ansible.builtin.dnf:
-            name:
-              - docker-ce
-            state: latest
-        - name: Start docker service
-          ansible.builtin.systemd_service:
-            name: docker
-            state: restarted
-            enabled: true
-    - name: Jellyfin install fixes
-      block:
-        - name: Stop jellyfin container
-          community.docker.docker_container:
-            name: jellyfin
-            state: stopped
-          ignore_errors: true
-        - name: Make jellyfin config dir in advance
-          ansible.builtin.file:
-            name: /opt/arrstack/config/jellyfin
-            recurse: true
-            state: directory
-            owner: 1000
-            group: 1000
-        - name: Make media directories to ensure jellyfin api doesnt fail with non existant dir
-          ansible.builtin.file:
-            name: /opt/arrstack/data/media/{{ item }}
-            recurse: true
-            owner: 1000
-            group: 1000
-          loop:
-            - movies-hd
-            - tv-hd
-        - name: Run tempory jellyfin to install and generte config files against
-          community.docker.docker_container:
-            name: jellyfin-tmp
-            auto_remove: true
-            image: lscr.io/linuxserver/jellyfin:latest
-            ports:
-              - 8096:8096
-            #            user: "1000:1000"
-            volumes:
-              - /opt/arrstack/config/jellyfin:/config
-              - /opt/arrstack/data/media:/data/media
-            state: started
-            env:
-              PGID: "1000"
-              PUID: "1000"
-        - name: Wait for jellyfin to be avalible
-          ansible.builtin.uri:
-            url: "{{ item }}"
-            status_code:
-              - 200
-              - 302
-          register: arrstack_service_test
-          until: arrstack_service_test is not failed
-          retries: 300
-          delay: 1
-          loop:
-            - http://localhost:8096
-        - name: Jellyfin first time setup
-          ignore_errors: true
-          block:
-            - name: Pull the config before setting it later
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/Configuration
-                method: POST
-                body:
-                  UICulture: en-US
-                  MetadataCountryCode: US
-                  PreferredMetadataLanguage: en
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Pull user before setting it latter
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/User
-                method: GET
-                status_code: 200
-              register: result
-            - name: Set user name and password
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/User
-                method: POST
-                body:
-                  Name: olivia
-                  Password: "{{ arrstack_password }}"
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Add movie libary
-              ansible.builtin.uri:
-                url: http://localhost:8096/Library/VirtualFolders?collectionType=movies&refreshLibrary=false&name=Movies
-                method: POST
-                body:
-                  LibraryOptions:
-                    Enabled: true
-                    EnableArchiveMediaFiles: false
-                    EnablePhotos: true
-                    EnableRealtimeMonitor: true
-                    EnableLUFSScan: true
-                    ExtractTrickplayImagesDuringLibraryScan: true
-                    EnableTrickplayImageExtraction: true
-                    ExtractChapterImagesDuringLibraryScan: false
-                    EnableChapterImageExtraction: false
-                    EnableInternetProviders: true
-                    SaveLocalMetadata: false
-                    EnableAutomaticSeriesGrouping: false
-                    PreferredMetadataLanguage: ""
-                    MetadataCountryCode: ""
-                    SeasonZeroDisplayName: Specials
-                    AutomaticRefreshIntervalDays: 90
-                    EnableEmbeddedTitles: false
-                    EnableEmbeddedExtrasTitles: false
-                    EnableEmbeddedEpisodeInfos: false
-                    AllowEmbeddedSubtitles: AllowAll
-                    SkipSubtitlesIfEmbeddedSubtitlesPresent: false
-                    SkipSubtitlesIfAudioTrackMatches: false
-                    SaveSubtitlesWithMedia: true
-                    SaveLyricsWithMedia: false
-                    RequirePerfectSubtitleMatch: true
-                    AutomaticallyAddToCollection: false
-                    MetadataSavers:
-                      - Nfo
-                    TypeOptions:
-                      - Type: Movie
-                        MetadataFetchers:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        MetadataFetcherOrder:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        ImageFetchers:
-                          - TheMovieDb
-                          - The Open Movie Database
-                          - Embedded Image Extractor
-                          - Screen Grabber
-                        ImageFetcherOrder:
-                          - TheMovieDb
-                          - The Open Movie Database
-                          - Embedded Image Extractor
-                          - Screen Grabber
-                    LocalMetadataReaderOrder:
-                      - Nfo
-                    SubtitleDownloadLanguages: []
-                    DisabledSubtitleFetchers: []
-                    SubtitleFetcherOrder: []
-                    PathInfos:
-                      - Path: /data/media/movies-hd
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Add show libary
-              ansible.builtin.uri:
-                url: http://localhost:8096/Library/VirtualFolders?collectionType=tvshows&refreshLibrary=false&name=TV%20Shows
-                method: POST
-                body:
-                  LibraryOptions:
-                    Enabled: true
-                    EnableArchiveMediaFiles: false
-                    EnablePhotos: true
-                    EnableRealtimeMonitor: true
-                    EnableLUFSScan: true
-                    ExtractTrickplayImagesDuringLibraryScan: true
-                    EnableTrickplayImageExtraction: true
-                    ExtractChapterImagesDuringLibraryScan: false
-                    EnableChapterImageExtraction: false
-                    EnableInternetProviders: true
-                    SaveLocalMetadata: false
-                    EnableAutomaticSeriesGrouping: false
-                    PreferredMetadataLanguage: ""
-                    MetadataCountryCode: ""
-                    SeasonZeroDisplayName: Specials
-                    AutomaticRefreshIntervalDays: 0
-                    EnableEmbeddedTitles: false
-                    EnableEmbeddedExtrasTitles: false
-                    EnableEmbeddedEpisodeInfos: false
-                    AllowEmbeddedSubtitles: AllowAll
-                    SkipSubtitlesIfEmbeddedSubtitlesPresent: false
-                    SkipSubtitlesIfAudioTrackMatches: false
-                    SaveSubtitlesWithMedia: true
-                    SaveLyricsWithMedia: false
-                    RequirePerfectSubtitleMatch: true
-                    AutomaticallyAddToCollection: false
-                    MetadataSavers: []
-                    TypeOptions:
-                      - Type: Series
-                        MetadataFetchers:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        MetadataFetcherOrder:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        ImageFetchers:
-                          - TheMovieDb
-                        ImageFetcherOrder:
-                          - TheMovieDb
-                      - Type: Season
-                        MetadataFetchers:
-                          - TheMovieDb
-                        MetadataFetcherOrder:
-                          - TheMovieDb
-                        ImageFetchers:
-                          - TheMovieDb
-                        ImageFetcherOrder:
-                          - TheMovieDb
-                      - Type: Episode
-                        MetadataFetchers:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        MetadataFetcherOrder:
-                          - TheMovieDb
-                          - The Open Movie Database
-                        ImageFetchers:
-                          - TheMovieDb
-                          - The Open Movie Database
-                          - Embedded Image Extractor
-                          - Screen Grabber
-                        ImageFetcherOrder:
-                          - TheMovieDb
-                          - The Open Movie Database
-                          - Embedded Image Extractor
-                          - Screen Grabber
-                    LocalMetadataReaderOrder:
-                      - Nfo
-                    SubtitleDownloadLanguages: []
-                    DisabledSubtitleFetchers: []
-                    SubtitleFetcherOrder: []
-                    PathInfos:
-                      - Path: /data/media/tv-hd
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Set locales for jellyfin
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/Configuration
-                method: POST
-                body:
-                  UICulture: en-GB
-                  MetadataCountryCode: GB
-                  PreferredMetadataLanguage: en
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Configure remote access
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/RemoteAccess
-                method: POST
-                body:
-                  EnableRemoteAccess: true
-                  EnableAutomaticPortMapping: false
-                body_format: json
-                headers:
-                  Content-Type: application/json
-                status_code: 204
-              register: result
-            - name: Complete setup
-              ansible.builtin.uri:
-                url: http://localhost:8096/Startup/Complete
-                method: POST
-                status_code: 204
-              register: result
-        - name: Stop the container
-          community.docker.docker_container:
-            name: jellyfin-tmp
-            state: stopped
+  # pre_tasks:
+    # - name: Install docker
+      # block:
+        # - name: Remove podman docker
+          # ansible.builtin.dnf:
+            # name:
+              # - docker
+              # - podman-docker
+              # - podman
+            # state: absent
+        # - name: Add docker ce repo
+          # ansible.builtin.command:
+            # cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+        # - name: Update dnf
+          # ansible.builtin.dnf:
+            # name: "*"
+            # state: latest
+        # - name: Install docker
+          # ansible.builtin.dnf:
+            # name:
+              # - docker-ce
+            # state: latest
+        # - name: Start docker service
+          # ansible.builtin.systemd_service:
+            # name: docker
+            # state: restarted
+            # enabled: true
+    # - name: Jellyfin install fixes
+      # block:
+        # - name: Stop jellyfin container
+          # community.docker.docker_container:
+            # name: jellyfin
+            # state: stopped
+          # ignore_errors: true
+        # - name: Make jellyfin config dir in advance
+          # ansible.builtin.file:
+            # name: /opt/arrstack/config/jellyfin
+            # recurse: true
+            # state: directory
+            # owner: 1000
+            # group: 1000
+        # - name: Make media directories to ensure jellyfin api doesnt fail with non existant dir
+          # ansible.builtin.file:
+            # name: /opt/arrstack/data/media/{{ item }}
+            # recurse: true
+            # owner: 1000
+            # group: 1000
+          # loop:
+            # - movies-hd
+            # - tv-hd
+        # - name: Run tempory jellyfin to install and generte config files against
+          # community.docker.docker_container:
+            # name: jellyfin-tmp
+            # auto_remove: true
+            # image: lscr.io/linuxserver/jellyfin:latest
+            # ports:
+              # - 8096:8096
+                       user: "1000:1000"
+            # volumes:
+              # - /opt/arrstack/config/jellyfin:/config
+              # - /opt/arrstack/data/media:/data/media
+            # state: started
+            # env:
+              # PGID: "1000"
+              # PUID: "1000"
+        # - name: Wait for jellyfin to be avalible
+          # ansible.builtin.uri:
+            # url: "{{ item }}"
+            # status_code:
+              # - 200
+              # - 302
+          # register: arrstack_service_test
+          # until: arrstack_service_test is not failed
+          # retries: 300
+          # delay: 1
+          # loop:
+            # - http://localhost:8096
+        # - name: Jellyfin first time setup
+          # ignore_errors: true
+          # block:
+            # - name: Pull the config before setting it later
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/Configuration
+                # method: POST
+                # body:
+                  # UICulture: en-US
+                  # MetadataCountryCode: US
+                  # PreferredMetadataLanguage: en
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Pull user before setting it latter
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/User
+                # method: GET
+                # status_code: 200
+              # register: result
+            # - name: Set user name and password
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/User
+                # method: POST
+                # body:
+                  # Name: olivia
+                  # Password: "{{ arrstack_password }}"
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Add movie libary
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Library/VirtualFolders?collectionType=movies&refreshLibrary=false&name=Movies
+                # method: POST
+                # body:
+                  # LibraryOptions:
+                    # Enabled: true
+                    # EnableArchiveMediaFiles: false
+                    # EnablePhotos: true
+                    # EnableRealtimeMonitor: true
+                    # EnableLUFSScan: true
+                    # ExtractTrickplayImagesDuringLibraryScan: true
+                    # EnableTrickplayImageExtraction: true
+                    # ExtractChapterImagesDuringLibraryScan: false
+                    # EnableChapterImageExtraction: false
+                    # EnableInternetProviders: true
+                    # SaveLocalMetadata: false
+                    # EnableAutomaticSeriesGrouping: false
+                    # PreferredMetadataLanguage: ""
+                    # MetadataCountryCode: ""
+                    # SeasonZeroDisplayName: Specials
+                    # AutomaticRefreshIntervalDays: 90
+                    # EnableEmbeddedTitles: false
+                    # EnableEmbeddedExtrasTitles: false
+                    # EnableEmbeddedEpisodeInfos: false
+                    # AllowEmbeddedSubtitles: AllowAll
+                    # SkipSubtitlesIfEmbeddedSubtitlesPresent: false
+                    # SkipSubtitlesIfAudioTrackMatches: false
+                    # SaveSubtitlesWithMedia: true
+                    # SaveLyricsWithMedia: false
+                    # RequirePerfectSubtitleMatch: true
+                    # AutomaticallyAddToCollection: false
+                    # MetadataSavers:
+                      # - Nfo
+                    # TypeOptions:
+                      # - Type: Movie
+                        # MetadataFetchers:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # MetadataFetcherOrder:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # ImageFetchers:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                          # - Embedded Image Extractor
+                          # - Screen Grabber
+                        # ImageFetcherOrder:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                          # - Embedded Image Extractor
+                          # - Screen Grabber
+                    # LocalMetadataReaderOrder:
+                      # - Nfo
+                    # SubtitleDownloadLanguages: []
+                    # DisabledSubtitleFetchers: []
+                    # SubtitleFetcherOrder: []
+                    # PathInfos:
+                      # - Path: /data/media/movies-hd
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Add show libary
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Library/VirtualFolders?collectionType=tvshows&refreshLibrary=false&name=TV%20Shows
+                # method: POST
+                # body:
+                  # LibraryOptions:
+                    # Enabled: true
+                    # EnableArchiveMediaFiles: false
+                    # EnablePhotos: true
+                    # EnableRealtimeMonitor: true
+                    # EnableLUFSScan: true
+                    # ExtractTrickplayImagesDuringLibraryScan: true
+                    # EnableTrickplayImageExtraction: true
+                    # ExtractChapterImagesDuringLibraryScan: false
+                    # EnableChapterImageExtraction: false
+                    # EnableInternetProviders: true
+                    # SaveLocalMetadata: false
+                    # EnableAutomaticSeriesGrouping: false
+                    # PreferredMetadataLanguage: ""
+                    # MetadataCountryCode: ""
+                    # SeasonZeroDisplayName: Specials
+                    # AutomaticRefreshIntervalDays: 0
+                    # EnableEmbeddedTitles: false
+                    # EnableEmbeddedExtrasTitles: false
+                    # EnableEmbeddedEpisodeInfos: false
+                    # AllowEmbeddedSubtitles: AllowAll
+                    # SkipSubtitlesIfEmbeddedSubtitlesPresent: false
+                    # SkipSubtitlesIfAudioTrackMatches: false
+                    # SaveSubtitlesWithMedia: true
+                    # SaveLyricsWithMedia: false
+                    # RequirePerfectSubtitleMatch: true
+                    # AutomaticallyAddToCollection: false
+                    # MetadataSavers: []
+                    # TypeOptions:
+                      # - Type: Series
+                        # MetadataFetchers:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # MetadataFetcherOrder:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # ImageFetchers:
+                          # - TheMovieDb
+                        # ImageFetcherOrder:
+                          # - TheMovieDb
+                      # - Type: Season
+                        # MetadataFetchers:
+                          # - TheMovieDb
+                        # MetadataFetcherOrder:
+                          # - TheMovieDb
+                        # ImageFetchers:
+                          # - TheMovieDb
+                        # ImageFetcherOrder:
+                          # - TheMovieDb
+                      # - Type: Episode
+                        # MetadataFetchers:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # MetadataFetcherOrder:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                        # ImageFetchers:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                          # - Embedded Image Extractor
+                          # - Screen Grabber
+                        # ImageFetcherOrder:
+                          # - TheMovieDb
+                          # - The Open Movie Database
+                          # - Embedded Image Extractor
+                          # - Screen Grabber
+                    # LocalMetadataReaderOrder:
+                      # - Nfo
+                    # SubtitleDownloadLanguages: []
+                    # DisabledSubtitleFetchers: []
+                    # SubtitleFetcherOrder: []
+                    # PathInfos:
+                      # - Path: /data/media/tv-hd
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Set locales for jellyfin
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/Configuration
+                # method: POST
+                # body:
+                  # UICulture: en-GB
+                  # MetadataCountryCode: GB
+                  # PreferredMetadataLanguage: en
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Configure remote access
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/RemoteAccess
+                # method: POST
+                # body:
+                  # EnableRemoteAccess: true
+                  # EnableAutomaticPortMapping: false
+                # body_format: json
+                # headers:
+                  # Content-Type: application/json
+                # status_code: 204
+              # register: result
+            # - name: Complete setup
+              # ansible.builtin.uri:
+                # url: http://localhost:8096/Startup/Complete
+                # method: POST
+                # status_code: 204
+              # register: result
+        # - name: Stop the container
+          # community.docker.docker_container:
+            # name: jellyfin-tmp
+            # state: stopped
   vars:
     arrstack_password: "{{ password }}"
   roles:

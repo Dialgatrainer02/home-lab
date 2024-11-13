@@ -76,17 +76,17 @@
   ansible.builtin.debug:
     msg: you are making wg0 via ansible you need to fix that before testingor place it there manually as this isnt doing it
 
-# - name: Start all Docker Compose services except for Buildarr
-  # community.docker.docker_compose_v2:
-    # project_name: arrstack
-    # project_src: "{{ arrstack_env_dir }}"
-    # services:
+      # - name: Start all Docker Compose services except for Buildarr
+      # community.docker.docker_compose_v2:
+      # project_name: arrstack
+      # project_src: "{{ arrstack_env_dir }}"
+      # services:
       # - qbittorrent
       # - flaresolverr
       # - sonarr-hd
-          #  - sonarr-4k
+      #  - sonarr-4k
       # - radarr-hd
-          #  - radarr-4k
+      #  - radarr-4k
       # - prowlarr
       # - jellyseerr
       # - jellyfin
@@ -138,14 +138,14 @@
   no_log: true
   loop: "{{ arrstack_instance_apikeys_raw.results }}"
 
-# - name: Create jellyseer configuration files
-  # ansible.builtin.template:
+    # - name: Create jellyseer configuration files
+    # ansible.builtin.template:
     # src: "{{ item }}.j2"
     # dest: "{{ arrstack_env_dir }}/config/jellyseer{{ item }}"
     # owner: root
     # group: "{{ arrstack_volume_dir_group }}"
     # mode: "755"
-  # loop:
+    # loop:
     # - jellyseer.yml
 
 - name: Create recyclarr configuration files

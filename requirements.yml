@@ -1,3 +1,4 @@
+---
 collections:
   - name: https://github.com/prometheus-community/ansible.git
     version: main

@@ -3,9 +3,9 @@
   hosts: dns
   roles:
     - role: ngine_io.blocky_dns
-  # vars:
-    # blocky__custom_dns: {% for host in groups["all"] %} host : {{ hostvars[host].ansible_host | ansible.utils.ipv4 }} {%% endif %}
-
+  vars:
+    blocky_hosts_dns_enabled: true
+    blocky_hosts_dns_domain: .olivia420.duckdns.org
 - name: Change all dns servers to point at dns servers
   hosts: all:!dns
   tasks:
@@ -16,15 +16,12 @@
         mode: "0777"
       become: true
     - name: Insert name servers into resolv conf
-      ansible.builtin.blockinfile:
-        path: /etc/resolv.conf
-        append_newline: true
-        prepend_newline: true
-        insertafter: /%^
-        block: |
-          nameserver: {{ hostvars['dns1'].ansible_host | ansible.utils.ipv4 }}
-          nameserver: {{ hostvars['dns2'].ansible_host | ansible.utils.ipv4 }}
-      become: true
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          for connection in $(nmcli con show --active | grep ethernet | awk '{print $3 }');
+          do nmcli con mod "$connection" ipv4.dns "{{ hostvars["adguard1"].ansible_host | ansible.builtin.ipv4 }} {{ hostvars["adguard2"].ansible_host | ansible.builtin.ipv4 }}";
+          done
   tags:
     - dns-servers
     - adguard
