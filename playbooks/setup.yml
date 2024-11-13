@@ -61,12 +61,11 @@
       ansible.builtin.command:
         cmd: needs-restarting -r
       register: result
+      changed_when: result.rc == 1
       ignore_errors: true
     - name: Reboot if needed
       ansible.builtin.reboot:
       become: true
       when: result.rc == 1
-    - name: Wait for instances to come back online
-      ansible.builtin.wait_for_connection:
   tags:
     - setup

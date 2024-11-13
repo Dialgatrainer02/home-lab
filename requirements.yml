@@ -12,16 +12,10 @@ roles:
   - name: node_exporter
     src: https://github.com/geerlingguy/ansible-role-node_exporter
     scm: git
-  - name: adguard
-    src: https://github.com/bcook254/ansible-role-adguardhome
-    scm: git
-  - src: https://github.com/O1ahmad/ansible-role-systemd
-    scm: git
-    name: 0x0i.systemd
-    version: master
   - name: wireguard
     src: https://github.com/githubixx/ansible-role-wireguard
     scm: git
     version: master
   - name: ngine_io.blocky_dns
     src: https://github.com/ngine-io/ansible-role-blocky-dns
+    version: main

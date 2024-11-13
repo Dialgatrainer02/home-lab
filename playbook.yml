@@ -7,13 +7,19 @@
 # cmd: ping -c 1 google.com
 # - name: Check aall host can ping me
 # ansible.builtin.ping:
-# 
+#
 
-- ansible.builtin.import_playbook: ./playbooks/setup.yml
-- ansible.builtin.import_playbook: ./playbooks/duckdns.yml
-- ansible.builtin.import_playbook: ./playbooks/logging.yml
-- ansible.builtin.import_playbook: ./playbooks/wireguard.yml
-- ansible.builtin.import_playbook: ./playbooks/dns.yml
-- ansible.builtin.import_playbook: ./playbooks/minecraft.yml
+- name: Setup all servers
+  ansible.builtin.import_playbook: ./playbooks/setup.yml
+- name: Update duckdns
+  ansible.builtin.import_playbook: ./playbooks/duckdns.yml
+- name: Setup logging stack
+  ansible.builtin.import_playbook: ./playbooks/logging.yml
+- name: Setup wireguard
+  ansible.builtin.import_playbook: ./playbooks/wireguard.yml
+- name: Setup dns servers
+  ansible.builtin.import_playbook: ./playbooks/dns.yml
+- name: Setup minecraft server
+  ansible.builtin.import_playbook: ./playbooks/minecraft.yml
 
 # - ansible.builtin.import_playbook: ./playbooks/arrstack.yml
