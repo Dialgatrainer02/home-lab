@@ -2,11 +2,11 @@ variable "containers" {
   type = map(object({ id = number, ansible_groups = list(string), ansible_varibles = optional(any) }))
 
   default = {
-    adguard1 = {
+    dns1 = {
       id             = 1
       ansible_groups = ["adguards"]
     }
-    adguard2 = {
+    dns2 = {
       id             = 2
       ansible_groups = ["adguards"]
     }
