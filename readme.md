@@ -1,18 +1,21 @@
 # todo 
-0. fix the wireguard tunnel!!!! -[] (ipv6 still needs work)(fix nft rules for tunneling issues)(fix docker endpoint failure)
-1. fix buildarr and get arr stack operational -[]
-3. sort out storage for arr stack media and minecraft world -[] (will setup passthrough via terraform)
-4. figure out how to get metrics from vps without exposing them -[] (potemtial solution with ca and mtls)
-<!-- 5. find way to properly automate jellyfin -[x] # pottential fix using https://gist.github.com/aslafy-z/dce9fd98bbe42f21095eb231687ae4f5 (needs fixing cureently gives 503's) -->
-10. dynamic inventory and provisioning with teraform/opentofu -[ ](working on inventory)
-
+1. fix wireguaed tunnel for ipv6
+2. make nginx reverse proxy config for web gui services
+3. link terraform and ansible using inventory.yml
+4. find buildrr alternaative(felmmarr+recyclarr potential solution)
+5. setup and configure shadowsocks proxy
+6. add wireguard-oci to loggin stack securely(mtls or wireguard tunnel)
+7. redo grafana logging stack(helpful names and better configs)
+8. tidy and reformat "legacy" code(remove secret sprawl throughout the project and rotate any keys)
+9. remove expectation about subnet
+10. transistion to ipv6 where possible
 
 (this project expects to be in the subnet 192.168.0.0/24)
 
 # how to use 
 1. place proxmox and oci credentials in terraform/secrets_override.tf
 2. (place inventory in inventory.yml)
-3, plaace seret varibles in secrets.yml
+3, place seret varibles in secrets.yml
 3. run todu/terraform init paln apply in /terraform 
 4. run ansible-playbook ./playbook.yml in project root 
 5. should all be there
