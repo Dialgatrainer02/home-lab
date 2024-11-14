@@ -1,8 +1,9 @@
 .vscode/
-inventory.yml
-secrets.yml
-terraform/secrets_override.tf
+secrets.yml 
+# to be replaced with terraform secrets_override
+terraform/*_override.tf
 terraform/.terraform
 terraform/*.lock.*
 terraform/*.tfstate*
+*inventory*
 *key*

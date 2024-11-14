@@ -48,7 +48,7 @@ output "inventory" {
 }
 resource "local_file" "bootstrap" {
   content = local.bootstrap
-  filename = "./bootstrap.yml"
+  filename = "./bootstrap-inventory.yml"
   
 }
 
