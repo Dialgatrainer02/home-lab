@@ -8,24 +8,4 @@
     blocky__hosts_dns_domain: .hn-1-prx.duckdns.org
   tags:
     - dns-servers
-- name: Change all dns servers to point at dns servers
-  hosts: all:!dns
-  tasks:
-    - name: Make pve ignore resolv conf # find way to diffrenciate between lxc and not
-      ansible.builtin.file:
-        name: /etc/.pve-ignore.resolv
-        state: touch
-        mode: "0777"
-      become: true
-    - name: Insert name servers into resolv conf
-      ansible.builtin.shell:
-        cmd: >-
-          set -o pipefail
-          for connection in $(nmcli con show --active | grep ethernet | awk '{print $3 }');do
-          nmcli con mod "$connection" ipv4.dns
-           "{{ hostvars["dns1"].ansible_host | ansible.utils.ipv4 }} {{ hostvars["dns2"].ansible_host | ansible.utils.ipv4 }}";
-          done
-      register: result
-      changed_when: result.rc != 0
-  tags:
-    - dns-servers
+    - bootstrap

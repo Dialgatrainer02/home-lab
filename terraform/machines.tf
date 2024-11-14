@@ -1,8 +1,7 @@
-variable "containers" {
+variable "dns_servers" {
   type = map(object({ id = number, ansible_groups = list(string), ansible_varibles = optional(any) }))
-
-  default = {
-    dns1 = {
+  default = { 
+  dns1 = {
       id             = 1
       ansible_groups = ["dns"]
     }
@@ -10,6 +9,12 @@ variable "containers" {
       id             = 2
       ansible_groups = ["dns"]
     }
+  }
+}
+variable "containers" {
+  type = map(object({ id = number, ansible_groups = list(string), ansible_varibles = optional(any) }))
+
+  default = {
     prometheus = {
       id             = 3
       ansible_groups = ["logging"]

@@ -57,7 +57,92 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
   file_name    = "almalinux_9-4.img"
 }
 
+resource "proxmox_virtual_environment_container" "almalinux_dns" {
+  for_each = var.dns_servers
 
+  description = "Managed by Terraform"
+
+  started   = true
+  node_name = local.node
+  vm_id     = var.dns_servers[each.key].id + 200
+
+  unprivileged = true
+
+  initialization {
+    hostname = each.key
+
+    ip_config {
+      ipv4 {
+        address = "192.168.0.${var.dns_servers[each.key].id + 200}/24"
+        gateway = "192.168.0.1"
+      }
+    }
+    dns {
+      servers = ["1.1.1.1", "1.0.0.1"]
+    }
+
+    user_account {
+      keys = [
+        trimspace(tls_private_key.homelab_key.public_key_openssh)
+      ]
+    }
+  }
+  cpu {
+    cores = "2"
+  }
+
+  disk {
+    datastore_id = local.datastore_id
+    size         = 4
+  }
+  memory {
+    dedicated = "2048"
+    swap      = "1024"
+  }
+
+  network_interface {
+    name = "veth0"
+  }
+
+  operating_system {
+    template_file_id = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+    # Or you can use a volume ID, as obtained from a "pvesm list <storage>"
+    # template_file_id = "local:vztmpl/jammy-server-cloudimg-amd64.tar.gz"
+    type = "centos"
+  }
+  start_on_boot = "true"
+
+  connection {
+    host     = var.pve_address
+    type     = "ssh"
+    user     = "root"
+    password = var.pve_password
+  }
+  provisioner "file" {
+    source      = "./enable_ssh.sh"
+    destination = "/mnt/bindmounts/terraform/enable_ssh.sh"
+
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "pct exec ${var.dns_servers[each.key].id + 200} bash /terraform/enable_ssh.sh"
+    ]
+  }
+  mount_point {
+    volume = "/mnt/bindmounts/terraform"
+    path   = "/terraform"
+    shared = "true"
+  }
+}
+
+resource "terraform_data" "ansible_dns" {
+  input = proxmox_virtual_environment_container.almalinux_dns["dns2"].vm_id
+  provisioner "local-exec" {
+    command = "ansible-playbook ./playbook.yml -t bootstrap -i ./terraform/${local_file.bootstrap.filename} --ssh-extra-args '-o StrictHostKeyChecking=false'"
+    working_dir = "../"
+  }
+}
 
 resource "proxmox_virtual_environment_container" "almalinux_container" {
   for_each = var.containers
@@ -79,12 +164,12 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
         gateway = "192.168.0.1"
       }
     }
-    # dns {
-    # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
-    # }
     dns {
-      servers = ["1.1.1.1", "1.0.0.1"]
+    servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
     }
+    # dns {
+      # servers = ["1.1.1.1", "1.0.0.1"]
+    # }
 
     user_account {
       keys = [
@@ -166,12 +251,10 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
         gateway = "192.168.0.1"
       }
     }
-    # dns {
-    # servers = ["${proxmox_virtual_environment_container.almalinux_container["adguard1"].initialization[0].ip_config[0].ipv4[0].address}","${proxmox_virtual_environment_container.almalinux_container["adguard2"].initialization[0].ip_config[0].ipv4[0].address}","1.1.1.1"] # find adguard ips and put them in before cloudflare
-    # }
     dns {
-      servers = ["1.1.1.1"]
+    servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
     }
+    
 
 
     user_account {

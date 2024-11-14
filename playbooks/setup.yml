@@ -42,6 +42,7 @@
       throttle: 3
       tags:
         - nftables
+        - bootstrap
     - name: Add nftable rules
       ansible.builtin.template:
         src: ../templates/homelab-ruleset.nft.j2 # noqa: no-relative-paths
