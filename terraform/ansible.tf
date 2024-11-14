@@ -3,7 +3,7 @@
 #generate on in terraform using yamlencode
 
 locals {
-  hosts  = merge(var.dns_servers,var.containers, var.vms, var.oracle)
+  hosts  = merge(var.dns_servers, var.containers, var.vms, var.oracle)
   groups = toset(flatten([for h in local.hosts : h.ansible_groups]))
   inventory = yamlencode({
     "all" = {
@@ -28,7 +28,7 @@ locals {
       "children" = {
         "dns" = {
           "hosts" = {
-            for host in keys(var.dns_servers): host => {
+            for host in keys(var.dns_servers) : host => {
               "ansible_host" = "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns[host].initialization[0].ip_config[0].ipv4[0].address, "/24")}"
               "ansible_user" = "root"
             }
@@ -47,9 +47,9 @@ output "inventory" {
 
 }
 resource "local_file" "bootstrap" {
-  content = local.bootstrap
+  content  = local.bootstrap
   filename = "./bootstrap-inventory.yml"
-  
+
 }
 
 resource "local_file" "inventory" {

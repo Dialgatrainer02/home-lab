@@ -139,7 +139,7 @@ resource "proxmox_virtual_environment_container" "almalinux_dns" {
 resource "terraform_data" "ansible_dns" {
   input = proxmox_virtual_environment_container.almalinux_dns["dns2"].vm_id
   provisioner "local-exec" {
-    command = "ansible-playbook ./playbook.yml -t bootstrap -i ./terraform/${local_file.bootstrap.filename} --ssh-extra-args '-o StrictHostKeyChecking=false'"
+    command     = "ansible-playbook ./playbook.yml -t bootstrap -i ./terraform/${local_file.bootstrap.filename} --ssh-extra-args '-o StrictHostKeyChecking=false'"
     working_dir = "../"
   }
 }
@@ -165,10 +165,10 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
       }
     }
     dns {
-    servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
+      servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
     }
     # dns {
-      # servers = ["1.1.1.1", "1.0.0.1"]
+    # servers = ["1.1.1.1", "1.0.0.1"]
     # }
 
     user_account {
@@ -252,9 +252,9 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
       }
     }
     dns {
-    servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
+      servers = ["${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns1"].initialization[0].ip_config[0].ipv4[0].address, "/24")}", "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns["dns2"].initialization[0].ip_config[0].ipv4[0].address, "/24")}"]
     }
-    
+
 
 
     user_account {
