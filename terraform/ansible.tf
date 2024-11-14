@@ -29,13 +29,10 @@ output "inventory" {
 
 }
 
-resource "terraform_data" "inventory" {
-  triggers_replace = local.inventory
-  provisioner "file" {
+
+resource "local_file" "inventory" {
     content = local.inventory
-    destination = "./terraform-inventory.yml"
-  }
-  
+    filename = "./terraform-inventory.yml"
 }
 
 
