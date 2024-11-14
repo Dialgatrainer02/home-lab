@@ -3,7 +3,6 @@
 1. fix buildarr and get arr stack operational -[]
 3. sort out storage for arr stack media and minecraft world -[] (will setup passthrough via terraform)
 4. figure out how to get metrics from vps without exposing them -[] (potemtial solution with ca and mtls)
-5. fix chicken and egg problem with dns servers(stage terraform provision or change it at runtime)
 <!-- 5. find way to properly automate jellyfin -[x] # pottential fix using https://gist.github.com/aslafy-z/dce9fd98bbe42f21095eb231687ae4f5 (needs fixing cureently gives 503's) -->
 10. dynamic inventory and provisioning with teraform/opentofu -[ ](working on inventory)
 
