@@ -4,7 +4,7 @@
 3. sort out storage for arr stack media and minecraft world -[] (will setup passthrough via terraform)
 4. figure out how to get metrics from vps without exposing them -[] (potemtial solution with ca and mtls)
 <!-- 5. find way to properly automate jellyfin -[x] # pottential fix using https://gist.github.com/aslafy-z/dce9fd98bbe42f21095eb231687ae4f5 (needs fixing cureently gives 503's) -->
-10. dynamic inventory and provisioning with teraform/opentofu -[ ](provisioning is finished however intergration with ansible is stil needed)
+10. dynamic inventory and provisioning with teraform/opentofu -[ ](working on inventory)
 
 
 (this project expects to be in the subnet 192.168.0.0/24)
