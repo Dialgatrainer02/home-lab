@@ -2,6 +2,20 @@
 - name: Initial setup
   hosts: all:!laptop
   tasks:
+    - name: Enable makecache timer
+      ansible.builtin.systemd_service:
+        name: dnf-makecache.timer
+        state: started
+        enabled: true
+      become: true
+    - name: Edit dnf config
+      ansible.builtin.blockinfile:
+        path: /etc/dnf/dnf.conf
+        prepend_newline: true
+        block: |
+          fastestmirror=true
+          max_parallel_downloads=10
+      become: true
     - name: Remove firewalld
       ansible.builtin.dnf:
         name: firewalld
@@ -14,6 +28,7 @@
         state: latest
         update_only: true
       become: true
+      throttle: 3
       tags:
         - update
     - name: Install packages
@@ -24,6 +39,7 @@
           - nftables
         state: present
       become: true
+      throttle: 3
       tags:
         - nftables
     - name: Add nftable rules
@@ -59,6 +75,7 @@
         state: latest
         update_only: true
       become: true
+      throttle: 3
       tags:
         - update
     - name: Check if nodes need rebooting
