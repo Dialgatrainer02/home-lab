@@ -9,11 +9,12 @@ locals {
     "all" = {
       "children" = {
         for group in local.groups : group => {
-          hosts = { for host in keys(local.hosts) : !contains(local.hosts[host].ansible_groups, group) ? "${host}-null" : host => { # figure out how to make a host dissapear when not in group rather than null them like i do here including child elements
-            "ansible_host" = "${try(oci_core_instance.wireguard_instance[host].public_ip, trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24"), trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24"))}"
-            "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
+          hosts = { for host in keys(local.hosts) : host => {/*...*/} if contains(local.hosts[host].ansible_groups, group) 
+          #  host => { 
+            # "ansible_host" = "${try(oci_core_instance.wireguard_instance[host].public_ip, trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24"), trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24"))}"
+            # "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
             # if contains(local.hosts[host],"ansible_variables") ? for k,v in host.ansible_variables: k => {v} : ""    figure out how to place ansiblr vars in here
-            }
+            # }
           }
         }
       }
