@@ -13,7 +13,9 @@ locals {
             for host in keys(local.hosts) : host => {
               "ansible_host" = "${contains(keys(var.oracle), host) ? oci_core_instance.wireguard_instance[host].public_ip : contains(keys(var.vms), host) ? trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.containers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.dns_servers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_dns[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : "null"}",
               "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
-              # for k,v in host: k => {v} if !contains(host.k, id || ansible_groups) #TODO
+              # vars = { #TODO (hostvars)
+              # for 
+              # }
             } if contains(local.hosts[host].ansible_groups, group)
           }
         }
