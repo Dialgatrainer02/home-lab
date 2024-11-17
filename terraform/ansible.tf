@@ -19,7 +19,7 @@ locals {
         }
       }
       "vars" = {
-        "ansible_ssh_private_key_file" = local_sensitive_file.homelab_key.filename
+        "ansible_ssh_private_key_file" = "./terraform/${local_sensitive_file.homelab_key.filename}"
       }
     }
     }
@@ -37,7 +37,7 @@ locals {
         }
       }
       "vars" = {
-        "ansible_ssh_private_key_file" = "./terraform/homelab_key"
+        "ansible_ssh_private_key_file" = "./terraform/${local_sensitive_file.homelab_key.filename}"
       }
     }
   })
