@@ -1,10 +1,10 @@
 # todo 
 1. fix wireguaed tunnel for ipv6
 2. make nginx reverse proxy config for web gui services
-3. link terraform and ansible using inventory.yml
-4. find buildrr alternaative(felmmarr+recyclarr potential solution)
+3. link terraform and ansible using inventory.yml(working need to fix hostvars and laptop)
+4. fix and simplify arrstack role(fix applications, indexers,indexer proxy in felmmarr)
 5. setup and configure shadowsocks proxy
-6. add wireguard-oci to loggin stack securely(mtls or wireguard tunnel)
+6. add wireguard-oci to logging stack securely(mtls or wireguard tunnel)
 7. redo grafana logging stack(helpful names and better configs)
 8. tidy and reformat "legacy" code(remove secret sprawl throughout the project and rotate any keys)
 9. remove expectation about subnet
@@ -16,7 +16,7 @@
 1. place proxmox and oci credentials in terraform/secrets_override.tf
 2. (place inventory in inventory.yml)
 3, place seret varibles in secrets.yml
-3. run todu/terraform init paln apply in /terraform 
+3. run tofu/terraform init paln apply in /terraform 
 4. run ansible-playbook ./playbook.yml in project root 
 5. should all be there
 
