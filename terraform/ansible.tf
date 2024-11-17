@@ -9,12 +9,12 @@ locals {
     "all" = {
       "children" = {
         for group in local.groups : group => {
-          hosts = { for host in keys(local.hosts) : host => { /*...*/ } if contains(local.hosts[host].ansible_groups, group)
-            #  host => { 
-            # "ansible_host" = "${try(oci_core_instance.wireguard_instance[host].public_ip, trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24"), trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24"))}"
-            # "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
-            # if contains(local.hosts[host],"ansible_variables") ? for k,v in host.ansible_variables: k => {v} : ""    figure out how to place ansiblr vars in here
-            # }
+          hosts = {
+            for host in keys(local.hosts) : host => {
+              "ansible_host" = "${contains(keys(var.oracle), host) ? oci_core_instance.wireguard_instance[host].public_ip : contains(keys(var.vms), host) ? trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.containers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.dns_servers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_dns[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : "null"}",
+              "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
+              # for k,v in host: k => {v} if !contains(host.k, id || ansible_groups)
+            } if contains(local.hosts[host].ansible_groups, group)
           }
         }
       }
@@ -22,7 +22,8 @@ locals {
         "ansible_ssh_private_key_file" = local_sensitive_file.homelab_key.filename
       }
     }
-  })
+    }
+  )
   bootstrap = yamlencode({
     "all" = {
       "children" = {
@@ -36,7 +37,7 @@ locals {
         }
       }
       "vars" = {
-        "ansible_ssh_private_key_file" = "./terraform/${local_sensitive_file.homelab_key.filename}"
+        "ansible_ssh_private_key_file" = "./terraform/homelab_key"
       }
     }
   })
