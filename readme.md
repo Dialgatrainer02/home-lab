@@ -2,7 +2,7 @@
 1. fix wireguaed tunnel for ipv6
 2. make nginx reverse proxy config for web gui services
 3. link terraform and ansible using inventory.yml(working need to fix hostvars and laptop)
-4. fix and simplify arrstack role(fix applications, indexers,indexer proxy in felmmarr)
+4. fix and simplify arrstack role(fix indexers in felmmarr)
 5. setup and configure shadowsocks proxy
 6. add wireguard-oci to logging stack securely(mtls or wireguard tunnel)
 7. redo grafana logging stack(helpful names and better configs)
