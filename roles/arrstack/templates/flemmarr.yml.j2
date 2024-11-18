@@ -1,0 +1,375 @@
+sonarr:
+  server:
+    address: sonarr
+    port: 8989
+  config:
+    host:
+      analyticsEnabled: false
+    ui:
+      firstDayOfWeek: 1 # 0 = Sunday, 1 = Monday
+      timeFormat: HH:mm # HH:mm = 17:30, h(:mm)a = 5:30PM
+    naming:
+      renameEpisodes: true
+      replaceIllegalCharacters: true
+      multiEpisodeStyle: 5
+      # https://trash-guides.info/Sonarr/Sonarr-recommended-naming-scheme/
+      standardEpisodeFormat: "{Series TitleYear} - S{season:00}E{episode:00} - {Episode
+        CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo
+        AudioCodec}{ Mediainfo AudioChannels]}{MediaInfo AudioLanguages}{[MediaInfo VideoCodec]}{-Release
+        Group}"
+      dailyEpisodeFormat: "{Series TitleYear} - {Air-Date} - {Episode CleanTitle} [{Preferred
+        Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{
+        Mediainfo AudioChannels]}{MediaInfo AudioLanguages}{[MediaInfo VideoCodec]}{-Release
+        Group}"
+      animeEpisodeFormat: "{Series TitleYear} - S{season:00}E{episode:00} - {absolute:000}
+        - {Episode CleanTitle} [{Preferred Words }{Quality Full}]{[MediaInfo VideoDynamicRangeType]}[{MediaInfo
+        VideoBitDepth}bit]{[MediaInfo VideoCodec]}[{Mediainfo AudioCodec} { Mediainfo AudioChannels}]{MediaInfo
+        AudioLanguages}{-Release Group}"
+      seriesFolderFormat: "{Series TitleYear} [imdb-{ImdbId}]"
+      seasonFolderFormat: Season {season:00}
+      specialsFolderFormat: Specials
+      includeSeriesTitle: false
+      includeEpisodeTitle: false
+      includeQuality: false
+      replaceSpaces: true
+      separator: " - "
+      numberStyle: S{season:00}E{episode:00}
+    mediamanagement:
+      autoUnmonitorPreviouslyDownloadedEpisodes: false
+      recycleBin: ''
+      recycleBinCleanupDays: 7
+      downloadPropersAndRepacks: doNotUpgrade
+      createEmptySeriesFolders: false
+      deleteEmptyFolders: false
+      fileDate: none
+      rescanAfterRefresh: always
+      setPermissionsLinux: false
+      chmodFolder: '755'
+      chownGroup: ''
+      episodeTitleRequired: always
+      skipFreeSpaceCheckWhenImporting: true
+      minimumFreeSpaceWhenImporting: 100
+      copyUsingHardlinks: true
+      importExtraFiles: true
+      extraFileExtensions: srt
+      enableMediaInfo: true
+  rootfolder: # TODO
+    - path: /data/tv
+  downloadclient: # TODO
+    - name: qBittorrent
+      enable: true
+      protocol: torrent
+      priority: 1
+      removeCompletedDownloads: true
+      removeFailedDownloads: true
+      fields:
+      - name: host
+        value: qbittorrent
+      - name: port
+        value: 8080
+      - name: username
+        value: olivia
+      - name: password
+        value: Dialgatrainer069
+      - name: tvCategory
+        value: tv
+      - name: recentTvPriority
+        value: 0
+      - name: olderTvPriority
+        value: 0
+      - name: initialState
+        value: 0
+      - name: sequentialOrder
+        value: false
+      - name: firstAndLast
+        value: false
+      implementation: QBittorrent
+      configContract: QBittorrentSettings
+  # https://trash-guides.info/Sonarr/Sonarr-Quality-Settings-File-Size/
+radarr:
+  server:
+    address: radarr
+    port: 7878
+  config:
+    host:
+      analyticsEnabled: false
+    ui:
+      firstDayOfWeek: 1 # 0 = Sunday, 1 = Monday
+      timeFormat: HH:mm # HH:mm = 17:30, h(:mm)a = 5:30PM
+      uiLanguage: 1 # 1 = English, 2 = French, 3 = Spanish...
+    naming:
+      renameMovies: true
+      replaceIllegalCharacters: true
+      colonReplacementFormat: spaceDashSpace
+      # https://trash-guides.info/Radarr/Radarr-recommended-naming-scheme/
+      standardMovieFormat: "{Movie CleanTitle} {(Release Year)} {imdb-{ImdbId}} {edition-{Edition Tags}} {[Custom Formats]}{[Quality Full]}{[MediaInfo 3D]}{[MediaInfo VideoDynamicRangeType]}{[Mediainfo AudioCodec}{ Mediainfo AudioChannels}][{Mediainfo VideoCodec}]{-Release Group}"
+      movieFolderFormat: "{Movie CleanTitle} ({Release Year})"
+      includeQuality: false
+      replaceSpaces: false
+    mediamanagement:
+      autoUnmonitorPreviouslyDownloadedMovies: true
+      recycleBin: ''
+      recycleBinCleanupDays: 7
+      downloadPropersAndRepacks: doNotUpgrade
+      createEmptyMovieFolders: false
+      deleteEmptyFolders: false
+      fileDate: none
+      rescanAfterRefresh: always
+      autoRenameFolders: false
+      pathsDefaultStatic: false
+      setPermissionsLinux: false
+      chmodFolder: '755'
+      chownGroup: ''
+      skipFreeSpaceCheckWhenImporting: true
+      minimumFreeSpaceWhenImporting: 100
+      copyUsingHardlinks: true
+      importExtraFiles: true
+      extraFileExtensions: srt
+      enableMediaInfo: true
+  rootfolder: # TODO
+    - path: /data/movies
+  downloadclient:
+    - name: qBittorrent
+      enable: true
+      protocol: torrent
+      priority: 1
+      removeCompletedDownloads: true
+      removeFailedDownloads: true
+      fields:
+      - name: host
+        value: qbittorrent
+      - name: port
+        value: 8080
+      - name: username
+        value: olivia
+      - name: password
+        value: Dialgatrainer069
+      - name: movieCategory
+        value: movies
+      - name: recentMoviePriority
+        value: 0
+      - name: olderMoviePriority
+        value: 0
+      - name: initialState
+        value: 0
+      - name: sequentialOrder
+        value: false
+      - name: firstAndLast
+        value: false
+      implementation: QBittorrent
+      configContract: QBittorrentSettings
+prowlarr:
+  server:
+    address: prowlarr
+    port: 9696
+  config:
+    host:
+      analyticsEnabled: false
+    ui:
+      theme: dark
+  tag:
+    - id: 0
+      label: privoxy
+    - label: cloudflare
+  indexerProxy:
+    - onHealthIssue: false
+      supportsOnHealthIssue: false
+      includeHealthWarnings: false
+      name: privoxy
+      fields:
+      - name: host
+        value: qbittorrent
+      - name: port
+        value: '8118'
+      - name: username
+        value: ''
+      - name: password
+        value: ''
+      implementationName: Http
+      implementation: Http
+      configContract: HttpSettings
+      infoLink: https://wiki.servarr.com/prowlarr/supported#http
+      tags:
+      - 1
+    - onHealthIssue: false
+      supportsOnHealthIssue: false
+      includeHealthWarnings: false
+      name: Byparr
+      fields:
+      - name: host
+        value: http://byparr:8191/
+      - name: requestTimeout
+        value: 60
+      implementationName: FlareSolverr
+      implementation: FlareSolverr
+      configContract: FlareSolverrSettings
+      infoLink: https://wiki.servarr.com/prowlarr/supported#flaresolverr
+      tags:
+      - 2
+  # indexer: # TODO
+    # indexerUrls:
+      # - https://badasstorrents.com/
+    # legacyUrls:
+      # - https://badasstorrents.mrunblock.bond/
+      # - https://badasstorrents.nocensor.cloud/
+    # definitionName: badasstorrents
+    # description: Badass Torrents is a Public torrent site for MOVIES / TV / GENERAL
+    # language: en-US
+    # enable: true
+    # redirect: false
+    # supportsRss: true
+    # supportsSearch: true
+    # supportsRedirect: false
+    # supportsPagination: false
+    # appProfileId: 1
+    # protocol: torrent
+    # privacy: public
+    # capabilities:
+      # limitsMax: 100
+      # limitsDefault: 100
+      # categories:
+        # - id: 5000
+          # name: TV
+          # subCategories:
+            # - id: 5070
+              # name: TV/Anime
+              # subCategories: []
+        # - id: 4000
+          # name: PC
+          # subCategories:
+            # - id: 4050
+              # name: PC/Games
+              # subCategories: []
+        # - id: 7000
+          # name: Books
+          # subCategories: []
+        # - id: 2000
+          # name: Movies
+          # subCategories: []
+        # - id: 3000
+          # name: Audio
+          # subCategories: []
+        # - id: 8000
+          # name: Other
+          # subCategories: []
+        # - id: 6000
+          # name: XXX
+          # subCategories: []
+      # supportsRawSearch: false
+      # searchParams:
+        # - q
+        # - q
+      # tvSearchParams:
+        # - q
+        # - season
+        # - ep
+      # movieSearchParams:
+        # - q
+      # musicSearchParams:
+        # - q
+        # - album
+        # - artist
+      # bookSearchParams:
+        # - q
+    # priority: 25
+    # downloadClientId: 0
+    # added: 0001-01-01T00:00:00Z
+    # sortName: badass torrents
+    # name: Badass Torrents
+    # fields:
+      # - name: definitionFile
+        # value: badasstorrents
+      # - name: baseUrl
+      # - name: baseSettings.queryLimit
+      # - name: baseSettings.grabLimit
+      # - name: baseSettings.limitsUnit
+        # value: 0
+      # - name: torrentBaseSettings.appMinimumSeeders
+      # - name: torrentBaseSettings.seedRatio
+      # - name: torrentBaseSettings.seedTime
+      # - name: torrentBaseSettings.packSeedTime
+      # - name: torrentBaseSettings.preferMagnetUrl
+        # value: false
+      # - name: info_flaresolverr
+        # value: This site may use Cloudflare DDoS Protection, therefore Prowlarr requires
+          # <a
+          # href="https://wiki.servarr.com/prowlarr/faq#can-i-use-flaresolverr-indexers"
+          # target="_blank" rel="noreferrer">FlareSolverr</a> to access it.
+      # - name: downloadlink
+        # value: 1
+      # - name: downloadlink2
+        # value: 0
+      # - name: info_download
+        # value: You can optionally set as a fallback an automatic alternate link, so if
+          # the .torrent download link fails your download will still be successful.
+    # implementationName: Cardigann
+    # implementation: Cardigann
+    # configContract: CardigannSettings
+    # infoLink: https://wiki.servarr.com/prowlarr/supported-indexers#badasstorrents
+    # tags:
+      # - 1
+
+  applications: #TODO
+    - syncLevel: fullSync
+      enable: true
+      fields:
+      - name: prowlarrUrl
+        value: http://prowlarr:9696
+      - name: baseUrl
+        value: http://sonarr:8989
+      - name: apiKey
+        value: '"{{ arrstack_apikey }}"'
+      - name: syncCategories
+        value:
+        - 5000
+        - 5010
+        - 5020
+        - 5030
+        - 5040
+        - 5045
+        - 5050
+        - 5090
+      - name: animeSyncCategories
+        value:
+        - 5070
+      - name: syncAnimeStandardFormatSearch
+        value: true
+      - name: syncRejectBlocklistedTorrentHashesWhileGrabbing
+        value: true
+      implementationName: Sonarr
+      implementation: Sonarr
+      configContract: SonarrSettings
+      infoLink: https://wiki.servarr.com/prowlarr/supported#sonarr
+      tags: []
+      name: Sonarr
+
+    - syncLevel: fullSync
+      enable: true
+      fields:
+      - name: prowlarrUrl
+        value: http://prowlarr:9696
+      - name: baseUrl
+        value: http://radarr:7878
+      - name: apiKey
+        value: '"{{ arrstack_apikey }}"'
+      - name: syncCategories
+        value:
+        - 2000
+        - 2010
+        - 2020
+        - 2030
+        - 2040
+        - 2045
+        - 2050
+        - 2060
+        - 2070
+        - 2080
+        - 2090
+      - name: syncRejectBlocklistedTorrentHashesWhileGrabbing
+        value: true
+      implementationName: Radarr
+      implementation: Radarr
+      configContract: RadarrSettings
+      infoLink: https://wiki.servarr.com/prowlarr/supported#radarr
+      tags: []
+      name: Radarr

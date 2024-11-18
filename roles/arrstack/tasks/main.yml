@@ -1,166 +1,69 @@
 ---
-- name: Set Arr stack default timezone (if not set manually)
-  when: arrstack_timezone is not defined
-
+# tasks file for arrstack
+- name: Install docker
   block:
-    - name: Fetch target host timezone
-      ansible.builtin.slurp:
-        src: /etc/timezone
-      register: arrstack_timezone_b64
-    - name: Set Arr stack timezone fact
-      ansible.builtin.set_fact:
-        arrstack_timezone: "{{ (arrstack_timezone_b64['content'] | b64decode).strip() }}"
-- name: Create Arr stack environment directory
-  ansible.builtin.file:
-    state: directory
-    path: "{{ arrstack_env_dir }}"
-    owner: root
-    group: root
-    mode: "0700"
-
-- name: Create Arr stack data directory
-  ansible.builtin.file:
-    state: directory
+    - name: Remove podman docker
+      ansible.builtin.dnf:
+        name:
+          - docker
+          - podman-docker
+          - podman
+        state: absent
+      become: true
+    - name: Add docker ce repo
+      ansible.builtin.command:
+        cmd: dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      become: true
+      register: result
+      changed_when: result.rc != 0
+    - name: Update dnf
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_only: true
+      become: true
+    - name: Install docker
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+        state: present
+      become: true
+    - name: Start docker service
+      ansible.builtin.systemd_service:
+        name: docker
+        state: started
+        enabled: true
+      become: true
+- name: Mount storage drive
+  ansible.posix.mount:
+    src: /dev/sda
     path: "{{ arrstack_data_dir }}"
-    owner: "{{ arrstack_data_dir_owner }}"
-    group: "{{ arrstack_data_dir_group }}"
-    mode: "0770"
-  when: arrstack_data_dir_create
-
-- name: Create Arr stack data subdirectories
+    state: mounted
+    fstype: btrfs
+- name: Make config directories with correct perms
   ansible.builtin.file:
-    state: directory
-    path: "{{ arrstack_data_dir }}/{{ item }}"
-    owner: "{{ arrstack_data_dir_owner }}"
-    group: "{{ arrstack_data_dir_group }}"
-    mode: "0770"
+    path: "{{ arrstack_dir }}/{{ item }}"
+    owner: 911
+    group: 911
+    mode: "755"
   loop:
-    - torrents
-    #    - torrents/shows/hd
-    #    - torrents/shows/4k
-    #    - torrents/movie-hd
-    #    - torrents/movies/4k
-    - media
-    - media/tv-hd
-    - media/movie-hd
-  when: arrstack_data_dir_create
-
-- name: Create Docker Compose environment file
+    - .config
+    - .config/qbittorrent
+    - .config/qbittorrent/config
+    - .config/sonarr
+    - .config/radarr
+    - .config/prowlarr
+  become: true
+- name: Copy docker compose template file
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: "{{ arrstack_env_dir }}/docker-compose.yml"
+    dest: "{{ arrstack_dir }}/docker-compose.yml"
     owner: root
     group: root
-    mode: "0600"
-- name: Create qbitorrent config directories
-  ansible.builtin.file:
-    state: directory
-    path: "{{ arrstack_env_dir }}/{{ item }}"
-    owner: "{{ arrstack_data_dir_owner }}"
-    group: "{{ arrstack_data_dir_group }}"
-    mode: "770"
-  loop:
-    - config
-    - config/qbittorrent
-    - config/qbittorrent/config/"
-    - config/wireguard
-    - config/recyclarr
-- name: Create qbittorrent config file
-  ansible.builtin.copy:
-    src: qBittorrent.conf
-    dest: "{{ arrstack_env_dir }}/config/qbittorrent/config/qBittorrent.conf"
-    owner: "{{ arrstack_data_dir_owner }}"
-    group: "{{ arrstack_data_dir_group }}"
     mode: "755"
-- name: Wg0 reminder
-  ansible.builtin.debug:
-    msg: you are making wg0 via ansible you need to fix that before testingor place it there manually as this isnt doing it
-
-      # - name: Start all Docker Compose services except for Buildarr
-      # community.docker.docker_compose_v2:
-      # project_name: arrstack
-      # project_src: "{{ arrstack_env_dir }}"
-      # services:
-      # - qbittorrent
-      # - flaresolverr
-      # - sonarr-hd
-      #  - sonarr-4k
-      # - radarr-hd
-      #  - radarr-4k
-      # - prowlarr
-      # - jellyseerr
-      # - jellyfin
-
-- name: Wait for all Docker Compose services to be accessible
-  ansible.builtin.uri:
-    url: "{{ item }}"
-    status_code:
-      - 200
-      - 302
-  register: arrstack_service_test
-  until: arrstack_service_test is not failed
-  retries: 300
-  delay: 1
-  loop:
-    - http://localhost:8080 # qbittorrent
-    - http://localhost:8191 # flaresolverr
-    - http://localhost:8989 # sonarr
-    - http://localhost:7878 # radarr
-    #    - "http://localhost:7870"
-    #    - "http://localhost:8990"
-    - http://localhost:9696 # prowlarr
-    - http://localhost:5055 # jellyseer
-    - http://localhost:8096 # jellyfin
-
-- name: Fetch API keys for all Buildarr-managed instances
-  ansible.builtin.command:
-    argv:
-      - sed
-      - -nE
-      - s,.*<ApiKey>([A-Za-z0-9]+)</ApiKey>.*,\1,p
-      - "{{ arrstack_env_dir }}/config/{{ item }}/config.xml"
-  register: arrstack_instance_apikeys_raw
-  loop:
-    - sonarr-hd
-    #      - sonarr-4k
-    - radarr-hd
-    #      - radarr-4k
-    - prowlarr
-  changed_when: arrstack_instance_apikeys_raw.rc != 0
-
-- name: Special handling for jellyseers api key
-  ansible.builtin.command:
-    cmd: jq -r '.main.apiKey' {{ arrstack_env_dir }}/config/jellyseerr/settings.json
-  register: arrstack_jellyseer_api_key
-  changed_when: arrstack_jellyseer_api_key.rc != 0
-
-- name: Parse Buildarr-managed instance API keys
-  ansible.builtin.set_fact:
-    arrstack_instance_apikeys: "{{ arrstack_instance_apikeys | default({}) | combine({item.item: item.stdout}) }}"
-  no_log: true
-  loop: "{{ arrstack_instance_apikeys_raw.results }}"
-
-    # - name: Create jellyseer configuration files
-    # ansible.builtin.template:
-    # src: "{{ item }}.j2"
-    # dest: "{{ arrstack_env_dir }}/config/jellyseer{{ item }}"
-    # owner: root
-    # group: "{{ arrstack_volume_dir_group }}"
-    # mode: "755"
-    # loop:
-    # - jellyseer.yml
-
-- name: Create recyclarr configuration files
-  ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "{{ arrstack_env_dir }}/config/recyclarr/config/{{ item }}"
-    owner: root
-    group: "{{ arrstack_volume_dir_group }}"
-    mode: "755"
-  loop:
-    - sonarr.yml
-    - radarr.yml
-- name: Start all Docker Compose services
+  become: true
+- name: Start doker compose
   community.docker.docker_compose_v2:
     project_name: arrstack
-    project_src: "{{ arrstack_env_dir }}"
+    project_src: "{{ arrstack_dir }}"
+  become: true

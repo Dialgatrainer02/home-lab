@@ -280,6 +280,7 @@ resource "proxmox_virtual_environment_vm" "almalinux_vm" {
     size         = 10
   }
 
+# TODO add arrstack data disk 
   efi_disk {
     datastore_id = local.datastore_id
     file_format  = "raw"

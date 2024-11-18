@@ -1,24 +1,19 @@
+---
 services:
-  # Qbittorrent instance for downloading torrents.
   qbittorrent:
-    image: ghcr.io/hotio/qbittorrent:latest
-    hostname: qbittorrent
     container_name: qbittorrent
-    restart: always
+    image: ghcr.io/hotio/qbittorrent
     ports:
-      - 8080:8080
-    volumes:
-      - ./config/wireguard/wg0.conf:/config/wireguard/wg0.conf
-      - ./config/qbittorrent:/config
-      - type: bind
-        source: "./data/torrents"
-        target: /data/torrents
+      - "8080:8080"
     environment:
-      TZ: Etc/Utc
-      PUID: 1000
-      PGID: 1000
+      PUID: 911 #TODO
+      PGID: 911
+      # UMASK: 002
+      TZ: Etc/UTC
+      PRIVOXY_ENABLED: true
+      UNBOUND_ENABLED: false
       WEBUI_PORTS: 8080/tcp,8080/udp
-      VPN_ENABLED: "true"
+      VPN_ENABLED: false
       VPN_CONF: wg0
       VPN_PROVIDER: generic 
       VPN_LAN_NETWORK: 192.168.0.0/24
@@ -27,153 +22,146 @@ services:
       VPN_KEEP_LOCAL_DNS: "false"
       VPN_FIREWALL_TYPE: auto
       VPN_HEALTHCHECK_ENABLED: "true"
-      PRIVOXY_ENABLED: "true"
-      UNBOUND_ENABLED: "false"
     cap_add:
       - NET_ADMIN
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv6.conf.all.disable_ipv6=1
-      
-  # FlareSolverr instance for bypassing CloudFlare.
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    hostname: flaresolverr
-    restart: always
-    ports:
-      - 127.0.0.1:8191:8191
-    environment:
-      TZ: Etc/Utc
-      LOG_LEVEL: "info"
-  sonarr-hd:
+    volumes:
+      - ./.config/wireguard/wg0.conf:/config/wireguard/wg0.conf
+      - ./.config/qbittorrent:/config
+      - ./qbittorrent.conf:/config/config/qBittorrent.conf:ro
+      - "{{ arrstack_data_dir }}/arrstack/torrents:/data"
+    restart: unless-stopped
+    # user: 911:911
+    # tmpfs: #TODO
+      # - /run:exec
+    # read_only: true
+  sonarr:
     image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr-hd
-    hostname: sonarr-hd
-    restart: always
+    container_name: sonarr
+    depends_on:
+      - qbittorrent
+    environment:
+      # PUID: 0
+      # PGID: 0
+      TZ: Etc/UTC
+      SONARR__AUTH__APIKEY: "{{ arrstack_apikey }}"
+      SONARR__AUTH__METHOD: External
+    volumes:
+      - ./.config/sonarr:/config
+      - "{{ arrstack_data_dir }}/arrstack/media/tv:/data/tv #optional be sure to chmod +777 data dir to allow abc to write to it
+      - "{{ arrstack_data_dir }}/arrstack/torrents/:/data/downloads" #optional
     ports:
       - 8989:8989
-    volumes:
-      - "./config//sonarr-hd:/config"
-      - type: bind
-        source: ./data
-        target: /data
-    environment:
-      TZ: Etc/Utc
-      PUID: 1000
-      PGID: 1000
+    restart: unless-stopped
+    tmpfs:
+      - /run:exec
+    read_only: true
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
     depends_on:
       - qbittorrent
-
-  # Sonarr instance for grabbing 4K TV shows.
-#  sonarr-4k:
-#    image: lscr.io/linuxserver/sonarr:latest
-#    container_name: sonarr-4k
-#    hostname: sonarr-4k
-#    restart: always
-#    ports:
-#      - 8990:8989
-#    volumes:
-#      - "./config/sonarr-4k:/config"
-#      - type: bind
-#        source: ./data
-#        target: /data
-#    environment:
-#      TZ: Etc/Utc
-#      PUID: 1000
-#      PGID: 1000
-#    depends_on:
-#      - qbittorrent
-  radarr-hd:
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr-hd
-    hostname: radarr-hd
-    restart: always
+    environment:
+      # PUID: 0
+      # PGID: 0
+      TZ: Etc/UTC
+      RADARR__AUTH__APIKEY: "{{ arrstack_apikey }}"
+      RADARR__AUTH__METHOD: External
+    volumes:
+      - ./.config/radarr:/config
+      - "{{ arrstack_data_dir }}/arrstack/media/movies:/data/movies" #optional
+      - "{{ arrstack_data_dir }}/arrstack/torrents:/data/downloads" #optional
     ports:
       - 7878:7878
-    volumes:
-      - "./config/radarr-hd:/config"
-      - type: bind
-        source: ./data
-        target: /data
-    environment:
-      TZ: Etc/Utc
-      PUID: 1000
-      PGID: 1000
-    depends_on:
-      - qbittorrent
-#  radarr-4k:
-#    image: lscr.io/linuxserver/radarr:latest
-#    container_name: radarr-4k
-#    hostname: radarr-4k
-#    restart: always
-#    ports:
-#      - 7870:7878
-#    volumes:
-#      - "./config/radarr-4k:/config"
-#      - type: bind
-#        source: ./data
-#        target: /data
-#    environment:
-#      TZ: Etc/Utc
-#      PUID: 1000
-#      PGID: 1000
-#    depends_on:
-#      - qbittorrent
+    restart: unless-stopped
+    tmpfs:
+      - /run:exec
+    read_only: true
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
-    hostname: prowlarr
-    restart: always
+    depends_on:
+      byparr:
+        condition: service_healthy
+    environment:
+      # PUID: 1000
+      # PGID: 1000
+      TZ: Etc/UTC
+      PROWLARR__AUTH__APIKEY: "{{ arrstack_apikey }}"
+      PROWLARR__AUTH__METHOD: External
+    volumes:
+      - ./.config/prowlarr:/config
     ports:
       - 9696:9696
-    volumes:
-      - "./config/prowlarr:/config"
-    environment:
-      TZ: Etc/Utc
-      PUID: 1000
-      PGID: 1000
-    depends_on:
-      - qbittorrent
-      - flaresolverr
-      - sonarr-hd
-#      - sonarr-4k
-      - radarr-hd
-#      - radarr-4k
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
-    hostname: jellyseerr
-    environment:
-      TZ: Etc/Utc
-    ports:
-      - 5055:5055
-    volumes:
-      - ./config/jellyseerr:/app/config
     restart: unless-stopped
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-#      - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
-    volumes:
-      - ./config/jellyfin:/config
-      - ./data/media:/data/media
-    ports:
-      - 8096:8096
-      - 8920:8920 #optional
-      - 7359:7359/udp #optional
-      - 1900:1900/udp #optional
+    tmpfs:
+      - /run:exec
+    read_only: true
+  # flaresolverr: # broken untill further notice
+    # image: ghcr.io/flaresolverr/flaresolverr:latest
+    # container_name: flaresolverr
+    # restart: unless-stopped
+  byparr:
+    image: ghcr.io/thephaseless/byparr
+    container_name: byparr
     restart: unless-stopped
+    healthcheck:
+      test: curl --fail localhost:8191/docs || exit 1
+      start_period: 13s
+    # read_only: true
+    # tmpfs: 
+      # - /tmp
+      # - /root
+      # - /.extemsions
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr
     container_name: recyclarr
-    user: 1000:1000
+    depends_on:
+      - sonarr
+      - radarr
     volumes:
-      - ./config/recyclarr:/config
+      - ./.config/recyclarr:/config
+      - ./recyclarr.yml:/config/recyclarr.yml:ro
     environment:
-      - RECYCLARR_CREATE_CONFIG: true
-      - TZ: Etc/Utc
+      TZ: Etc/UTC
+      RECYCLARR_CREATE_CONFIG: true
+      SONARR_URL: http://sonarr:8989
+      RADARR_URL: http://radarr:7878
+      SONARR_APIKEY: "{{ arrstack_apikey }}"
+      RADARR_APIKEY: "{{ arrstack_apikey }}"
+    security_opt: ['no-new-privileges:true']
+    read_only: true
+    tmpfs: /tmp
+      
+  recyclarr-oneshot:
+    image: ghcr.io/recyclarr/recyclarr
+    container_name: recyclarr-oneshot
+    read_only: true
+    tmpfs: /tmp
+    depends_on:
+      - sonarr
+      - radarr
+    volumes:
+      - ./recyclarr.yml:/config/recyclarr.yml:ro
+    environment:
+      TZ: Etc/UTC
+      RECYCLARR_CREATE_CONFIG: true
+      SONARR_URL: http://sonarr:8989
+      RADARR_URL: http://radarr:7878
+      SONARR_APIKEY: "{{ arrstack_apikey }}"
+      RADARR_APIKEY: "{{ arrstack_apikey }}"
+    command: sync
+    security_opt: ['no-new-privileges:true']
+    
+  flemmarr:
+    container_name: flemmarr
+    image: pierremesure/flemmarr:latest
+    read_only: true
+    depends_on:
+      - sonarr
+      - radarr
+      - prowlarr
+    volumes:
+      - ./flemmarr.yml:/config/config.yml:ro

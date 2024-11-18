@@ -1,5 +1,5 @@
 ---
-- name: Install minecraft in docker Compose
+- name: Install minecraft in docker Compose # TODO  add data mount etc
   hosts: minecraft
   pre_tasks:
     - name: Remove podman docker
