@@ -50,7 +50,7 @@ services:
       SONARR__AUTH__METHOD: External
     volumes:
       - ./.config/sonarr:/config
-      - "{{ arrstack_data_dir }}/arrstack/media/tv:/data/tv #optional be sure to chmod +777 data dir to allow abc to write to it
+      - "{{ arrstack_data_dir }}/arrstack/media/tv:/data/tv" # optional be sure to chmod +777 data dir to allow abc to write to it
       - "{{ arrstack_data_dir }}/arrstack/torrents/:/data/downloads" #optional
     ports:
       - 8989:8989
