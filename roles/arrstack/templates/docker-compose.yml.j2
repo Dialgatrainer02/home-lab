@@ -13,7 +13,7 @@ services:
       PRIVOXY_ENABLED: true
       UNBOUND_ENABLED: false
       WEBUI_PORTS: 8080/tcp,8080/udp
-      VPN_ENABLED: false
+      VPN_ENABLED: true
       VPN_CONF: wg0
       VPN_PROVIDER: generic 
       VPN_LAN_NETWORK: 192.168.0.0/24
@@ -26,12 +26,12 @@ services:
       - NET_ADMIN
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv6.conf.all.disable_ipv6=1
+      # - net.ipv6.conf.all.disable_ipv6=1
     volumes:
-      - ./.config/wireguard/wg0.conf:/config/wireguard/wg0.conf
+      - ./qBittorrent.conf:/config/config/qBittorrent.conf:ro
+      - /etc/wireguard/wg0.conf:/config/wireguard/wg0.conf
       - ./.config/qbittorrent:/config
-      - ./qbittorrent.conf:/config/config/qBittorrent.conf:ro
-      - "{{ arrstack_data_dir }}/arrstack/torrents:/data"
+      - "{{ arrstack_data_dir }}/arrstack/torrents:/data/torrents"
     restart: unless-stopped
     # user: 911:911
     # tmpfs: #TODO
@@ -50,8 +50,7 @@ services:
       SONARR__AUTH__METHOD: External
     volumes:
       - ./.config/sonarr:/config
-      - "{{ arrstack_data_dir }}/arrstack/media/tv:/data/tv" # optional be sure to chmod +777 data dir to allow abc to write to it
-      - "{{ arrstack_data_dir }}/arrstack/torrents/:/data/downloads" #optional
+      - "{{ arrstack_data_dir }}/arrstack/:/data/" # optional be sure to chmod +777 data dir to allow abc to write to it 
     ports:
       - 8989:8989
     restart: unless-stopped

@@ -31,21 +31,29 @@
     - name: Start docker service
       ansible.builtin.systemd_service:
         name: docker
-        state: started
+        state: restarted
         enabled: true
       become: true
-- name: Mount storage drive
-  ansible.posix.mount:
-    src: /dev/sda
-    path: "{{ arrstack_data_dir }}"
-    state: mounted
-    fstype: btrfs
+# - name: Mount storage drive #TODO
+  # ansible.posix.mount:
+    # src: /dev/sda1
+    # path: "{{ arrstack_data_dir }}"
+    # state: mounted
+    # fstype: btrfs
+- name: Make arrstack dir
+  ansible.builtin.file:
+    path: "{{ arrstack_dir }}"
+    owner: 911
+    group: 911
+    mode: "755"
+    state: directory
 - name: Make config directories with correct perms
   ansible.builtin.file:
     path: "{{ arrstack_dir }}/{{ item }}"
     owner: 911
     group: 911
     mode: "755"
+    state: directory
   loop:
     - .config
     - .config/qbittorrent
@@ -54,14 +62,43 @@
     - .config/radarr
     - .config/prowlarr
   become: true
-- name: Copy docker compose template file
+- name: Make data directories
+  ansible.builtin.file:
+    path: "{{ arrstack_data_dir }}/{{ item }}"
+    owner: 911
+    group: 911
+    mode: "755"
+    state: directory
+  become: true
+  loop:
+    - data
+    - data/media
+    - data/media/tv
+    - data/media/movies
+    - data/torrents
+    - data/torrents/tv
+    - data/torrents/movies
+- name: Copy config files
   ansible.builtin.template:
-    src: docker-compose.yml.j2
-    dest: "{{ arrstack_dir }}/docker-compose.yml"
+    src: "{{ item }}.yml.j2"
+    dest: "{{ arrstack_dir }}/{{ item }}.yml"
     owner: root
     group: root
     mode: "755"
   become: true
+  loop:
+    - docker-compose
+    - flemmarr
+    - recyclarr
+- name: Copy qbittorrent files
+  ansible.builtin.template:
+    src: qbittorrent.conf.j2
+    dest: "{{ arrstack_dir }}/qBittorrent.conf"
+    owner: root
+    group: root
+    mode: "755"
+  become: true
+  loop:
 - name: Start doker compose
   community.docker.docker_compose_v2:
     project_name: arrstack
