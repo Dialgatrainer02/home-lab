@@ -19,7 +19,8 @@
   ansible.builtin.import_playbook: ./playbooks/wireguard.yml
 - name: Setup dns servers
   ansible.builtin.import_playbook: ./playbooks/dns.yml
-- name: Setup minecraft server
-  ansible.builtin.import_playbook: ./playbooks/minecraft.yml
+# - name: Setup minecraft server
+  # ansible.builtin.import_playbook: ./playbooks/minecraft.yml
 
-# - ansible.builtin.import_playbook: ./playbooks/arrstack.yml
+- name: Setup arrstack
+  ansible.builtin.import_playbook: ./playbooks/arrstack.yml
