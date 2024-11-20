@@ -226,6 +226,20 @@ resource "proxmox_virtual_environment_container" "almalinux_container" {
   }
 }
 
+# resource "proxmox_virtual_environment_hardware_mapping_usb" "docker_data" {
+  # comment = "usb data disk for docker"
+  # name    = "data"
+  # The actual map of devices.
+  # map = [
+    # {
+      # id      = "0bc2:aa15"
+      # node    = "${local.node}"
+      # This attribute is optional, but can be used to map the device based on its port instead of only the device ID.
+      # path = "1-8.2"
+    # },
+  # ]
+# }
+
 resource "proxmox_virtual_environment_vm" "almalinux_vm" {
   for_each = var.vms
 

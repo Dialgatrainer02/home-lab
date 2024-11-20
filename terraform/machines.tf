@@ -18,6 +18,7 @@ variable "containers" {
     prometheus = {
       id             = 3
       ansible_groups = ["logging"]
+      ansible_varibles= null
     }
     loki = {
       id             = 4
