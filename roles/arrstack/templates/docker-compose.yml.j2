@@ -29,9 +29,9 @@ services:
       # - net.ipv6.conf.all.disable_ipv6=1
     volumes:
       - ./qBittorrent.conf:/config/config/qBittorrent.conf:ro
-      - /etc/wireguard/wg0.conf:/config/wireguard/wg0.conf
+      - /etc/wireguard/wg0.conf:/config/wireguard/wg0.conf:ro
       - ./.config/qbittorrent:/config
-      - "{{ arrstack_data_dir }}/arrstack/torrents:/data/torrents"
+      - "{{ arrstack_data_dir }}/torrents:/data/torrents"
     restart: unless-stopped
     # user: 911:911
     # tmpfs: #TODO
@@ -50,7 +50,7 @@ services:
       SONARR__AUTH__METHOD: External
     volumes:
       - ./.config/sonarr:/config
-      - "{{ arrstack_data_dir }}/arrstack/:/data/" # optional be sure to chmod +777 data dir to allow abc to write to it 
+      - "{{ arrstack_data_dir }}/:/data/" # optional be sure to chmod +777 data dir to allow abc to write to it 
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -70,8 +70,7 @@ services:
       RADARR__AUTH__METHOD: External
     volumes:
       - ./.config/radarr:/config
-      - "{{ arrstack_data_dir }}/arrstack/media/movies:/data/movies" #optional
-      - "{{ arrstack_data_dir }}/arrstack/torrents:/data/downloads" #optional
+      - "{{ arrstack_data_dir }}/:/data/" #optional
     ports:
       - 7878:7878
     restart: unless-stopped

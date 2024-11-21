@@ -3,8 +3,11 @@
   hosts: arrstack
   become: true
   vars_files:
-    - ../secrets.yml
+    ../variables.yml
   roles:
     - arrstack
   tags:
     - arrstack
+  # post_tasks:
+    # - name: Add prowlarr indexers
+      # 

@@ -3,12 +3,8 @@
   hosts: dns
   roles:
     - role: ngine_io.blocky_dns
-  vars:
-    blocky__custom_dns:
-      pve.hn-1-prx.duckdns.org: 192.168.0.90 # hyporvisors
-      pve1.hn-1-prx.duckdns.org: 192.168.0.91
-    blocky__hosts_dns_enabled: true
-    blocky__hosts_dns_domain: .hn-1-prx.duckdns.org
+  vars_files:
+    ../variables.yml
   tags:
     - dns-servers
     - bootstrap

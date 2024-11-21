@@ -2,6 +2,6 @@
 ---
 # defaults file for arrstack
 arrstack_dir: /opt/arrstack
-arrstack_data_dir: /opt/arrstack # mount storage at data dir
+arrstack_data_dir: /opt/arrstack/data # mount storage at data dir
 arrstack_apikey: 1234567890
 arrstack_torrent_port: 55551

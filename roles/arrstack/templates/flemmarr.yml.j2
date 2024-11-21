@@ -70,7 +70,7 @@ sonarr:
       - name: username
         value: olivia
       - name: password
-        value: Dialgatrainer069
+        value: {{ arrstack_password }}
       - name: tvCategory
         value: tv
       - name: recentTvPriority
@@ -143,7 +143,7 @@ radarr:
       - name: username
         value: olivia
       - name: password
-        value: Dialgatrainer069
+        value: {{ arrstack_password }}
       - name: movieCategory
         value: movies
       - name: recentMoviePriority
@@ -206,110 +206,7 @@ prowlarr:
       infoLink: https://wiki.servarr.com/prowlarr/supported#flaresolverr
       tags:
       - 2
-  # indexer: # TODO
-    # indexerUrls:
-      # - https://badasstorrents.com/
-    # legacyUrls:
-      # - https://badasstorrents.mrunblock.bond/
-      # - https://badasstorrents.nocensor.cloud/
-    # definitionName: badasstorrents
-    # description: Badass Torrents is a Public torrent site for MOVIES / TV / GENERAL
-    # language: en-US
-    # enable: true
-    # redirect: false
-    # supportsRss: true
-    # supportsSearch: true
-    # supportsRedirect: false
-    # supportsPagination: false
-    # appProfileId: 1
-    # protocol: torrent
-    # privacy: public
-    # capabilities:
-      # limitsMax: 100
-      # limitsDefault: 100
-      # categories:
-        # - id: 5000
-          # name: TV
-          # subCategories:
-            # - id: 5070
-              # name: TV/Anime
-              # subCategories: []
-        # - id: 4000
-          # name: PC
-          # subCategories:
-            # - id: 4050
-              # name: PC/Games
-              # subCategories: []
-        # - id: 7000
-          # name: Books
-          # subCategories: []
-        # - id: 2000
-          # name: Movies
-          # subCategories: []
-        # - id: 3000
-          # name: Audio
-          # subCategories: []
-        # - id: 8000
-          # name: Other
-          # subCategories: []
-        # - id: 6000
-          # name: XXX
-          # subCategories: []
-      # supportsRawSearch: false
-      # searchParams:
-        # - q
-        # - q
-      # tvSearchParams:
-        # - q
-        # - season
-        # - ep
-      # movieSearchParams:
-        # - q
-      # musicSearchParams:
-        # - q
-        # - album
-        # - artist
-      # bookSearchParams:
-        # - q
-    # priority: 25
-    # downloadClientId: 0
-    # added: 0001-01-01T00:00:00Z
-    # sortName: badass torrents
-    # name: Badass Torrents
-    # fields:
-      # - name: definitionFile
-        # value: badasstorrents
-      # - name: baseUrl
-      # - name: baseSettings.queryLimit
-      # - name: baseSettings.grabLimit
-      # - name: baseSettings.limitsUnit
-        # value: 0
-      # - name: torrentBaseSettings.appMinimumSeeders
-      # - name: torrentBaseSettings.seedRatio
-      # - name: torrentBaseSettings.seedTime
-      # - name: torrentBaseSettings.packSeedTime
-      # - name: torrentBaseSettings.preferMagnetUrl
-        # value: false
-      # - name: info_flaresolverr
-        # value: This site may use Cloudflare DDoS Protection, therefore Prowlarr requires
-          # <a
-          # href="https://wiki.servarr.com/prowlarr/faq#can-i-use-flaresolverr-indexers"
-          # target="_blank" rel="noreferrer">FlareSolverr</a> to access it.
-      # - name: downloadlink
-        # value: 1
-      # - name: downloadlink2
-        # value: 0
-      # - name: info_download
-        # value: You can optionally set as a fallback an automatic alternate link, so if
-          # the .torrent download link fails your download will still be successful.
-    # implementationName: Cardigann
-    # implementation: Cardigann
-    # configContract: CardigannSettings
-    # infoLink: https://wiki.servarr.com/prowlarr/supported-indexers#badasstorrents
-    # tags:
-      # - 1
-
-  applications: #TODO
+  applications:
     - syncLevel: fullSync
       enable: true
       fields:

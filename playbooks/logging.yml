@@ -3,7 +3,7 @@
   hosts: all:!laptop
   become: true
   vars_files:
-    - ../secrets.yml
+    ../variables.yml
   roles:
     - role: node_exporter
       tags:
@@ -11,21 +11,6 @@
     - role: promtail
       tags:
         - promtail
-      vars:
-        promtail_loki_server_url: http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100
-        promtail_config_scrape_configs:
-          - job_name: journal
-            journal:
-              json: false
-              max_age: 12h
-              path: /run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/
-              labels:
-                node: "{{ inventory_hostname }}"
-            relabel_configs: # todo seperate per instance logging and get nice relabel configs
-              - action: keep
-                source_labels:
-                  - __journal__systemd_unit
-                target_label: unit!
   post_tasks:
     - name: Reload promtail
       ansible.builtin.systemd_service:
@@ -37,7 +22,7 @@
 - name: Install and setup prometheus
   hosts: prometheus
   vars_files:
-    - ../secrets.yml
+    ../variables.yml
   roles:
     - prometheus.prometheus.prometheus
   post_tasks:
@@ -64,23 +49,6 @@
   roles:
     - role: grafana.grafana.grafana
   vars_files:
-    - ../secrets.yml
-  vars:
-    grafana_datasources:
-      - name: prometheus
-        type: prometheus
-        access: proxy
-        url: http://{{ hostvars["prometheus"].ansible_host | ansible.utils.ipv4 }}:9090
-        basicAuth: false
-      - name: loki
-        type: loki
-        access: proxy
-        url: http://{{ hostvars["loki"].ansible_host | ansible.utils.ipv4 }}:3100
-        basicAuth: false
-    grafana_dashboards:
-      - dashboard_id: 1860
-        revision_id: 37
-        datasource: prometheus
-    grafana_alerting: {}
+    ../variables.yml
   tags:
     - grafana

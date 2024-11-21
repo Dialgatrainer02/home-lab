@@ -4,9 +4,10 @@ flush ruleset
 
 #requires testing
 table inet filter {
-        define lan_subnet = 192.168.0.0/24
-        define loki_server = {{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}
-        define prometheus_server = {{ hostvars['prometheus'].ansible_host | ansible.utils.ipv4 }}
+        define lan_subnet = {{ nftables_lan_subnet }}
+        define loki_server = {{ nftables_loki_server }}
+        define prometheus_server = {{ nftables_prometheus_server }}
+        define torrent_port = {{ nftables_torrent_port }}
         chain INPUT {
             type filter hook input priority filter
             # drop all be default
@@ -19,6 +20,7 @@ table inet filter {
             # allow ssh connections from inside lan subnet 
             ip saddr $lan_subnet tcp dport ssh accept
 {% else %}
+            tcp sport $torrent_port accept
             tcp dport ssh accept # add rate limit and blocking
 {% endif %}
             # rate limit pings
@@ -58,10 +60,15 @@ table inet filter {
 
 {% if inventory_hostname == "wireguard-oci" %}
 table ip wireguard {
-	chain wireguard_chain {
+        define torrent_port = {{ nftables_torrent_port }}
+	chain wireguard_masquerare {
 		type nat hook postrouting priority srcnat; policy accept;
 		counter packets 0 bytes 0 masquerade
 	}
+        chain prerouting {
+                type nat hook prerouting priority -100; policy accept;
+                tcp dport $torrent_port dnat ip to 10.50.0.2:$torrent_port 
+        }
 }
 table ip6 wireguard {
 	chain wireguard_chain {

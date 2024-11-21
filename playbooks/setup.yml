@@ -1,6 +1,8 @@
 ---
 - name: Initial setup
   hosts: all:!laptop
+  vars_files:
+    ../variables.yml
   tasks:
     - name: Enable makecache timer
       ansible.builtin.systemd_service:
