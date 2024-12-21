@@ -1,0 +1,7 @@
+# terraform
+*_override.tf
+terraform/.terraform
+
+# secret leak prevention
+*key*
+*lock*
