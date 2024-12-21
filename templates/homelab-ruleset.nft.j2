@@ -36,6 +36,7 @@ table inet filter {
 {% if 'wireguard' in group_names %}
             iifname wg0 accept
             udp dport {53,51820} accept
+            meta l4proto { tcp,udp} th dport 8118 accept
 {% endif %}
         }
         chain OUTPUT {
@@ -46,10 +47,11 @@ table inet filter {
             # drop promtail packets if not goignt to loki as otherwise they are exposed 
             tcp dport 3100 ip daddr !=$loki_server drop
             tcp dport 9100 ip daddr !=$prometheus_server drop
-{% if inventory_hostname != "wireguard-oci" %}
+{% if 'wireguard' in group_names%}
+           # allow 53 rather than block
+{% else %}
             meta l4proto {tcp, udp} th sport 853 ip daddr !=$lan_subnet drop
             meta l4proto {tcp, udp} th sport 53 ip daddr !=$lan_subnet drop
-{% else %}
              # meta l4proto {tcp, udp} th sport 53 ip daddr != 1.1.1.1 drop
 {%endif%}
 {% if 'wireguard' in group_names %}

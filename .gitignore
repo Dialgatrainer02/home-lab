@@ -1,6 +1,4 @@
 .vscode/
-secrets.yml 
-# to be replaced with terraform secrets_override
 terraform/*_override.tf
 terraform/.terraform
 terraform/*.lock.*

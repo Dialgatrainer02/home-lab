@@ -2,9 +2,11 @@
 services:
   qbittorrent:
     container_name: qbittorrent
+    
     image: ghcr.io/hotio/qbittorrent
     ports:
       - "8080:8080"
+    #   - "8118:8118"
     environment:
       PUID: 911 #TODO
       PGID: 911
@@ -26,7 +28,7 @@ services:
       - NET_ADMIN
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-      # - net.ipv6.conf.all.disable_ipv6=1
+      - net.ipv6.conf.all.disable_ipv6=1
     volumes:
       - ./qBittorrent.conf:/config/config/qBittorrent.conf:ro
       - /etc/wireguard/wg0.conf:/config/wireguard/wg0.conf:ro
@@ -40,6 +42,7 @@ services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
+    
     depends_on:
       - qbittorrent
     environment:
@@ -60,6 +63,7 @@ services:
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
+    
     depends_on:
       - qbittorrent
     environment:
@@ -104,6 +108,7 @@ services:
   byparr:
     image: ghcr.io/thephaseless/byparr
     container_name: byparr
+    
     restart: unless-stopped
     healthcheck:
       test: curl --fail localhost:8191/docs || exit 1
@@ -116,6 +121,7 @@ services:
   recyclarr:
     image: ghcr.io/recyclarr/recyclarr
     container_name: recyclarr
+    
     depends_on:
       - sonarr
       - radarr
@@ -136,6 +142,7 @@ services:
   recyclarr-oneshot:
     image: ghcr.io/recyclarr/recyclarr
     container_name: recyclarr-oneshot
+    
     read_only: true
     tmpfs: /tmp
     depends_on:
@@ -158,8 +165,12 @@ services:
     image: pierremesure/flemmarr:latest
     read_only: true
     depends_on:
+      - qbittorrent
       - sonarr
       - radarr
       - prowlarr
     volumes:
       - ./flemmarr.yml:/config/config.yml:ro
+networks:
+  arrstack:
+    driver: bridge

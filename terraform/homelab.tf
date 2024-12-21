@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2
   content_type = "iso"
   datastore_id = "local"
   node_name    = "pve"
-  url          = "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-9.4-20240507.x86_64.qcow2"
+  url          = "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
   file_name    = "almalinux_9-4.img"
 }
 
@@ -136,13 +136,13 @@ resource "proxmox_virtual_environment_container" "almalinux_dns" {
   }
 }
 
-resource "terraform_data" "ansible_dns" {
-  input = proxmox_virtual_environment_container.almalinux_dns["dns2"].vm_id
-  provisioner "local-exec" {
-    command     = "ansible-playbook ./playbook.yml -t bootstrap -i ./terraform/${local_file.bootstrap.filename} --ssh-extra-args '-o StrictHostKeyChecking=false'"
-    working_dir = "../"
-  }
-}
+# resource "terraform_data" "ansible_dns" {
+  # input = proxmox_virtual_environment_container.almalinux_dns["dns2"].vm_id
+  # provisioner "local-exec" {
+    # command     = "ansible-playbook ./playbook.yml -t bootstrap -i ./terraform/${local_file.bootstrap.filename} --ssh-extra-args '-o StrictHostKeyChecking=false'"
+    # working_dir = "../"
+  # }
+# }
 
 resource "proxmox_virtual_environment_container" "almalinux_container" {
   for_each = var.containers

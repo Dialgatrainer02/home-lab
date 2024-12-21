@@ -1,68 +1,56 @@
-# try ansible provider
-# edit existing inventory file for ip addresses
-#generate on in terraform using yamlencode
-
 locals {
-  hosts  = merge(var.dns_servers, var.containers, var.vms, var.oracle)
-  groups = toset(flatten([for h in local.hosts : h.ansible_groups]))
-  hostvars = {
-    for k in keys(local.hosts) : k => local.hosts[k].ansible_varibles 
-  }
-  inventory = yamlencode({
-    "all" = {
-      "children" = {
-        for group in local.groups : group => {
-          hosts = {
-            for host in keys(local.hosts) : host => {
-              "ansible_host" = "${contains(keys(var.oracle), host) ? oci_core_instance.wireguard_instance[host].public_ip : contains(keys(var.vms), host) ? trimsuffix(proxmox_virtual_environment_vm.almalinux_vm[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.containers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_container[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : contains(keys(var.dns_servers), host) ? trimsuffix(proxmox_virtual_environment_container.almalinux_dns[host].initialization[0].ip_config[0].ipv4[0].address, "/24") : "null"}",
-              "ansible_user" = "${contains(keys(var.oracle), host) ? "opc" : contains(keys(var.vms), host) ? "almalinux" : "root"}"
-                # for k,v in local.hostvars[host]: k => v  
-            } if contains(local.hosts[host].ansible_groups, group)
-          }
-        }
+    # Outputs should always be based on the actual resources and never inputs, as providers
+    # tend to generate things dynamically. This also plays to TF strengths with dependency graphs
+    inventory_children = merge({ for k, attrs in oci_core_instance.wireguard_instance : 
+        attrs.display_name => merge({
+            ansible_host = attrs.public_ip
+            ansible_user = "opc"
+        }, try(var.oracle.ansible_varibles, {}))
+    }, { for k, attrs in proxmox_virtual_environment_vm.almalinux_vm : 
+        attrs.name => merge({
+            ansible_host = attrs.initialization[0].ip_config[0].ipv4[0].address
+            ansible_user = "almalinux"
+        }, try(var.vms.ansible_varibles,{}))
+    }, { for k, attrs in proxmox_virtual_environment_container.almalinux_container : 
+        attrs.name => merge({
+            ansible_host = attrs.initialization[0].ip_config[0].ipv4[0].address
+            ansible_user = "root"
+        }, try(var.containers.ansible_varibles, {}))
+    },  { for k, attrs in proxmox_virtual_environment_container.almalinux_dns : 
+        attrs.name => merge({
+            ansible_host = attrs.initialization[0].ip_config[0].ipv4[0].address
+            ansible_user = "root"
+        }, try(var.dns_servers.ansible_varibles, {}))
       }
-      "vars" = {
-        "ansible_ssh_private_key_file" = "./terraform/${local_sensitive_file.homelab_key.filename}"
-      }
+    )
+    bootstrap_inventory_children = merge({ for k, attrs in oci_core_instance.wireguard_instance : 
+        attrs.display_name => merge({
+            ansible_host = attrs.public_ip
+            ansible_user = "opc"
+        }, try(var.dns_servers.ansible_varibles, {}))
+    },)
+}
+
+# One'd expect to output YAML, not directly make a YAML string in Terraform-land (local.hosts)
+# so let's move it here
+output "inventory" {
+  value = yamlencode({
+    all = {
+        children = local.inventory_children
     }
-    }
-  )
-  bootstrap = yamlencode({
-    "all" = {
-      "children" = {
-        "dns" = {
-          "hosts" = {
-            for host in keys(var.dns_servers) : host => {
-              "ansible_host" = "${trimsuffix(proxmox_virtual_environment_container.almalinux_dns[host].initialization[0].ip_config[0].ipv4[0].address, "/24")}"
-              "ansible_user" = "root"
-            }
-          }
-        }
-      }
-      "vars" = {
-        "ansible_ssh_private_key_file" = "./terraform/${local_sensitive_file.homelab_key.filename}"
-      }
+    vars = {
+        ansible_ssh_private_key_file = "./terraform/${local_sensitive_file.homelab_key.filename}"
     }
   })
 }
 
-output "hostvars" {
-  value = local.hostvars
+output "bootstrap_inventory" {
+  value = yamlencode({
+    all = {
+         children = local.bootstrap_inventory_children
+    }
+    vars = {
+         ansible_ssh_private_key_file = "./terraform/${local_sensitive_file.homelab_key.filename}"
+    }
+  })
 }
-output "inventory" {
-  value = local.inventory
-
-}
-resource "local_file" "bootstrap" {
-  content  = local.bootstrap
-  filename = "./bootstrap-inventory.yml"
-
-}
-
-resource "local_file" "inventory" {
-  content  = local.inventory
-  filename = "./terraform-inventory.yml"
-}
-
-
-

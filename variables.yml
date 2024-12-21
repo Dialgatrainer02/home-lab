@@ -1,0 +1,84 @@
+---
+password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30376336363034656130623566623539306433326533386161613331303630346239346131373864
+          6631393539366363626530306531313462613339326632320a643461366265316630626133636635
+          39616238666430353834326366356562366630633137323437363138356132366537663933396235
+          6163353439333035370a613036343632363331316539613437363235623031326331366435656236
+          65383234666235333762393565633466363762356265643731663961353933626261
+duckdns_token: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34383861366339306465323634613562383838643837323830333665363132656133663962363431
+          3865396331616261303036376133393832393632656432370a303265626563313864313562333533
+          63303434383539353133373065666136313432303438633364646639313964386565326461333833
+          6232323133613733300a383139396664393235626461376633616564343261323265616537663637
+          38346632643163383630616464326163653938316438313161333664316465333065623963613834
+          3933653665356335353863333631666534386164333636333036
+grafana_security:
+      admin_user: olivia
+      admin_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30376336363034656130623566623539306433326533386161613331303630346239346131373864
+          6631393539366363626530306531313462613339326632320a643461366265316630626133636635
+          39616238666430353834326366356562366630633137323437363138356132366537663933396235
+          6163353439333035370a613036343632363331316539613437363235623031326331366435656236
+          65383234666235333762393565633466363762356265643731663961353933626261
+         
+nftables_lan_subnet: 192.168.0.0/24
+nftables_loki_server: "{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}"
+nftables_prometheus_server: "{{ hostvars['prometheus'].ansible_host | ansible.utils.ipv4 }}"
+nftables_torrent_port: 55551
+
+arrstack_dir: /opt/arrstack
+arrstack_data_dir: /opt/arrstack/data # mount storage at data dir
+arrstack_apikey: 1234567890
+arrstack_torrent_port: "{{ nftables_torrent_port }}"
+arrstack_password: "{{ password }}"
+
+
+promtail_loki_server_url: "http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100"
+promtail_config_scrape_configs:
+    - job_name: journal
+      journal:
+        json: false
+        max_age: 12h
+        path: /run/log/journal/{{ hostvars[inventory_hostname].ansible_machine_id }}/
+        labels:
+          node: "{{ inventory_hostname }}"
+      relabel_configs: # todo seperate per instance logging and get nice relabel configs
+        - action: keep
+          source_labels:
+            - __journal__systemd_unit
+          target_label: unit!
+                
+                
+grafana_datasources:
+      - name: prometheus
+        type: prometheus
+        access: proxy
+        url: "http://{{ hostvars['prometheus'].ansible_host | ansible.utils.ipv4 }}:9090"
+        basicAuth: false
+      - name: loki
+        type: loki
+        access: proxy
+        url: "http://{{ hostvars['loki'].ansible_host | ansible.utils.ipv4 }}:3100"
+        basicAuth: false
+grafana_dashboards:
+      - dashboard_id: 1860
+        revision_id: 37
+        datasource: prometheus
+grafana_alerting: {}
+    
+blocky__readiness_check_enabled: false
+blocky__custom_dns:
+  pve.hn-1-prx.duckdns.org: 192.168.0.90 # hyporvisors
+  pve1.hn-1-prx.duckdns.org: 192.168.0.91
+blocky__hosts_dns_enabled: true
+blocky__hosts_dns_domain: .hn-1-prx.duckdns.org
+
+duckdns_domains: 
+  - dialgatrainer
+  - dialgatrainer-staging
+  - hn-1-prx
+  - oc-1-vps
+  - olivia420
