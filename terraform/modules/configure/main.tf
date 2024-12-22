@@ -9,7 +9,7 @@ resource "local_file" "inventory" {
   filename = "${path.root}/../ansible/inventory.yml"
   content  = yamlencode(var.inventory)
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" "
+    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" > /dev/null"
     working_dir = path.root
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking

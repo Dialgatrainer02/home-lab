@@ -8,5 +8,6 @@ terraform/*tfstate*
 
 # go away vscode
 .vscode
-
+# ansible
 ansible/*inventory*
+*vars*
