@@ -1,12 +1,13 @@
 terraform {
   required_providers {
     proxmox = {
-      source  = "bpg/proxmox"
-      version = "0.66.3"
+        source = "bgp/proxmox"
+    }
+    oci = {
+        source = "hashicorp/oci"
     }
     local = {
-      source  = "hashicorp/local"
-      version = "2.5.2"
+        source = "hashicorp/local"
     }
   }
 }
@@ -23,10 +24,8 @@ provider "proxmox" {
 provider "oci" {
   region           = var.region
   tenancy_ocid     = var.tenancy_ocid
-  compartment_ocid = var.compartment_ocid
   user_ocid        = var.user_ocid
   fingerprint      = var.fingerprint
-  private_key      = var.private_key
+  private_key_path = var.private_key_path
 }
-
 

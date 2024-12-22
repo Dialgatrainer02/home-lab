@@ -43,3 +43,8 @@ variable "region" {
   type    = string
   default = ""
 }
+
+variable "duckdns_token" {
+  type    = string
+  default = ""
+}
