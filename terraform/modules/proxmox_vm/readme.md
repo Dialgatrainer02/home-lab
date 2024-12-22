@@ -30,7 +30,7 @@ variable "ipv4_subnet_cidr" {
 
 
 module "test_vm" {
-  source = "./proxmox_vm"
+  source = "./modules/proxmox_vm"
 
   vm_id        = 102
   name         = "test-vm"

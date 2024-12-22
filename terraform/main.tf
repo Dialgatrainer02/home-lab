@@ -62,7 +62,7 @@ resource "tls_private_key" "staging_key" {
 }
 
 module "Step_ca" {
-  source       = "./proxmox_ct"
+  source       = "./modules/proxmox_ct"
   vm_id        = 200
   hostname     = "step-ca"
   description  = "Step ca server"
@@ -78,7 +78,4 @@ module "Step_ca" {
   pve_password = var.pve_password
   pve_username = var.pve_username
 }
-
-
-
 

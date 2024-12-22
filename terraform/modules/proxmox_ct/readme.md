@@ -41,7 +41,7 @@ variable "ipv4_subnet_cidr" {
 
 
 module "Step_ca" {
-  source       = "./proxmox_ct"
+  source       = "./modules/proxmox_ct"
   vm_id        = 200
   hostname     = "step-ca"
   description  = "Step ca server"
