@@ -1,6 +1,6 @@
 
 resource "local_file" "inventory" {
-  filename = "${path.module}/inventory.yml"
+  filename = "${path.root}/../ansible/inventory.yml"
   content = yamlencode(var.inventory)
   provisioner "local-exec" {
     command = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename}"
