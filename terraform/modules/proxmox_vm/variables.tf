@@ -83,7 +83,7 @@ variable "disk_size" {
 
 variable "os_image" {
   description = "The OS image template file ID for the vm."
-  type        = any #should be string but passing in resources means it has to be object or any
+  type        = string
 }
 
 variable "os_image_type" {

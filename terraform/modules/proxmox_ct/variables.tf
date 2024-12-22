@@ -48,7 +48,7 @@ variable "dns" {
 
 variable "public_key" {
   description = "The public key to be used for SSH access to the container."
-  type        = any
+  type        = string
 }
 
 variable "cores" {
@@ -77,7 +77,7 @@ variable "swap_size" {
 
 variable "os_image" {
   description = "The OS image template file ID for the container."
-  type        = any #should be string but passing in resources means it has to be object or any
+  type        = string 
 }
 
 variable "pve_address" {

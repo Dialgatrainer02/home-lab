@@ -56,13 +56,17 @@ resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_
 
 
 
-resource "tls_private_key" "staging_key" {
+ resource "tls_private_key" "staging_key" {
   algorithm = "ED25519"
+}
 
+resource "local_sensitive_file" "private_staging_key" {
+  filename = "${path.root}/private_staging_key"
+  content =  tls_private_key.staging_key.private_key_openssh 
 }
 
 module "Step_ca" {
-  source       = "./modules/proxmox_ct"
+  source       = "${path.root}/modules/proxmox_ct"
   vm_id        = 200
   hostname     = "step-ca"
   description  = "Step ca server"
@@ -79,3 +83,27 @@ module "Step_ca" {
   pve_username = var.pve_username
 }
 
+module "configure_step_ca" {
+  source = "./modules/configure"
+
+  playbook = "../ansible/stepCA-playbook.yml" # from root not module
+  host_key_checking = "acept-new"
+  private_key_file = local_sensitive_file.private_staging_key.filename
+  ssh_user = "root"
+  quiet = true
+  inventory = {
+    all = {
+      children = {
+        "ca" = null
+      }
+      }
+    ca = {
+      hosts = {
+        step_ca = {
+          ansible_host = trimsuffix(module.Step_ca.ct_ipv4_address, var.ipv4_subnet_cidr)
+          ansible_port = 22
+        },
+      }
+    }
+  }
+}
