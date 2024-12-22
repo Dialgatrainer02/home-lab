@@ -15,9 +15,9 @@
       ansible.builtin.include_role:
         name: maxhoesel.smallstep.step_ca
       vars:
-        step_ca_name: Foobar Internal CA
-        step_ca_root_password: "incredibly secret password"
-        step_ca_intermediate_password: "very secret password"
+        step_ca_name: "{{ ca_name }}"
+        step_ca_root_password: "{{ ca_password }}"
+        step_ca_intermediate_password: "{{ ca_password }}"
         step_ca_ssh: true
 
     # The CA root cert fingerprint is used by clients to verify the authenticity of your CA.
