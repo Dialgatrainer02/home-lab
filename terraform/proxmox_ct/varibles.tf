@@ -16,10 +16,10 @@ variable "vm_id" {
   default     = 100
 }
 
-variable "name" {
-  description = "The name of the container."
+variable "description" {
+  description = "A description of the container."
   type        = string
-  default     = "example-container"
+  default     = "Managed by terraform"
 }
 
 variable "ipv4_address" {

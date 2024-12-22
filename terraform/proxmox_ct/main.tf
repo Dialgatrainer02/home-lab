@@ -1,11 +1,10 @@
 resource "proxmox_virtual_environment_container" "proxmox_ct" {
 
-  description = "Managed by Terraform"
+  description = var.description
 
   started   = true
   node_name = local.node
   vm_id     = var.vm_id
-  # name      = var.name
 
   unprivileged = true
 
@@ -59,7 +58,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
     user     = local.pve_user
     password = var.pve_password
   }
-  
+
   provisioner "file" {
     source      = "./enable_ssh.sh"
     destination = "/mnt/bindmounts/terraform/enable_ssh.sh"

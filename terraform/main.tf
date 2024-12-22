@@ -47,10 +47,10 @@ resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_
     ]
   }
   overwrite_unmanaged = true
-  content_type = "vztmpl"
-  datastore_id = "local"
-  node_name    = local.node
-  url          = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
+  content_type        = "vztmpl"
+  datastore_id        = "local"
+  node_name           = local.node
+  url                 = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
 }
 
 resource "tls_private_key" "staging_key" {
@@ -58,10 +58,10 @@ resource "tls_private_key" "staging_key" {
 
 }
 
-module "test" {
+module "Step_ca" {
   source       = "./proxmox_ct"
   vm_id        = 200
-  name         = "test"
+  description  = "Step ca server"
   ipv4_address = "${var.ipv4_subnet_pre}.200${var.ipv4_subnet_cidr}"
   ipv4_gw      = "192.168.0.1"
   dns          = ["1.1.1.1", "1.0.0.1"]
