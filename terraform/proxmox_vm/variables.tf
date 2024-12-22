@@ -88,6 +88,14 @@ variable "os_image" {
 
 variable "os_image_type" {
   description = "The OS image template file type for the vm."
-  type        = string 
-  default = "qcow2"
+  type        = string
+  default     = "qcow2"
+}
+
+output "ct_public_key" {
+  value = proxmox_virtual_environment_vm.proxmox_vm.initialization[0].user_account[0].keys[0]
+}
+
+output "ct_ipv4_address" {
+  value = proxmox_virtual_environment_vm.proxmox_vm.initialization[0].ip_config[0].ipv4[0].address
 }

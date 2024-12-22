@@ -53,14 +53,7 @@ resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_
   url                 = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
 }
 
-resource "proxmox_virtual_environment_download_file" "latest_almalinux_9-4_qcow2" {
-  content_type = "iso"
-  datastore_id = "local"
-  node_name    = local.node
-  url          = "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
-  file_name    = "almalinux_9-4.img"
-  overwrite_unmanaged = true
-}
+
 
 
 resource "tls_private_key" "staging_key" {
@@ -86,21 +79,6 @@ module "Step_ca" {
   pve_username = var.pve_username
 }
 
-module "test_vm" {
-  source = "./proxmox_vm"
 
-  vm_id        = 102
-  name         = "test-vm"
-  description  = "test vm"
-  ipv4_address = "${var.ipv4_subnet_pre}.102${var.ipv4_subnet_cidr}"
-  ipv4_gw      = "192.168.0.1"
-  dns          = ["1.1.1.1", "1.0.0.1"]
-  public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
-  username     = "almalinux"
-  cores        = 2
-  disk_size    = "20"
-  mem_size     = "2048"
-  os_image     = proxmox_virtual_environment_download_file.latest_almalinux_9-4_qcow2.id
-  os_image_type= "qcow2"
-}
+
 

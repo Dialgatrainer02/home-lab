@@ -8,3 +8,7 @@ terraform/*tfstate*
 
 # go away vscode
 .vscode
+
+
+# remove when ready
+ansible/

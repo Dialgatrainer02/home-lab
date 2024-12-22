@@ -1,4 +1,4 @@
-resource "proxmox_virtual_environment_vm" "almalinux_vm" {
+resource "proxmox_virtual_environment_vm" "proxmox_vm" {
 
   name        = var.name
   node_name   = local.node
