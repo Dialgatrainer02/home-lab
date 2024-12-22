@@ -9,7 +9,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
   unprivileged = true
 
   initialization {
-    hostname = var.name
+    hostname = var.hostname
 
     ip_config {
       ipv4 {
@@ -60,7 +60,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
   }
 
   provisioner "file" {
-    source      = "./enable_ssh.sh"
+    source      = "${path.module}/enable_ssh.sh"
     destination = "/mnt/bindmounts/terraform/enable_ssh.sh"
 
   }

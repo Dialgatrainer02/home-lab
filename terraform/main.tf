@@ -61,6 +61,7 @@ resource "tls_private_key" "staging_key" {
 module "Step_ca" {
   source       = "./proxmox_ct"
   vm_id        = 200
+  hostname     = "step-ca"
   description  = "Step ca server"
   ipv4_address = "${var.ipv4_subnet_pre}.200${var.ipv4_subnet_cidr}"
   ipv4_gw      = "192.168.0.1"
@@ -74,3 +75,4 @@ module "Step_ca" {
   pve_password = var.pve_password
   pve_username = var.pve_username
 }
+

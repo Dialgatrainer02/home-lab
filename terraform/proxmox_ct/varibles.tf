@@ -16,6 +16,12 @@ variable "vm_id" {
   default     = 100
 }
 
+variable "hostname" {
+  description = "The hostname assigned to the container."
+  type        = string
+  default     = "example"
+}
+
 variable "description" {
   description = "A description of the container."
   type        = string
