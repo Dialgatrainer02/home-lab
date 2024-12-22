@@ -31,7 +31,11 @@ variable "quiet" {
 }
 
 variable "extra_vars" {
-  type = any
+  type    = any
   default = {}
-  
+
 }
+
+# output "" {
+# 
+# }

@@ -1,9 +1,9 @@
-module "ca-1" {
+module "dns-1" {
   source       = "${path.root}/modules/proxmox_ct"
-  vm_id        = 200
-  hostname     = "ca-1"
-  description  = "Step ca server"
-  ipv4_address = "${var.ipv4_subnet_pre}.200${var.ipv4_subnet_cidr}"
+  vm_id        = 201
+  hostname     = "dns-1"
+  description  = "dns  server"
+  ipv4_address = "${var.ipv4_subnet_pre}.201${var.ipv4_subnet_cidr}"
   ipv4_gw      = "192.168.0.1"
   dns          = ["1.1.1.1", "1.0.0.1"]
   public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
@@ -16,22 +16,32 @@ module "ca-1" {
   pve_username = var.pve_username
 }
 
-module "configure_ca-1" {
+module "configure_dns" {
   source = "./modules/configure"
+  depends_on = [ module.configure_ca-1 ] # TODO find nicer way to do this
 
-  playbook          = "../ansible/stepCA-playbook.yml" # from root not module
+  playbook          = "../ansible/dns-playbook.yml" # from root not module
   host_key_checking = "false"
   private_key_file  = local_sensitive_file.private_staging_key.filename
   ssh_user          = "root"
   quiet             = true
   extra_vars = {
-    ca_name     = "staging-homelab"
-    ca_password = var.pve_password
+    ca_url     = "https://${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"
+    ca_install = true
   }
   inventory = {
     all = {
       children = {
-        "ca" = null
+        "dns" = null
+        "ca"  = null
+      }
+    }
+    dns = {
+      hosts = {
+        dns-1 = {
+          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          ansible_port = 22
+        },
       }
     }
     ca = {

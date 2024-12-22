@@ -1,15 +1,27 @@
+resource "random_id" "suffix" {
+  byte_length = 1
+
+}
+
 resource "local_sensitive_file" "extra_vars" {
-  filename = "${path.module}/extra_vars.yml"
+  filename = "${path.module}/extra_vars-${random_id.suffix.id}.yml"
   content  = "--- \n${yamlencode(var.extra_vars)}" # alittle hacky but ultimatly fine
 }
 
 
-
 resource "local_file" "inventory" {
-  filename = "${path.root}/../ansible/inventory.yml"
+  filename = "${path.root}/../ansible/inventory-${random_id.suffix.id}.yml"
   content  = yamlencode(var.inventory)
+}
+
+
+resource "terraform_data" "playbook" {
+  triggers_replace = [
+    local_sensitive_file.extra_vars.id,
+    local_file.inventory.id
+  ]
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" > /dev/null"
+    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" >/dev/null "
     working_dir = path.root
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking
@@ -19,5 +31,3 @@ resource "local_file" "inventory" {
     quiet = var.quiet
   }
 }
-
-
