@@ -1,7 +1,10 @@
 # terraform
 *_override.tf
 terraform/.terraform
-
+terraform/*tfstate*
 # secret leak prevention
 *key*
 *lock*
+
+# go away vscode
+.vscode
