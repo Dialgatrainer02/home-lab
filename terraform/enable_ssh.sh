@@ -1,9 +1,58 @@
 #!/bin/bash
-until ping -4 -c 1 google.com &> /dev/null # wait for dns
-do
-  sleep 1
-done
 
+# Function to detect the package manager
+detect_package_manager() {
+    if command -v apt-get >/dev/null 2>&1; then
+        echo "apt-get"
+    elif command -v dnf >/dev/null 2>&1; then
+        echo "dnf"
+    elif command -v pacman >/dev/null 2>&1; then
+        echo "pacman"
+    elif command -v zypper >/dev/null 2>&1; then
+        echo "zypper"
+    else
+        echo "unsupported"
+    fi
+}
 
-dnf -y install openssh-server > /dev/null
-systemctl enable --now sshd > /dev/null
+# Function to install and enable SSH silently
+install_and_enable_ssh() {
+    package_manager=$(detect_package_manager)
+    
+    case "$package_manager" in
+        apt-get)
+            echo "Detected apt-get. Installing SSH..."
+            DEBIAN_FRONTEND=noninteractive sudo apt-get update -y >/dev/null 2>&1
+            DEBIAN_FRONTEND=noninteractive sudo apt-get install -y openssh-server >/dev/null 2>&1
+            sudo systemctl enable ssh >/dev/null 2>&1
+            sudo systemctl start ssh >/dev/null 2>&1
+            ;;
+        dnf)
+            echo "Detected dnf. Installing SSH..."
+            sudo dnf install -y openssh-server >/dev/null 2>&1
+            sudo systemctl enable sshd >/dev/null 2>&1
+            sudo systemctl start sshd >/dev/null 2>&1
+            ;;
+        pacman)
+            echo "Detected pacman. Installing SSH..."
+            sudo pacman -Sy --noconfirm openssh >/dev/null 2>&1
+            sudo systemctl enable sshd >/dev/null 2>&1
+            sudo systemctl start sshd >/dev/null 2>&1
+            ;;
+        zypper)
+            echo "Detected zypper. Installing SSH..."
+            sudo zypper refresh >/dev/null 2>&1
+            sudo zypper --non-interactive install openssh >/dev/null 2>&1
+            sudo systemctl enable sshd >/dev/null 2>&1
+            sudo systemctl start sshd >/dev/null 2>&1
+            ;;
+        *)
+            echo "Unsupported package manager: $package_manager" >&2
+            exit 1
+            ;;
+    esac
+
+    echo "SSH installed and enabled successfully using $package_manager."
+}
+
+install_and_enable_ssh
