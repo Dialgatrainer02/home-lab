@@ -24,6 +24,9 @@ module "configure_step_ca" {
   private_key_file = local_sensitive_file.private_staging_key.filename
   ssh_user = "root"
   quiet = true
+  # extra_vars = {
+    # test = "testing"
+  # }
   inventory = {
     all = {
       children = {

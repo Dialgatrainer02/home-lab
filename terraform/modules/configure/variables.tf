@@ -29,3 +29,9 @@ variable "quiet" {
   default = false
 
 }
+
+variable "extra_vars" {
+  type = any
+  default = {}
+  
+}
