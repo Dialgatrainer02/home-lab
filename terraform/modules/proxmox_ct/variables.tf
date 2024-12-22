@@ -77,7 +77,7 @@ variable "swap_size" {
 
 variable "os_image" {
   description = "The OS image template file ID for the container."
-  type        = string 
+  type        = string
 }
 
 variable "pve_address" {

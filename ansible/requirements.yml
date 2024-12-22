@@ -1,0 +1,6 @@
+---
+collections:
+  - name: maxhoesel.smallstep
+    version: main
+    source: git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
+    type: git
