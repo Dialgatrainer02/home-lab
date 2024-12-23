@@ -10,7 +10,7 @@ resource "local_sensitive_file" "extra_vars" {
 
 
 resource "local_file" "inventory" {
-  filename = "${path.root}/../ansible/inventory-${random_id.suffix.id}.yml"
+  filename = "${path.module}/inventory-${random_id.suffix.id}.yml"
   content  = yamlencode(var.inventory)
 }
 
@@ -21,7 +21,7 @@ resource "terraform_data" "playbook" {
     local_file.inventory.id
   ]
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" >/dev/null "
+    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\"  "
     working_dir = path.root
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking

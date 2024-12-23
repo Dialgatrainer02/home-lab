@@ -1,11 +1,14 @@
 module "ca-1" {
-  source       = "${path.root}/modules/proxmox_ct"
+  depends_on = [module.configure_dns]
+  source     = "${path.root}/modules/proxmox_ct"
+
+
   vm_id        = 200
   hostname     = "ca-1"
   description  = "Step ca server"
   ipv4_address = "${var.ipv4_subnet_pre}.200${var.ipv4_subnet_cidr}"
   ipv4_gw      = "192.168.0.1"
-  dns          = ["1.1.1.1", "1.0.0.1"]
+  dns          = ["${trimsuffix(module.dns-1.ct_ipv4_address, "/24")}"]
   public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
   cores        = 1
   disk_size    = "5"
@@ -19,7 +22,7 @@ module "ca-1" {
 module "configure_ca-1" {
   source = "./modules/configure"
 
-  playbook          = "../ansible/stepCA-playbook.yml" # from root not module
+  playbook          = "../ansible/ca-playbook.yml"
   host_key_checking = "false"
   private_key_file  = local_sensitive_file.private_staging_key.filename
   ssh_user          = "root"
@@ -39,6 +42,48 @@ module "configure_ca-1" {
         ca-1 = {
           ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
           ansible_port = 22
+        },
+      }
+    }
+  }
+}
+
+
+module "acme_certs" {
+  source = "./modules/configure"
+  depends_on = [
+    module.reconfigure_dns,
+  ]
+
+  playbook          = "../ansible/cert-playbook.yml"
+  host_key_checking = "false"
+  private_key_file  = local_sensitive_file.private_staging_key.filename
+  ssh_user          = "root"
+  quiet             = true
+  extra_vars = {
+    ca_url = "${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"
+  }
+  inventory = {
+    # all = {
+    # children = {
+    # "dns" = null
+    # }
+    # }
+    dns = {
+      hosts = {
+        dns-1 = {
+          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          acme_cert_name = "dns-1.dialgatrainer.duckdns.org"
+          acme_cert_san  = ["${trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
+        },
+      }
+    }
+    ca = {
+      hosts = {
+        ca-1 = {
+          ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          acme_cert_name = "ca-1.dialgatrainer.duckdns.org"
+          acme_cert_san  = ["${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
         },
       }
     }

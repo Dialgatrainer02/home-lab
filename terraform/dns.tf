@@ -18,7 +18,6 @@ module "dns-1" {
 
 module "configure_dns" {
   source = "./modules/configure"
-  depends_on = [ module.configure_ca-1 ] # TODO find nicer way to do this
 
   playbook          = "../ansible/dns-playbook.yml" # from root not module
   host_key_checking = "false"
@@ -26,16 +25,48 @@ module "configure_dns" {
   ssh_user          = "root"
   quiet             = true
   extra_vars = {
-    ca_url     = "https://${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"
-    ca_install = true
+    duckdns_domains   = var.duckdns_domains
+    host_dns_enabled = false
   }
   inventory = {
-    all = {
-      children = {
-        "dns" = null
-        "ca"  = null
+    # all = {
+    # children = {
+    # "dns" = null
+    # }
+    # }
+    dns = {
+      hosts = {
+        dns-1 = {
+          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          ansible_port = 22
+        },
       }
     }
+  }
+}
+
+module "reconfigure_dns" { # this time add the hosts to the dns so we can use them for cert providing
+  source = "./modules/configure"
+  depends_on = [
+    module.configure_ca-1,
+    module.configure_dns
+  ]
+
+  playbook          = "../ansible/dns-playbook.yml" # from root not module
+  host_key_checking = "false"
+  private_key_file  = local_sensitive_file.private_staging_key.filename
+  ssh_user          = "root"
+  quiet             = true
+  extra_vars = {
+    duckdns_domains   = var.duckdns_domains
+    host_dns_enabled = true
+  }
+  inventory = {
+    # all = {
+    # children = {
+    # "dns" = null
+    # }
+    # }
     dns = {
       hosts = {
         dns-1 = {
@@ -54,3 +85,6 @@ module "configure_dns" {
     }
   }
 }
+
+
+
