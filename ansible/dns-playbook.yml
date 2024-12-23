@@ -1,25 +1,13 @@
 ---
-- name: Configure ca on server
-  hosts: all
-  tasks:
-    - name: Get root CA fingerprint # noqa no-changed-when
-      ansible.builtin.command: 'step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt'
-      register: root_ca_fp
-      delegate_to: ca-1
-
 - name: Setup dns servers
   hosts: dns
   tasks:
-    - name: Trust ca
-      ansible.builtin.include_role:
-        name: maxhoesel.smallstep.step_bootstrap_host
-      vars:
-        step_bootstrap_ca_url: "{{ ca_url }}"
-        step_bootstrap_fingerprint: "{{ root_ca_fp.stdout }}"
-        step_bootstrap_install_cert: "{{ ca_install }}"
     - name: Install dns server
       ansible.builtin.include_role:
         name: ngine_io.blocky_dns
+      vars:
+        blocky__hosts_dns_enabled: "{{ host_dns_enabled }}"
+        blocky__hosts_dns_domain: ".dialgatrainer.duckdns.org"
   pre_tasks:
     - name: Install compression libary
       ansible.builtin.package:

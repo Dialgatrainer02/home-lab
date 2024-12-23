@@ -1,0 +1,27 @@
+
+- name: Bootstrap the host
+  hosts: all
+  become: true
+  tasks:
+    - name: Get fingerpint
+      ansible.builtin.command: 'step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt'
+      register: root_ca_fp
+      delegate_to: ca-1
+    - name: Bootstrap the hosts to trust the CA
+      ansible.builtin.include_role:
+        name: maxhoesel.smallstep.step_bootstrap_host
+      vars:
+        # These values point the hosts to your newly created CA
+        step_bootstrap_ca_url: "{{ ca_url }}"
+        step_bootstrap_fingerprint: "{{ root_ca_fp.stdout }}"
+
+    - name: Verify that everything is working
+      ansible.builtin.command: step-cli ca health
+      changed_when: false
+    - name: Configure an ACME cert + renewal
+      ansible.builtin.include_role:
+        name: maxhoesel.smallstep.step_acme_cert
+      vars:
+        step_acme_cert_ca_provisioner: ACME
+        step_acme_cert_name: "{{ acme_cert_name }}"
+        step_acme_cert_san: "{{ acme_cert_san }}"

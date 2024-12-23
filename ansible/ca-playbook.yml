@@ -19,3 +19,16 @@
         step_ca_root_password: "{{ ca_password }}"
         step_ca_intermediate_password: "{{ ca_password }}"
         step_ca_ssh: true
+    - name: Add an ACME provisioner to the CA
+      maxhoesel.smallstep.step_ca_provisioner:
+        name: ACME
+        type: ACME
+      become: true
+      become_user: step-ca
+      notify: Reload step-ca
+
+  handlers:
+    - name: Reload step-ca
+      ansible.builtin.systemd:
+        name: step-ca
+        state: reloaded
