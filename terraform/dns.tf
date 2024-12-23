@@ -17,7 +17,8 @@ module "dns-1" {
 }
 
 module "configure_dns" {
-  source = "./modules/playbook"
+  source     = "./modules/playbook"
+  depends_on = [module.dns-1]
 
   playbook          = "../ansible/dns-playbook.yml" # from root not module
   host_key_checking = "false"
@@ -48,8 +49,7 @@ module "configure_dns" {
 module "reconfigure_dns" { # this time add the hosts to the dns so we can use them for cert providing
   source = "./modules/playbook"
   depends_on = [
-    module.ca-1,         # another host to make use of the host dns
-    module.configure_dns # needs to wa
+    module.configure_ca-1, # another host to make use of the host dns
   ]
 
   playbook          = "../ansible/dns-playbook.yml" # from root not module

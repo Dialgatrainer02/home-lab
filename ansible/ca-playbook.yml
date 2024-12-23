@@ -9,8 +9,6 @@
         state: present
       become: true
   tasks:
-    # Install and initialize the CA server.
-    # There are a lot of configuration options, see the step_ca README for details
     - name: Install step-ca
       ansible.builtin.include_role:
         name: maxhoesel.smallstep.step_ca
@@ -26,7 +24,17 @@
       become: true
       become_user: step-ca
       notify: Reload step-ca
-
+    - name: Get fingerpint # noqa no-changed-when
+      ansible.builtin.command: 'step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt'
+      register: root_ca_fp
+    - name: Write fingerpint to file
+      ansible.builtin.copy:
+        content: "{{ root_ca_fp.stdout }}"
+        dest: ./root_ca_fp
+        mode: "0755"
+      delegate_to: localhost
+      become: true
+      become_user: olivia # find way to dynamically change user
   handlers:
     - name: Reload step-ca
       ansible.builtin.systemd:

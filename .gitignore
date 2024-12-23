@@ -11,3 +11,4 @@ terraform/*tfstate*
 # ansible
 *inventory*
 *vars*
+ansible/root_ca_fp

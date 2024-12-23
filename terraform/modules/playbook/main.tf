@@ -27,6 +27,7 @@ resource "terraform_data" "playbook" {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking
       ANSIBLE_PRIVATE_KEY_FILE  = var.private_key_file
       ANSIBLE_REMOTE_USER       = var.ssh_user
+      ANSIBLE_SSH_PIPELINING    = true
     }
     quiet = var.quiet
   }

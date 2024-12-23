@@ -4,16 +4,15 @@
   become: true
   tasks:
     - name: Get fingerpint
-      ansible.builtin.command: 'step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt'
-      register: root_ca_fp
-      delegate_to: ca-1
+      ansible.builtin.set_fact:
+        root_ca_fp: "{{ lookup('ansible.builtin.file', './root_ca_fp') }}"
     - name: Bootstrap the hosts to trust the CA
       ansible.builtin.include_role:
         name: maxhoesel.smallstep.step_bootstrap_host
       vars:
         # These values point the hosts to your newly created CA
         step_bootstrap_ca_url: "{{ ca_url }}"
-        step_bootstrap_fingerprint: "{{ root_ca_fp.stdout }}"
+        step_bootstrap_fingerprint: "{{ root_ca_fp }}"
 
     - name: Verify that everything is working
       ansible.builtin.command: step-cli ca health

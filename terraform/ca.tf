@@ -1,5 +1,6 @@
 module "ca-1" {
   source = "${path.root}/modules/proxmox_ct"
+  # depends_on = [ module.configure_dns ]
 
 
   vm_id        = 200
@@ -19,7 +20,8 @@ module "ca-1" {
 }
 
 module "configure_ca-1" {
-  source = "./modules/playbook"
+  source     = "./modules/playbook"
+  depends_on = [module.ca-1, ]
 
   playbook          = "../ansible/ca-playbook.yml"
   host_key_checking = "false"
