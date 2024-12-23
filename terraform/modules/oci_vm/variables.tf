@@ -55,7 +55,7 @@ variable "vcn_label" {
 variable "vcn_dns_label" {
   description = "DNS label for the VCN."
   type        = string
-  default     = "oci_dns"
+  default     = "ociVCN"
 }
 
 variable "ipv6_enabled" {
@@ -91,7 +91,7 @@ variable "subnet_label" {
 variable "subnet_dns_label" {
   description = "DNS label for the subnet."
   type        = string
-  default     = "oci_subnet_dns"
+  default     = "oci-subnet-dns"
 }
 
 variable "gw_label" {
@@ -117,8 +117,8 @@ variable "ingress_rules" {
   type = list(object({
     protocol    = string
     source      = string
-    tcp_options = object({ min = number, max = number })
-    udp_options = object({ min = number, max = number })
+    tcp_options = optional(object({ min = optional(number), max = optional(number) }), {})
+    udp_options = optional(object({ min = optional(number), max = optional(number) }), {})
   }))
   default = [
     {
@@ -128,7 +128,7 @@ variable "ingress_rules" {
         max = 22
         min = 22
       }
-      udp_options = null
+      # udp_options = null
     }
   ]
 }
@@ -138,21 +138,21 @@ variable "egress_rules" {
   type = list(object({
     protocol    = string
     destination = string
-    tcp_options = object({ min = number, max = number })
-    udp_options = object({ min = number, max = number })
+    tcp_options = optional(object({ min = optional(number), max = optional(number) }), {})
+    udp_options = optional(object({ min = optional(number), max = optional(number) }), {})
   }))
   default = [
     {
       protocol    = "all"
       destination = "0.0.0.0/0"
-      tcp_options = null
-      udp_options = null
+      # tcp_options = null
+      # udp_options = null
     },
     {
       protocol    = "all"
       destination = "::/0"
-      tcp_options = null
-      udp_options = null
+      # tcp_options = null
+      # udp_options = null
     }
   ]
 }

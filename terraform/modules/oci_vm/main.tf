@@ -58,19 +58,13 @@ resource "oci_core_security_list" "oci_security_list" { ## null values making he
       protocol    = egress_security_rules.value.protocol
       destination = egress_security_rules.value.destination
 
-      dynamic "udp_options" {
-        for_each = egress_security_rules.value.udp_options
-        content {
-          min = udp_options.value.min
-          max = udp_options.value.max
-        }
+      udp_options {
+          max = egress_security_rules.value.udp_options.max
+          min = egress_security_rules.value.udp_options.min
       }
-      dynamic "tcp_options" {
-        for_each = egress_security_rules.value.tcp_options
-        content {
-          max = tcp_options.value.max
-          min = tcp_options.value.min
-        }
+      tcp_options {
+          max = egress_security_rules.value.tcp_options.max
+          min = egress_security_rules.value.tcp_options.min
       }
 
     }
@@ -82,19 +76,13 @@ resource "oci_core_security_list" "oci_security_list" { ## null values making he
       protocol = ingress_security_rules.value.protocol
       source   = ingress_security_rules.value.source
 
-      dynamic "udp_options" {
-        for_each = ingress_security_rules.value.udp_options
-        content {
-          min = udp_options.value.min
-          max = udp_options.value.max
-        }
+      udp_options {
+          max = ingress_security_rules.value.udp_options.max
+          min = ingress_security_rules.value.udp_options.min
       }
-      dynamic "tcp_options" {
-        for_each = ingress_security_rules.value.tcp_options
-        content {
-          max = tcp_options.value.max
-          min = tcp_options.value.min
-        }
+      tcp_options {
+          max = ingress_security_rules.value.tcp_options.max
+          min = ingress_security_rules.value.tcp_options.min
       }
 
     }
