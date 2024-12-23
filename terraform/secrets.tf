@@ -41,7 +41,7 @@ variable "compartment_ocid" {
   sensitive = true
 }
 
-variable "private_key" {
+variable "oci_private_key" {
   type      = string
   default   = ""
   sensitive = true
