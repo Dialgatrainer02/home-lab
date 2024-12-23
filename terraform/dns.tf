@@ -17,7 +17,7 @@ module "dns-1" {
 }
 
 module "configure_dns" {
-  source = "./modules/configure"
+  source = "./modules/playbook"
 
   playbook          = "../ansible/dns-playbook.yml" # from root not module
   host_key_checking = "false"
@@ -25,7 +25,7 @@ module "configure_dns" {
   ssh_user          = "root"
   quiet             = true
   extra_vars = {
-    duckdns_domains   = var.duckdns_domains
+    duckdns_domains  = var.duckdns_domains
     host_dns_enabled = false
   }
   inventory = {
@@ -46,9 +46,9 @@ module "configure_dns" {
 }
 
 module "reconfigure_dns" { # this time add the hosts to the dns so we can use them for cert providing
-  source = "./modules/configure"
+  source = "./modules/playbook"
   depends_on = [
-    module.configure_ca-1,
+    module.ca-1,
     module.configure_dns
   ]
 
@@ -58,7 +58,7 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
   ssh_user          = "root"
   quiet             = true
   extra_vars = {
-    duckdns_domains   = var.duckdns_domains
+    duckdns_domains  = var.duckdns_domains
     host_dns_enabled = true
   }
   inventory = {
@@ -85,6 +85,3 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
     }
   }
 }
-
-
-

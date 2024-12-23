@@ -1,5 +1,4 @@
 module "ca-1" {
-  depends_on = [module.configure_dns]
   source     = "${path.root}/modules/proxmox_ct"
 
 
@@ -20,7 +19,7 @@ module "ca-1" {
 }
 
 module "configure_ca-1" {
-  source = "./modules/configure"
+  source = "./modules/playbook"
 
   playbook          = "../ansible/ca-playbook.yml"
   host_key_checking = "false"
@@ -50,7 +49,7 @@ module "configure_ca-1" {
 
 
 module "acme_certs" {
-  source = "./modules/configure"
+  source = "./modules/playbook"
   depends_on = [
     module.reconfigure_dns,
   ]
@@ -72,7 +71,7 @@ module "acme_certs" {
     dns = {
       hosts = {
         dns-1 = {
-          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          ansible_host   = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
           acme_cert_name = "dns-1.dialgatrainer.duckdns.org"
           acme_cert_san  = ["${trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
         },
@@ -81,7 +80,7 @@ module "acme_certs" {
     ca = {
       hosts = {
         ca-1 = {
-          ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+          ansible_host   = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
           acme_cert_name = "ca-1.dialgatrainer.duckdns.org"
           acme_cert_san  = ["${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
         },

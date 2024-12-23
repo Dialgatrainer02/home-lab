@@ -1,5 +1,14 @@
 #!/bin/bash
 
+check_dns() {
+    echo "Testing DNS connectivity..."
+    while ! ping -c 1 -W 2 cloudflare.com >/dev/null 2>&1; do
+        echo "DNS test failed. Retrying in 5 seconds..."
+        sleep 5
+    done
+    echo "DNS connectivity is functional."
+}
+
 # Function to detect the package manager
 detect_package_manager() {
     if command -v apt-get >/dev/null 2>&1; then
@@ -55,4 +64,5 @@ install_and_enable_ssh() {
     echo "SSH installed and enabled successfully using $package_manager."
 }
 
+check_dns
 install_and_enable_ssh
