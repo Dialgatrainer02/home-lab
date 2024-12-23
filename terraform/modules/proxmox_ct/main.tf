@@ -52,7 +52,16 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
   }
   start_on_boot = "true"
 
-  connection {
+  mount_point {
+    volume = "/mnt/bindmounts/terraform"
+    path   = "/terraform"
+    shared = "true"
+  }
+}
+
+resource "terraform_data" "provision" {
+  depends_on = [proxmox_virtual_environment_container.proxmox_ct]
+  connection { ### put in terraform data 
     host     = var.pve_address
     type     = "ssh"
     user     = local.pve_user
@@ -64,15 +73,10 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
     destination = "/mnt/bindmounts/terraform/enable_ssh.sh"
 
   }
-
   provisioner "remote-exec" {
     inline = [
       "pct exec ${var.vm_id} bash /terraform/enable_ssh.sh"
     ]
   }
-  mount_point {
-    volume = "/mnt/bindmounts/terraform"
-    path   = "/terraform"
-    shared = "true"
-  }
+
 }

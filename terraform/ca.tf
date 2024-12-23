@@ -1,5 +1,5 @@
 module "ca-1" {
-  source     = "${path.root}/modules/proxmox_ct"
+  source = "${path.root}/modules/proxmox_ct"
 
 
   vm_id        = 200
@@ -51,7 +51,8 @@ module "configure_ca-1" {
 module "acme_certs" {
   source = "./modules/playbook"
   depends_on = [
-    module.reconfigure_dns,
+    module.reconfigure_dns, # requires dns names
+    module.configure_ca-1   # requires working ca
   ]
 
   playbook          = "../ansible/cert-playbook.yml"
