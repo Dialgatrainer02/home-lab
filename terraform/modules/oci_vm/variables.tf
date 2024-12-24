@@ -11,7 +11,7 @@ data "oci_core_images" "images" {
 }
 
 locals {
-    host = {
+  host = {
     "${var.hostname}" = {
       ansible_host = oci_core_instance.oci_instance.public_ip
     }
