@@ -28,7 +28,7 @@ resource "terraform_data" "playbook" {
       ANSIBLE_PRIVATE_KEY_FILE  = var.private_key_file
       ANSIBLE_REMOTE_USER       = var.ssh_user
       ANSIBLE_SSH_PIPELINING    = true
-      ANSIBLE_STDOUT_CALLBACK   = "dense"
+      ANSIBLE_STDOUT_CALLBACK   = var.ansible_callback
     }
     quiet = var.quiet
   }

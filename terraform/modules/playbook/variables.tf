@@ -30,6 +30,12 @@ variable "quiet" {
 
 }
 
+variable "ansible_callback" {
+  type        = string
+  description = "sets ansible stdout callback"
+  default     = "dense"
+}
+
 variable "extra_vars" {
   type    = any
   default = {}
