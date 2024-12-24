@@ -30,7 +30,8 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
 }
 
 module "configure_ca-1" {
-  source     = "./modules/playbook"
+  source = "./modules/playbook"
+  depends_on = [ module.ca-1 ]
 
   playbook          = "../ansible/ca-playbook.yml"
   host_key_checking = "false"
@@ -67,8 +68,8 @@ module "acme_certs" {
 module "wireguard" {
   source = "./modules/playbook"
 
-  playbook = "../ansible/wg-playbook.yml"
-  inventory = local.wireguard
+  playbook         = "../ansible/wg-playbook.yml"
+  inventory        = local.wireguard
   private_key_file = "./private_staging_key"
 }
 

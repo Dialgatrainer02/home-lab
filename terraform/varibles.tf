@@ -26,7 +26,7 @@ locals {
 }
 
 locals {
-  wireguard =   {wireguard = {hosts = merge(module.wg_gw.host, module.wg_vps.host) } } 
-  ca = {ca = { hosts = module.ca-1.host }}
-  dns = {dns = { hosts = module.dns-1.host }}
+  wireguard = { wireguard = { hosts = merge(module.wg_gw.host, module.wg_vps.host) } }
+  ca        = { ca = { hosts = module.ca-1.host } }
+  dns       = { dns = { hosts = module.dns-1.host } }
 }
