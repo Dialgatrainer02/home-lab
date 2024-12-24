@@ -37,12 +37,8 @@ module "wg_vps" {
 
 }
 
-
-# wireguard gateway for lan
-
 module "wg_gw" {
   source = "${path.root}/modules/proxmox_ct"
-  # depends_on = [ module.configure_dns ]
 
 
   vm_id        = 202
@@ -66,16 +62,3 @@ module "wg_gw" {
   pve_username = var.pve_username
 }
 
-
-
-module "wireguard" {
-  source = "./modules/playbook"
-
-  playbook = "../ansible/wg-playbook.yml"
-  inventory = {
-    wireguard = {
-      hosts = merge(module.wg_gw.host, module.wg_vps.host)
-    }
-  }
-  private_key_file = "./private_staging_key"
-}

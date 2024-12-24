@@ -1,6 +1,5 @@
 module "ca-1" {
   source = "${path.root}/modules/proxmox_ct"
-  # depends_on = [ module.configure_dns ]
 
 
   vm_id        = 200
@@ -21,65 +20,4 @@ module "ca-1" {
   pve_address  = var.pve_address
   pve_password = var.pve_password
   pve_username = var.pve_username
-}
-
-module "configure_ca-1" {
-  source     = "./modules/playbook"
-  depends_on = [module.ca-1, ]
-
-  playbook          = "../ansible/ca-playbook.yml"
-  host_key_checking = "false"
-  private_key_file  = local_sensitive_file.private_staging_key.filename
-  ssh_user          = "root"
-  quiet             = true
-  extra_vars = {
-    ca_name     = "staging-homelab"
-    ca_password = var.pve_password
-  }
-  inventory = {
-    all = {
-      children = {
-        "ca" = null
-      }
-    }
-    ca = {
-      hosts = {
-        ca-1 = {
-          ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-          ansible_port = 22
-        },
-      }
-    }
-  }
-}
-
-
-module "acme_certs" {
-  source = "./modules/playbook"
-  depends_on = [
-    module.reconfigure_dns, # requires dns names
-    module.configure_ca-1   # requires working ca
-  ]
-
-  playbook          = "../ansible/cert-playbook.yml"
-  host_key_checking = "false"
-  private_key_file  = local_sensitive_file.private_staging_key.filename
-  ssh_user          = "root"
-  quiet             = true
-  extra_vars = {
-    ca_url = "${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"
-  }
-  inventory = {
-    # all = {
-    # children = {
-    # "dns" = null
-    # }
-    # }
-    dns = {
-      hosts = module.dns-1.host
-    }
-    ca = {
-      hosts = module.ca-1.host
-    }
-  }
 }

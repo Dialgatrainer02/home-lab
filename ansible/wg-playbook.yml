@@ -17,3 +17,19 @@
         name: githubixx.ansible_role_wireguard
       vars:
         ansible_become: true
+- name: Add route to all other hosts
+  hosts: all:1wireguard
+  tasks:
+    - name: Add static route
+      ansible.builtin.template:
+        src: wg_route.service.j2
+        dest: /etc/systemd/system/wg_route.service
+        mode: "0644"
+        owner: root
+        group: root
+    - name: Enable the route 
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+        name: wg_route
+        enabled: true
+        state: started

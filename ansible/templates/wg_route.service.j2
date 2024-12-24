@@ -1,0 +1,16 @@
+[Unit]
+Description=add wireguard static route
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/usr/bin/ip route add {{ wg_vps_addr }} via {{ wg_gw_addr }}
+ExecStop=/usr/bin/ip route del {{ wg_vps_addr }}
+Type=oneshot
+Restart=no
+RemainAfterExit=yes
+
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
