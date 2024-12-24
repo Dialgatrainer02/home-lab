@@ -61,7 +61,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
 
 resource "terraform_data" "provision" {
   depends_on = [proxmox_virtual_environment_container.proxmox_ct]
-  connection { ### put in terraform data 
+  connection {
     host     = var.pve_address
     type     = "ssh"
     user     = local.pve_user

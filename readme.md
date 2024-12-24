@@ -11,4 +11,4 @@ dns is reconfigured to include all machines made since the start
 acme certs are provided to all the hosts
 
 
-task: reduce dependancy mess and speed up apply
+task: reduce dependancy mess and speed up apply (currently takes 5 minutes to apply)

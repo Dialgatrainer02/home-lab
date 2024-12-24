@@ -59,12 +59,12 @@ resource "oci_core_security_list" "oci_security_list" { ## null values making he
       destination = egress_security_rules.value.destination
 
       udp_options {
-          max = egress_security_rules.value.udp_options.max
-          min = egress_security_rules.value.udp_options.min
+        max = egress_security_rules.value.udp_options.max
+        min = egress_security_rules.value.udp_options.min
       }
       tcp_options {
-          max = egress_security_rules.value.tcp_options.max
-          min = egress_security_rules.value.tcp_options.min
+        max = egress_security_rules.value.tcp_options.max
+        min = egress_security_rules.value.tcp_options.min
       }
 
     }
@@ -77,12 +77,12 @@ resource "oci_core_security_list" "oci_security_list" { ## null values making he
       source   = ingress_security_rules.value.source
 
       udp_options {
-          max = ingress_security_rules.value.udp_options.max
-          min = ingress_security_rules.value.udp_options.min
+        max = ingress_security_rules.value.udp_options.max
+        min = ingress_security_rules.value.udp_options.min
       }
       tcp_options {
-          max = ingress_security_rules.value.tcp_options.max
-          min = ingress_security_rules.value.tcp_options.min
+        max = ingress_security_rules.value.tcp_options.max
+        min = ingress_security_rules.value.tcp_options.min
       }
 
     }

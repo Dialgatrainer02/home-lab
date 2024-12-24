@@ -128,7 +128,6 @@ variable "ingress_rules" {
         max = 22
         min = 22
       }
-      # udp_options = null
     }
   ]
 }
@@ -145,14 +144,10 @@ variable "egress_rules" {
     {
       protocol    = "all"
       destination = "0.0.0.0/0"
-      # tcp_options = null
-      # udp_options = null
     },
     {
       protocol    = "all"
       destination = "::/0"
-      # tcp_options = null
-      # udp_options = null
     }
   ]
 }
