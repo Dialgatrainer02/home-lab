@@ -4,14 +4,14 @@ resource "random_id" "suffix" {
 }
 
 resource "local_sensitive_file" "extra_vars" {
-  filename = "${path.module}/extra_vars-${random_id.suffix.id}.yml"
-  content  = "--- \n${yamlencode(var.extra_vars)}" # alittle hacky but ultimatly fine
+  filename = "${path.module}/extra_vars-${random_id.suffix.id}.json"
+  content  = jsonencode(var.extra_vars)
 }
 
 
 resource "local_file" "inventory" {
-  filename = "${path.module}/inventory-${random_id.suffix.id}.yml"
-  content  = yamlencode(var.inventory)
+  filename = "${path.module}/inventory-${random_id.suffix.id}.json"
+  content  = jsonencode(var.inventory)
 }
 
 
