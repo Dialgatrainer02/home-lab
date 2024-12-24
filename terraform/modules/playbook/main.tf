@@ -21,13 +21,14 @@ resource "terraform_data" "playbook" {
     local_file.inventory.id
   ]
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\"  "
+    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" "
     working_dir = path.root
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking
       ANSIBLE_PRIVATE_KEY_FILE  = var.private_key_file
       ANSIBLE_REMOTE_USER       = var.ssh_user
       ANSIBLE_SSH_PIPELINING    = true
+      ANSIBLE_STDOUT_CALLBACK   = "dense"
     }
     quiet = var.quiet
   }

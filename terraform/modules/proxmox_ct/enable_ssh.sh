@@ -3,7 +3,7 @@
 check_dns() {
     echo "Testing DNS connectivity..."
     while ! ping -c 1 -W 2 cloudflare.com >/dev/null 2>&1; do
-        echo "DNS test failed. Retrying in 5 seconds..."
+        # echo "DNS test failed. Retrying in 5 seconds..."
         sleep 5
     done
     echo "DNS connectivity is functional."
@@ -30,26 +30,26 @@ install_and_enable_ssh() {
     
     case "$package_manager" in
         apt-get)
-            echo "Detected apt-get. Installing SSH..."
+            # echo "Detected apt-get. Installing SSH..."
             DEBIAN_FRONTEND=noninteractive sudo apt-get update -y >/dev/null 2>&1
             DEBIAN_FRONTEND=noninteractive sudo apt-get install -y openssh-server >/dev/null 2>&1
             sudo systemctl enable ssh >/dev/null 2>&1
             sudo systemctl start ssh >/dev/null 2>&1
             ;;
         dnf)
-            echo "Detected dnf. Installing SSH..."
+            # echo "Detected dnf. Installing SSH..."
             sudo dnf install -y openssh-server >/dev/null 2>&1
             sudo systemctl enable sshd >/dev/null 2>&1
             sudo systemctl start sshd >/dev/null 2>&1
             ;;
         pacman)
-            echo "Detected pacman. Installing SSH..."
+            # echo "Detected pacman. Installing SSH..."
             sudo pacman -Sy --noconfirm openssh >/dev/null 2>&1
             sudo systemctl enable sshd >/dev/null 2>&1
             sudo systemctl start sshd >/dev/null 2>&1
             ;;
         zypper)
-            echo "Detected zypper. Installing SSH..."
+            # echo "Detected zypper. Installing SSH..."
             sudo zypper refresh >/dev/null 2>&1
             sudo zypper --non-interactive install openssh >/dev/null 2>&1
             sudo systemctl enable sshd >/dev/null 2>&1
@@ -61,7 +61,7 @@ install_and_enable_ssh() {
             ;;
     esac
 
-    echo "SSH installed and enabled successfully using $package_manager."
+    # echo "SSH installed and enabled successfully using $package_manager."
 }
 
 check_dns
