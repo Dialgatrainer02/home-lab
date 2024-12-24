@@ -63,13 +63,18 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
     # }
     # }
     dns = {
-      hosts = module.dns-1.host
+      hosts = module.dns-1.host # use merge to add multiple hosts to a group eg merge(module.dns-1.host, module.ca-1.host) would give you 
+      /*
+      "dns":
+        "hosts":
+          "ca-1":
+            "ansible_host": "192.168.0.200"
+          "dns-1":
+            "ansible_host": "192.168.0.201"
+      */
     }
     ca = {
       hosts = module.ca-1.host
-      # ca-1 = {
-      # ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-      # },
     }
     wireguard = {
       hosts = module.wg_gw.host
