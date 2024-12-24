@@ -25,7 +25,7 @@
       become_user: step-ca
       notify: Reload step-ca
     - name: Get fingerpint # noqa no-changed-when
-      ansible.builtin.command: 'step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt'
+      ansible.builtin.command: "step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt"
       register: root_ca_fp
     - name: Write fingerpint to file
       ansible.builtin.copy:

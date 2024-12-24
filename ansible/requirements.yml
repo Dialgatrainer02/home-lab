@@ -4,9 +4,9 @@ collections:
     version: main
     source: git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
     type: git
-roles: 
-    - name: ngine_io.blocky_dns
-      src: https://github.com/ngine-io/ansible-role-blocky-dns
-      version: main
-    - name: githubixx.ansible_role_wireguard
-      src: https://github.com/githubixx/ansible-role-wireguard.git
+roles:
+  - name: ngine_io.blocky_dns
+    src: https://github.com/ngine-io/ansible-role-blocky-dns
+    version: main
+  - name: githubixx.ansible_role_wireguard
+    src: https://github.com/githubixx/ansible-role-wireguard.git

@@ -1,4 +1,4 @@
-
+---
 - name: Bootstrap the host
   hosts: all
   become: true

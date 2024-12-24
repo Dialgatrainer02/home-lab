@@ -1,3 +1,4 @@
+---
 - name: Configure a wireguard tunnel
   hosts: wireguard
   pre_tasks:
