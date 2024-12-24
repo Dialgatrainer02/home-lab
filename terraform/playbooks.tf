@@ -30,8 +30,8 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
 }
 
 module "configure_ca-1" {
-  source = "./modules/playbook"
-  depends_on = [ module.ca-1 ]
+  source     = "./modules/playbook"
+  depends_on = [module.ca-1]
 
   playbook          = "../ansible/ca-playbook.yml"
   host_key_checking = "false"
@@ -59,7 +59,7 @@ module "acme_certs" {
   ssh_user          = "root"
   quiet             = true
   extra_vars = {
-    ca_url = "${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"
+    ca_url = "https://${module.ca-1.ct_ipv4_address}"
   }
   inventory = merge(local.dns, local.ca, )
 }

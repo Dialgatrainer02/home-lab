@@ -1,5 +1,5 @@
 resource "random_id" "suffix" {
-  byte_length = 1
+  byte_length = 2
 
 }
 
