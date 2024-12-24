@@ -46,7 +46,7 @@ module "wg_gw" {
   description  = "Wireguard gateway to access vps"
   ipv4_address = "${var.ipv4_subnet_pre}.202${var.ipv4_subnet_cidr}"
   ipv4_gw      = "192.168.0.1"
-  dns          = ["${trimsuffix(module.dns-1.ct_ipv4_address, "/24")}"]
+  dns          = [module.dns-1.ct_ipv4_address]
   public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
   cores        = 1
   disk_size    = "5"

@@ -13,7 +13,7 @@ module "dns-1" {
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
   host_vars = {
     acme_cert_name = "dns-1.dialgatrainer.duckdns.org"
-    acme_cert_san  = ["${trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
+    acme_cert_san  = [module.dns-1.ct_ipv4_address]
   }
   pve_address  = var.pve_address
   pve_password = var.pve_password
