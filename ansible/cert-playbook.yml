@@ -14,10 +14,11 @@
         step_bootstrap_ca_url: "{{ ca_url }}"
         step_bootstrap_fingerprint: "{{ root_ca_fp }}"
 
-    - name: Verify that everything is working # noqa no-changed-when
+    - name: Verify that everything is working
       ansible.builtin.command: step-cli ca health
       register: result
       failed_when: result.rc != 0
+      changed_when: result.rc != 0
     - name: Configure an ACME cert + renewal
       ansible.builtin.include_role:
         name: maxhoesel.smallstep.step_acme_cert # places cert in /etc/ssl/step[.crt|.key]
