@@ -36,12 +36,7 @@ module "configure_dns" {
     # }
     # }
     dns = {
-      hosts = {
-        dns-1 = {
-          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-          ansible_port = 22
-        },
-      }
+      hosts = module.dns-1.host
     }
   }
 }
@@ -68,21 +63,16 @@ module "reconfigure_dns" { # this time add the hosts to the dns so we can use th
     # }
     # }
     dns = {
-      hosts = {
-        dns-1 = {
-          ansible_host = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-        },
-      }
+      hosts = module.dns-1.host
     }
     ca = {
-      hosts = {
-        ca-1 = {
-          ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-        },
-        wg-gw = {
-          ansible_host = trimsuffix(module.wg_gw.ct_ipv4_address, var.ipv4_subnet_cidr)
-        }
-      }
+      hosts = module.ca-1.host
+      # ca-1 = {
+      # ansible_host = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
+      # },
+    }
+    wireguard = {
+      hosts = module.wg_gw.host
     }
   }
 }

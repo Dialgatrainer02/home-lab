@@ -10,6 +10,13 @@ data "oci_core_images" "images" {
   shape                    = var.instance_shape
 }
 
+locals {
+    host = {
+    "${var.hostname}" = {
+      ansible_host = oci_core_instance.oci_instance.public_ip
+    }
+  }
+}
 variable "vcn_ip_range" {
   description = "The CIDR block for the VCN."
   type        = string
@@ -209,4 +216,8 @@ variable "private_key" {
 output "oci_public_ip" {
   value = oci_core_instance.oci_instance.public_ip
 
+}
+
+output "host" {
+  value = local.host
 }

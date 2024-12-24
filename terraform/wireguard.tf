@@ -9,7 +9,7 @@ module "oci_vps" {
   oci_private_key  = var.oci_private_key
   public_key       = tls_private_key.staging_key.public_key_openssh
   private_key      = tls_private_key.staging_key.private_key_openssh
-   
+
   vcn_ip_range    = "10.0.0.0/16"
   vcn_label       = "wg_vcn"
   dhcp_dns        = ["1.1.1.1", "1.0.0.1"]
@@ -18,18 +18,18 @@ module "oci_vps" {
   gw_label        = "wg_gw"
   security_label  = "wg_security"
   # ingress_rules = [{ # wireguard and ssh
-    # protocol = "17"
-    # source   = "0.0.0.0/0"
-    # udp_options = { min = 51820, max = 51820 }
-    # },
-    # {
-      # protocol    = "6"
-      # source      = "0.0.0.0/0"
-      # tcp_options = { min = 22, max = 22 }
+  # protocol = "17"
+  # source   = "0.0.0.0/0"
+  # udp_options = { min = 51820, max = 51820 }
+  # },
+  # {
+  # protocol    = "6"
+  # source      = "0.0.0.0/0"
+  # tcp_options = { min = 22, max = 22 }
   # }]
   instance_label = "wireguard_instance"
   hostname       = "wireguard_oci"
-   
+
 }
 
 
@@ -66,16 +66,16 @@ module "wireguard" {
     wireguard = {
       hosts = {
         wg_gw = {
-          ansible_host = trimsuffix(module.wg_gw.ct_ipv4_address, var.ipv4_subnet_cidr)
-          wireguard_allowed_ips = "192.168.0.0/24"
-          wireguard_addresses = ["10.51.0.2/24"]
-          wireguard_persistent_keepalive =  "30"
+          ansible_host                   = trimsuffix(module.wg_gw.ct_ipv4_address, var.ipv4_subnet_cidr)
+          wireguard_allowed_ips          = "192.168.0.0/24"
+          wireguard_addresses            = ["10.51.0.2/24"]
+          wireguard_persistent_keepalive = "30"
         }
         wg_vps = {
-          ansible_host = module.oci_vps.oci_public_ip
+          ansible_host          = module.oci_vps.oci_public_ip
           wireguard_allowed_ips = "10.51.0.1/32"
-          wireguard_endpoint = module.oci_vps.oci_public_ip
-          wireguard_addresses = ["10.51.0.1/24"]
+          wireguard_endpoint    = module.oci_vps.oci_public_ip
+          wireguard_addresses   = ["10.51.0.1/24"]
         }
       }
     }
