@@ -10,11 +10,9 @@ locals {
   node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
   cidr         = join("", ["/", split("/", proxmox_virtual_environment_vm.proxmox_vm.initialization[0].ip_config[0].ipv4[0].address)[1]])
   ipv4_address = trimsuffix(proxmox_virtual_environment_vm.proxmox_vm.initialization[0].ip_config[0].ipv4[0].address, local.cidr)
-
+  host_vars    = merge(var.host_vars, { ansible_host = local.ipv4_address })
   host = {
-    "${var.name}" = {
-      ansible_host = local.ipv4_address
-    }
+    "${var.name}" = local.host_vars
   }
 }
 
@@ -98,6 +96,12 @@ variable "os_image_type" {
   description = "The OS image template file type for the vm."
   type        = string
   default     = "qcow2"
+}
+
+variable "host_vars" {
+  description = "extra host vars you want to use in ansible"
+  type        = any
+  default     = {}
 }
 
 output "ct_public_key" {

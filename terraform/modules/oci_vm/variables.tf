@@ -11,10 +11,9 @@ data "oci_core_images" "images" {
 }
 
 locals {
+  host_vars = merge(var.host_vars, { ansible_host = oci_core_instance.oci_instance.public_ip })
   host = {
-    "${var.hostname}" = {
-      ansible_host = oci_core_instance.oci_instance.public_ip
-    }
+    "${var.hostname}" = local.host_vars
   }
 }
 variable "vcn_ip_range" {
@@ -212,6 +211,11 @@ variable "private_key" {
   type        = string
 }
 
+variable "host_vars" {
+  description = "extra host vars you want to use in ansible"
+  type        = any
+  default     = {}
+}
 
 output "oci_public_ip" {
   value = oci_core_instance.oci_instance.public_ip

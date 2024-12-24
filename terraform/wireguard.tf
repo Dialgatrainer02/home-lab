@@ -1,4 +1,4 @@
-module "oci_vps" {
+module "wg_vps" {
   source = "./modules/oci_vm"
 
   tenancy_ocid     = var.tenancy_ocid
@@ -29,6 +29,11 @@ module "oci_vps" {
   # }]
   instance_label = "wireguard_instance"
   hostname       = "wireguard_oci"
+  host_vars = {
+    wireguard_allowed_ips          = "192.168.0.0/24"
+    wireguard_addresses            = ["10.51.0.2/24"]
+    wireguard_persistent_keepalive = "30"
+  }
 
 }
 
@@ -51,6 +56,11 @@ module "wg_gw" {
   disk_size    = "5"
   mem_size     = "1024"
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+  hostvars = {
+    wireguard_allowed_ips          = "192.168.0.0/24"
+    wireguard_addresses            = ["10.51.0.2/24"]
+    wireguard_persistent_keepalive = "30"
+  }
   pve_address  = var.pve_address
   pve_password = var.pve_password
   pve_username = var.pve_username
@@ -64,20 +74,7 @@ module "wireguard" {
   playbook = "../ansible/wg-playbook.yml"
   inventory = {
     wireguard = {
-      hosts = {
-        wg_gw = {
-          ansible_host                   = trimsuffix(module.wg_gw.ct_ipv4_address, var.ipv4_subnet_cidr)
-          wireguard_allowed_ips          = "192.168.0.0/24"
-          wireguard_addresses            = ["10.51.0.2/24"]
-          wireguard_persistent_keepalive = "30"
-        }
-        wg_vps = {
-          ansible_host          = module.oci_vps.oci_public_ip
-          wireguard_allowed_ips = "10.51.0.1/32"
-          wireguard_endpoint    = module.oci_vps.oci_public_ip
-          wireguard_addresses   = ["10.51.0.1/24"]
-        }
-      }
+      hosts = merge(module.wg_gw.host, module.wg_vps.host)
     }
   }
   private_key_file = "./private_staging_key"

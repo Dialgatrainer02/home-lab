@@ -14,6 +14,10 @@ module "ca-1" {
   disk_size    = "5"
   mem_size     = "1024"
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+  host_vars = {
+    acme_cert_name = "ca-1.dialgatrainer.duckdns.org"
+    acme_cert_san  = ["${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
+  }
   pve_address  = var.pve_address
   pve_password = var.pve_password
   pve_username = var.pve_username
@@ -72,22 +76,10 @@ module "acme_certs" {
     # }
     # }
     dns = {
-      hosts = {
-        dns-1 = {
-          ansible_host   = trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-          acme_cert_name = "dns-1.dialgatrainer.duckdns.org"
-          acme_cert_san  = ["${trimsuffix(module.dns-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
-        },
-      }
+      hosts = module.dns-1.host
     }
     ca = {
-      hosts = {
-        ca-1 = {
-          ansible_host   = trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)
-          acme_cert_name = "ca-1.dialgatrainer.duckdns.org"
-          acme_cert_san  = ["${trimsuffix(module.ca-1.ct_ipv4_address, var.ipv4_subnet_cidr)}"]
-        },
-      }
+      hosts = module.ca-1.host
     }
   }
 }
