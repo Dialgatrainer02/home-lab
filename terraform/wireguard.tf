@@ -56,7 +56,7 @@ module "wg_gw" {
   disk_size    = "5"
   mem_size     = "1024"
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
-  hostvars = {
+  host_vars = {
     wireguard_allowed_ips          = "192.168.0.0/24"
     wireguard_addresses            = ["10.51.0.2/24"]
     wireguard_persistent_keepalive = "30"
