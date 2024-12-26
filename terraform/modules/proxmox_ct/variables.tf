@@ -107,6 +107,10 @@ variable "host_vars" {
   default     = {}
 }
 
+output "hostname" {
+  value = proxmox_virtual_environment_container.proxmox_ct.initialization[0].hostname
+
+}
 output "ct_public_key" {
   value = proxmox_virtual_environment_container.proxmox_ct.initialization[0].user_account[0].keys[0]
 }

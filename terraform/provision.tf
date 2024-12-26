@@ -1,5 +1,7 @@
 module "dns-1" {
-  source       = "${path.root}/modules/proxmox_ct"
+  source = "${path.root}/modules/proxmox_ct"
+
+
   vm_id        = 201
   hostname     = "dns-1"
   description  = "dns  server"
@@ -12,9 +14,10 @@ module "dns-1" {
   mem_size     = "1024"
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
   host_vars = {
-    acme_cert_name = "dns-1.dialgatrainer.duckdns.org"
+    acme_cert_name = "${module.dns-1.hostname}.${local.domain}"
     acme_cert_san  = [module.dns-1.ct_ipv4_address]
   }
+
   pve_address  = var.pve_address
   pve_password = var.pve_password
   pve_username = var.pve_username
@@ -37,9 +40,10 @@ module "ca-1" {
   mem_size     = "1024"
   os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
   host_vars = {
-    acme_cert_name = "ca-1.dialgatrainer.duckdns.org"
+    acme_cert_name = "${module.ca-1.hostname}.${local.domain}"
     acme_cert_san  = [module.ca-1.ct_ipv4_address]
   }
+
   pve_address  = var.pve_address
   pve_password = var.pve_password
   pve_username = var.pve_username
@@ -48,6 +52,7 @@ module "ca-1" {
 
 module "wg_vps" {
   source = "./modules/oci_vm"
+
 
   tenancy_ocid     = var.tenancy_ocid
   compartment_ocid = var.compartment_ocid
@@ -110,3 +115,28 @@ module "wg_gw" {
   pve_username = var.pve_username
 }
 
+
+module "minio" {
+  source = "${path.root}/modules/proxmox_ct"
+
+
+  vm_id        = 203
+  hostname     = "minio"
+  description  = "s3 compatible block storage"
+  ipv4_address = "${var.ipv4_subnet_pre}.203${var.ipv4_subnet_cidr}"
+  ipv4_gw      = "192.168.0.1"
+  dns          = [module.dns-1.ct_ipv4_address]
+  public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
+  cores        = 1
+  disk_size    = "10"
+  mem_size     = "1024"
+  os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+  host_vars = {
+    acme_cert_name = "${module.minio.hostname}.${local.domain}"
+    acme_cert_san  = [module.minio.ct_ipv4_address]
+  }
+
+  pve_address  = var.pve_address
+  pve_password = var.pve_password
+  pve_username = var.pve_username
+}

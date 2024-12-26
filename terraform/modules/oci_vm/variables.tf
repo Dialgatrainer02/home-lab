@@ -217,6 +217,10 @@ variable "host_vars" {
   default     = {}
 }
 
+output "hostname" {
+  value = oci_core_instance.oci_instance.create_vnic_details[0].hostname_label
+
+}
 output "oci_public_ip" {
   value = oci_core_instance.oci_instance.public_ip
 

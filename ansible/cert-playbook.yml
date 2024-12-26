@@ -2,7 +2,12 @@
 - name: Bootstrap the host
   hosts: all
   become: true
-  tasks:
+  pre_tasks:
+    - name: Install compression libary
+      ansible.builtin.package:
+        name: tar
+        state: present
+      become: true
     - name: Get fingerpint
       ansible.builtin.set_fact:
         root_ca_fp: "{{ lookup('ansible.builtin.file', './root_ca_fp') }}"
@@ -19,6 +24,7 @@
       register: result
       failed_when: result.rc != 0
       changed_when: result.rc != 0
+  tasks:
     - name: Configure an ACME cert + renewal
       ansible.builtin.include_role:
         name: maxhoesel.smallstep.step_acme_cert # places cert in /etc/ssl/step[.crt|.key]

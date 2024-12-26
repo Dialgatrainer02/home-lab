@@ -16,7 +16,7 @@
         step_ca_name: "{{ ca_name }}"
         step_ca_root_password: "{{ ca_password }}"
         step_ca_intermediate_password: "{{ ca_password }}"
-        step_ca_ssh: true
+        step_ca_ssh: "{{ ca_ssh }}"
     - name: Add an ACME provisioner to the CA
       maxhoesel.smallstep.step_ca_provisioner:
         name: ACME

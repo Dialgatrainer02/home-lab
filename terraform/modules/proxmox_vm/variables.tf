@@ -104,11 +104,16 @@ variable "host_vars" {
   default     = {}
 }
 
-output "ct_public_key" {
+# output "hostname" {
+# value = proxmox_virtual_environment_vm.proxmox_vm.hostname
+# 
+# }
+
+output "vm_public_key" {
   value = proxmox_virtual_environment_vm.proxmox_vm.initialization[0].user_account[0].keys[0]
 }
 
-output "ct_ipv4_address" {
+output "vm_ipv4_address" {
   value = proxmox_virtual_environment_vm.proxmox_vm.initialization[0].ip_config[0].ipv4[0].address
 }
 
