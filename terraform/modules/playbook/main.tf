@@ -21,7 +21,7 @@ resource "terraform_data" "playbook" {
     local_file.inventory.id
   ]
   provisioner "local-exec" {
-    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" "
+    command     = "ansible-playbook ${var.playbook} -i ${local_file.inventory.filename} -e \"@${local_sensitive_file.extra_vars.filename}\" " # 2>&1 | tee ${path.root}/playbook-${random_id.suffix.id}.txt "
     working_dir = path.root
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.host_key_checking
