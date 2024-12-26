@@ -1,4 +1,4 @@
-variable "ipv4_subnet_pre" {
+variable "ipv4_subnet_net" {
   type    = string
   default = "192.168.1"
 }
@@ -20,15 +20,11 @@ data "proxmox_virtual_environment_datastores" "datastores" {
 
 
 locals {
-  domain       = "${var.duckdns_domains[0]}.duckdns.org"
-  pve_user     = split("@", var.pve_username)[0]
-  datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
-  node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
+  domain   = "${var.duckdns_domains[0]}.duckdns.org"
+  pve_user = split("@", var.pve_username)[0]
+  node     = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
 
-locals {
-  wireguard = { wireguard = { hosts = merge(module.wg_gw.host, module.wg_vps.host) } }
-  ca        = { ca = { hosts = module.ca-1.host } }
-  dns       = { dns = { hosts = module.dns-1.host } }
-  logging   = { grafana = { hosts = merge(module.minio.host, {}) } } # to add
-}
+# locals {
+# logging = { grafana = { hosts = merge(module.minio.host, module.mimir.host) } }
+# }

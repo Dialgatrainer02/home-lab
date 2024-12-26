@@ -1,6 +1,6 @@
 ---
 - name: Install step ca
-  hosts: ca
+  hosts: ca_servers
   become: true
   pre_tasks:
     - name: Install compression libary

@@ -1,6 +1,6 @@
 ---
 - name: Setup dns servers
-  hosts: dns
+  hosts: dns_servers
   tasks:
     - name: Install dns server
       ansible.builtin.include_role:

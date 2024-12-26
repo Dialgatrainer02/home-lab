@@ -49,10 +49,12 @@
     minio_enable_tls: "{{ minio_enable_tls }}"
     minio_url: "{{ minio_url }}"
 
-# - name: Install grafana mimir
-  # hosts: mimr
-  # tasks:
-    # - name: Install grafana mimir
-      # ansible.builtin.include_role:
-        # name: grafana.grafana.mimir
-  # vars: "{{ mimir_config }}"
+- name: Install grafana mimir
+  hosts: mimr
+  tasks:
+    - name: Install grafana mimir
+      ansible.builtin.include_role:
+        name: grafana.grafana.mimir
+  vars:
+    mimir_storage: "{{ object_storage }}"
+    mimir_blocks_storage: "{{ block_storage }}"
