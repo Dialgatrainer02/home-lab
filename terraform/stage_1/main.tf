@@ -161,7 +161,20 @@ module "wg_gw" {
 # private_key_file = var.private_key_path
 # }
 
+module "acme_certs" {
+  source = "../modules/playbook"
+  depends_on = [
+    module.configure_dns,     # requires dns names
+    module.configure_step_ca, # requires working ca
+  ]
 
-
-
- 
+  playbook          = "../ansible/cert-playbook.yml"
+  host_key_checking = "false"
+  private_key_file  = var.private_key_path
+  ssh_user          = "root"
+  quiet             = true
+  extra_vars = {
+    ca_url = "https://${module.step_ca.ct_ipv4_address}"
+  }
+  inventory = merge(local.dns, local.ca, ) # local.wireguard
+}
