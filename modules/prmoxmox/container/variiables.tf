@@ -35,7 +35,7 @@ variable "pve_password" {
 }
 
 locals {
-  vm_id = var.container.vm_id != 0 ? var.container.vm_id : random_integer.rng_id.result
+  vm_id        = var.container.vm_id != 0 ? var.container.vm_id : random_integer.rng_id.result
   public_key   = var.container.gen_keypair ? tls_private_key.staging_key[0].public_key_openssh : var.container.public_key
   pve_user     = split("@", var.pve_username)[0]
   datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
@@ -43,7 +43,7 @@ locals {
   ipv4_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv4[0].address)
   host_vars    = merge(var.container.host_vars, { ansible_host = local.ipv4_address })
   host = {
-    "${proxmox_virtual_environment_container.proxmox_ct.initialization[0].hostname}" = local.host_vars
+    (proxmox_virtual_environment_container.proxmox_ct.initialization[0].hostname) = local.host_vars
   }
 }
 

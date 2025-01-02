@@ -63,13 +63,7 @@ variable "ipv6_cidr" {
   type = string
 }
 
-data "proxmox_virtual_environment_nodes" "nodes" {}
-data "proxmox_virtual_environment_datastores" "datastores" {
-  node_name = data.proxmox_virtual_environment_nodes.nodes.names[0]
-}
-
 
 locals {
   pve_user = split("@", var.pve_username)[0]
-  node     = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
