@@ -25,4 +25,8 @@
 ### helper modules
 
 #### install_alloy
-    wrapper around ansible playbook for imstalling grafana alloy
+    wrapper around ansible playbook for installing grafana alloy
+
+#### install consul_cient
+    same for the consul client
+

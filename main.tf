@@ -1,17 +1,4 @@
-module "test" {
-  source = "./modules/prmoxmox/container"
 
-  container = {
-    os_image    = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
-    os_type     = "centos"
-    gen_keypair = true
-
-  }
-  pve_address  = var.pve_address
-  pve_username = var.pve_username
-  pve_password = var.pve_password
-
-}
 
 resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_img" {
   connection { # kinda hacky way to make the directory
