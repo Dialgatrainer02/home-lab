@@ -1,20 +1,20 @@
 module "minio" {
-  source = "${path.root}/modules/proxmox_ct"
+  source = "../modules/proxmox_ct"
 
 
-  vm_id        = 203
+  vm_id        = 200
   hostname     = "minio"
-  description  = "s3 compatible block storage"
-  ipv4_address = "${var.ipv4_subnet_pre}.203${var.ipv4_subnet_cidr}"
-  ipv4_gw      = "192.168.0.1"
-  dns          = [module.dns-1.ct_ipv4_address]
-  public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
+  description  = "minio s3 storage"
+  ipv4_address = "${var.ipv4_subnet_net}.200${var.ipv4_subnet_cidr}"
+  ipv4_gw      = var.ipv4_gw
+  dns          = ["1.1.1.1", ]
+  public_key   = var.public_key
   cores        = 1
-  disk_size    = "10"
+  disk_size    = "5"
   mem_size     = "1024"
-  os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+  os_image     = var.ct_image
   host_vars = {
-    acme_cert_name = "${local.dns_names.minio}"
+    acme_cert_name = "${module.minio.hostname}.${var.domain}"
     acme_cert_san  = [module.minio.ct_ipv4_address]
   }
 
@@ -24,22 +24,22 @@ module "minio" {
 }
 
 module "mimir" {
-  source = "${path.root}/modules/proxmox_ct"
+  source = "../modules/proxmox_ct"
 
 
-  vm_id        = 204
+  vm_id        = 200
   hostname     = "mimir"
-  description  = "grafana mimir "
-  ipv4_address = "${var.ipv4_subnet_pre}.204${var.ipv4_subnet_cidr}"
-  ipv4_gw      = "192.168.0.1"
-  dns          = [module.dns-1.ct_ipv4_address]
-  public_key   = trimspace(tls_private_key.staging_key.public_key_openssh)
+  description  = "mimir prometheus compatible database"
+  ipv4_address = "${var.ipv4_subnet_net}.200${var.ipv4_subnet_cidr}"
+  ipv4_gw      = var.ipv4_gw
+  dns          = ["1.1.1.1", ]
+  public_key   = var.public_key
   cores        = 1
-  disk_size    = "10"
+  disk_size    = "5"
   mem_size     = "1024"
-  os_image     = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+  os_image     = var.ct_image
   host_vars = {
-    acme_cert_name = "${local.dns_names.mimir}"
+    acme_cert_name = "${module.mimir.hostname}.${var.domain}"
     acme_cert_san  = [module.mimir.ct_ipv4_address]
   }
 
@@ -48,16 +48,64 @@ module "mimir" {
   pve_username = var.pve_username
 }
 
+module "loki" {
+  source = "../modules/proxmox_ct"
 
-module "configure_mimir" {
+
+  vm_id        = 200
+  hostname     = "loki"
+  description  = "loki logging database"
+  ipv4_address = "${var.ipv4_subnet_net}.200${var.ipv4_subnet_cidr}"
+  ipv4_gw      = var.ipv4_gw
+  dns          = ["1.1.1.1", ]
+  public_key   = var.public_key
+  cores        = 1
+  disk_size    = "5"
+  mem_size     = "1024"
+  os_image     = var.ct_image
+  host_vars = {
+    acme_cert_name = "${module.loki.hostname}.${var.domain}"
+    acme_cert_san  = [module.loki.ct_ipv4_address]
+  }
+
+  pve_address  = var.pve_address
+  pve_password = var.pve_password
+  pve_username = var.pve_username
+}
+
+module "grafana" {
+  source = "../modules/proxmox_ct"
+
+
+  vm_id        = 200
+  hostname     = "grafana"
+  description  = "grafana visulisation server"
+  ipv4_address = "${var.ipv4_subnet_net}.200${var.ipv4_subnet_cidr}"
+  ipv4_gw      = var.ipv4_gw
+  dns          = ["1.1.1.1", ]
+  public_key   = var.public_key
+  cores        = 1
+  disk_size    = "5"
+  mem_size     = "1024"
+  os_image     = var.ct_image
+  host_vars = {
+    acme_cert_name = "${module.grafana.hostname}.${var.domain}"
+    acme_cert_san  = [module.grafana.ct_ipv4_address]
+  }
+
+  pve_address  = var.pve_address
+  pve_password = var.pve_password
+  pve_username = var.pve_username
+}
+
+module "configure_stage_2" {
   source     = "./modules/playbook"
-  depends_on = [module.acme_certs]
 
   playbook          = "../ansible/observability-playbook.yml"
-  inventory         = local.logging
+  inventory         = merge(local.logging,var.alloy_hosts)
   host_key_checking = false
   private_key_file  = "./private_staging_key"
-  ansible_callback  = "default"
+#   ansible_callback  = "default"
   quiet             = true
   extra_vars = {
     validate_certificate = true

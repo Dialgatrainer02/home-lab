@@ -75,10 +75,11 @@ module "stage_1" {
   ipv4_subnet_net  = "192.168.0"
   ipv4_subnet_cidr = "/24"
   domain           = local.domain
-  extra_dns = {
+  extra_dns = merge({
     "pve.${local.domain}"  = "192.168.0.90"
     "pve1.${local.domain}" = "192.168.0.91"
-  }
+    # find way to add stage 2 dns names nicely
+  }, module.stage_2.dns_names)
   public_key       = trimspace(tls_private_key.staging_key.public_key_openssh)
   private_key      = trimspace(tls_private_key.staging_key.private_key_openssh)
   private_key_path = local_sensitive_file.private_staging_key.filename
@@ -96,21 +97,21 @@ module "stage_1" {
   oci_private_key  = var.oci_private_key
 }
 
+module "stage_2" {
+  source = "${path.root}/stage_2"
 
-# module "acme_certs" {
-# source = "${path.root}/modules/playbook"
-# depends_on = [
-# module.configure_dns,  # requires dns names
-# module.configure_ca-1, # requires working ca
-# ]
-# 
-# playbook          = "../ansible/cert-playbook.yml"
-# host_key_checking = "false"
-# private_key_file  = var.private_key
-# ssh_user          = "root"
-# quiet             = true
-# extra_vars = {
-# ca_url = "https://${module.ca-1.ct_ipv4_address}"
-# }
-# inventory = merge(local.dns, local.ca)
-# }
+  ipv4_gw          = "192.168.0.1"
+  ipv4_subnet_net  = "192.168.0"
+  ipv4_subnet_cidr = "/24"
+  domain           = local.domain
+  alloy_hosts      = module.stage_1.inventory #find way to add alloy to existing hosts nicely + dns names 
+  public_key       = trimspace(tls_private_key.staging_key.public_key_openssh)
+  private_key      = trimspace(tls_private_key.staging_key.private_key_openssh)
+  private_key_path = local_sensitive_file.private_staging_key.filename
+  ct_image         = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+
+  pve_address  = var.pve_address
+  pve_password = var.pve_password
+  pve_username = var.pve_username
+
+}

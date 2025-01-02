@@ -133,3 +133,8 @@ output "wireguard_gw_server" {
 # value = module.wg_vps.oci_public_ip
 # 
 # }
+
+output "inventory" {
+  value = merge(local.ca, local.dns, ) # local.wireguard
+
+}
