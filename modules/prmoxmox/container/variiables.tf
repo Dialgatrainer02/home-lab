@@ -9,7 +9,7 @@ variable "container" {
     ipv4_gateway = optional(string, null)
     gen_keypair  = optional(bool, true)
     public_key   = optional(string)
-    
+
 
     cores     = optional(number, 2)
     disk      = optional(number, "5")
@@ -35,6 +35,7 @@ variable "pve_password" {
 }
 
 locals {
+  vm_id = var.container.vm_id != 0 ? var.container.vm_id : random_integer.rng_id.result
   public_key   = var.container.gen_keypair ? tls_private_key.staging_key[0].public_key_openssh : var.container.public_key
   pve_user     = split("@", var.pve_username)[0]
   datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage

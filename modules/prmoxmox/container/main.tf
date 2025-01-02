@@ -4,7 +4,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
 
   started   = true
   node_name = local.node
-  vm_id     = var.container.vm_id != 0 ? var.container.vm_id : random_integer.rng_id.result
+  vm_id     = local.vm_id
 
   unprivileged = var.container.unprivileged
 
@@ -14,7 +14,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
     ip_config {
       ipv4 {
         address = var.container.ipv4_address
-        gateway = var.container.ipv4_gateway != null ? var.container.ipv4_gateway: null
+        gateway = var.container.ipv4_gateway != null ? var.container.ipv4_gateway : null
       }
     }
     dns {
@@ -75,7 +75,7 @@ resource "terraform_data" "provision" {
   }
   provisioner "remote-exec" {
     inline = [
-      "pct exec ${var.container.vm_id} bash /terraform/enable_ssh.sh" # vmid goes in space
+      "pct exec ${local.vm_id} bash /terraform/enable_ssh.sh" # vmid goes in space
     ]
   }
 }
