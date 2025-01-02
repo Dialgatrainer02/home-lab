@@ -2,7 +2,7 @@ module "test" {
   source = "./modules/prmoxmox/container"
 
   container = {
-    os_image    = proxmox_virtual_environment_download_file.release_almalinux_9-4_lxc_img.id
+    os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
     os_type     = "centos"
     gen_keypair = true
 
@@ -12,7 +12,7 @@ module "test" {
   pve_password = var.pve_password
 }
 
-resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_img" {
+resource "proxmox_virtual_environment_download_file" "release_almalinux_9_4_lxc_img" {
   connection { # kinda hacky way to make the directory
     host     = var.pve_address
     type     = "ssh"
@@ -29,14 +29,4 @@ resource "proxmox_virtual_environment_download_file" "release_almalinux_9-4_lxc_
   datastore_id        = "local"
   node_name           = local.node
   url                 = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
-}
-
-output "testing" {
-  value = module.test.ipv4_address
-
-}
-
-output "test_private_key" {
-  value     = module.test.private_key
-  sensitive = true
 }

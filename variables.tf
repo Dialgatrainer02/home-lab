@@ -1,66 +1,76 @@
 variable "pve_username" {
-  type      = string
-  sensitive = true
+  description = "username of proxmox VE server"
+  type        = string
+  sensitive   = true
 }
 
 variable "pve_password" {
-  type      = string
-  sensitive = true
+  description = "password of proxmox VE server"
+  type        = string
+  sensitive   = true
 }
 
 variable "pve_address" {
-  type      = string
-  sensitive = true
+  description = "  ip address of proxmox VE server"
+  type        = string
+  sensitive   = true
 }
 
 
 variable "tenancy_ocid" {
-  type      = string
-  sensitive = true
+  description = "tennancy ocid for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
 variable "user_ocid" {
-  type      = string
-  sensitive = true
+  description = "user ocid for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
 variable "fingerprint" {
-  type      = string
-  sensitive = true
+  description = "the fingerpring of the private api key for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
 variable "compartment_ocid" {
-  type      = string
-  sensitive = true
+  description = "compartment ocid for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
 variable "oci_private_key" {
-  type      = string
-  sensitive = true
+  description = "the private api key for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
 variable "region" {
-  type      = string
-  sensitive = true
+  description = "reigion for oracle cloud infrastructure"
+  type        = string
+  sensitive   = true
 }
 
-
-
-
 variable "ipv4_network_bits" {
-  type = string
+  description = "the network bits of the lan network (ipv4)"
+  type        = string
 }
 
 variable "ipv4_cidr" {
-  type = string
+  description = "the cidr of the current subnet (ipv4)"
+  type        = string
 }
 
 variable "ipv6_network_bits" {
-  type = string
+  description = "the network bits of the lan network (ipv6)"
+  type        = string
 }
 
 variable "ipv6_cidr" {
-  type = string
+  description = "the cidr of the current subnet (ipv6)"
+  type        = string
 }
 
 

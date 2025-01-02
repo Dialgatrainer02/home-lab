@@ -1,4 +1,5 @@
 variable "container" {
+  description = "properties of the container"
   type = object({
     description  = optional(string, "Managed by terraform")
     vm_id        = optional(number, 0)
@@ -24,13 +25,16 @@ variable "container" {
 }
 
 variable "pve_address" {
+  description = "  ip address of proxmox VE server"
   type = string
 }
 variable "pve_username" {
+  description = "username of proxmox VE server"
   type = string
 }
 
 variable "pve_password" {
+  description = "password of proxmox VE server"
   type = string
 }
 
@@ -53,18 +57,3 @@ data "proxmox_virtual_environment_datastores" "datastores" {
 }
 
 
-output "ipv4_address" {
-  value = local.ipv4_address
-}
-output "ansible_inventory" {
-  value = local.host
-}
-
-output "private_key" {
-  value     = var.container.gen_keypair ? tls_private_key.staging_key[0].private_key_openssh : null
-  sensitive = true
-}
-output "public_key" {
-  value = local.public_key
-
-}
