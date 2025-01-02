@@ -1,0 +1,75 @@
+variable "pve_username" {
+  type      = string
+  sensitive = true
+}
+
+variable "pve_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "pve_address" {
+  type      = string
+  sensitive = true
+}
+
+
+variable "tenancy_ocid" {
+  type      = string
+  sensitive = true
+}
+
+variable "user_ocid" {
+  type      = string
+  sensitive = true
+}
+
+variable "fingerprint" {
+  type      = string
+  sensitive = true
+}
+
+variable "compartment_ocid" {
+  type      = string
+  sensitive = true
+}
+
+variable "oci_private_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "region" {
+  type      = string
+  sensitive = true
+}
+
+
+
+
+variable "ipv4_network_bits" {
+  type = string
+}
+
+variable "ipv4_cidr" {
+  type = string
+}
+
+variable "ipv6_network_bits" {
+  type = string
+}
+
+variable "ipv6_cidr" {
+  type = string
+}
+
+data "proxmox_virtual_environment_nodes" "nodes" {}
+data "proxmox_virtual_environment_datastores" "datastores" {
+  node_name = data.proxmox_virtual_environment_nodes.nodes.names[0]
+}
+
+
+locals {
+  pve_user = split("@", var.pve_username)[0]
+  node     = data.proxmox_virtual_environment_nodes.nodes.names[0]
+}
