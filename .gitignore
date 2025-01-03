@@ -1,7 +1,10 @@
 .vscode/
 
 *secret*
+.keys/
 
 .terraform
 *.tfstate*
 *.lock*
+
+*inventory*
