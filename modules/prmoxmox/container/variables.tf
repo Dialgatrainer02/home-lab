@@ -38,7 +38,7 @@ locals {
   pve_user     = split("@", var.pve_settings.pve_username)[0]
   datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
   node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
-  ipv4_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv4[0].address)
+  ipv4_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv4[0].address)[0]
   host_vars    = merge(var.container.host_vars, { ansible_host = local.ipv4_address })
   host = {
     (proxmox_virtual_environment_container.proxmox_ct.initialization[0].hostname) = local.host_vars

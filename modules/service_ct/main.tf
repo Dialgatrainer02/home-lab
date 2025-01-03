@@ -1,32 +1,37 @@
-resource "proxmox_virtual_environment_download_file" "release_almalinux_9_4_lxc_img" {
-  connection { # kinda hacky way to make the directory
-    host     = var.pve_settings.pve_address
-    type     = "ssh"
-    user     = local.pve_user
-    password = var.pve_settings.pve_password
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /mnt/bindmounts/terraform"
-    ]
-  }
-  overwrite_unmanaged = true
-  content_type        = "vztmpl"
-  datastore_id        = "local"
-  node_name           = local.node
-  url                 = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
-}
+
 module "service_ct" {
   source = "../prmoxmox/container"
 
   container = merge({
     hostname    = var.service.service_name
     description = var.service.service_description
-    os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
-    os_type     = "centos"
+    os_image    = var.service.service_os_image
+    os_type     = var.service.service_os_type
     host_vars   = var.service.host_vars
   }, var.service.service_ipv4, var.service.custom_ct)
   pve_settings = var.pve_settings
-
 }
 
+resource "local_sensitive_file" "service_private_key" {
+  filename = ".keys/${var.service.service_name}_private_key"
+  content  = local.private_key
+}
+
+module "service_config" {
+  source     = "../ansible_playbook"
+  depends_on = [module.service_ct]
+
+  playbook_path = ".playbooks/${var.service.service_type}-playbook.yml" # i hate pathing in terraform, make it based on service type
+  inventory = {
+    "${var.service.service_type}" = {
+      hosts = module.service_ct.ansible_inventory
+    }
+  }
+  ansible_settings = {
+    private_key_file = local_sensitive_file.service_private_key.filename # also recommend placing in hostvars for when more complex roles come in
+    ssh_user         = "root"
+    ansible_callback = "default"
+  }
+  extra_vars = var.service_vars
+
+}

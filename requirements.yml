@@ -1,0 +1,5 @@
+---
+roles:
+  - version: master
+    src: https://github.com/bertvv/ansible-dnsmasq
+    name: bertvv.dnsmasq

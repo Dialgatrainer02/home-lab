@@ -3,5 +3,11 @@ terraform {
     proxmox = {
       source = "bpg/proxmox"
     }
+    local = {
+      source = "hashicorp/local"
+    }
+    random = {
+      source = "hashicorp/random"
+    }
   }
 }

@@ -1,0 +1,19 @@
+---
+- name: Install dns server
+  hosts: dns
+  tasks:
+    - name: Install dnsmasq
+      ansible.builtin.include_role:
+        name: bertvv.dnsmasq
+      vars:
+        dnsmasq_domain: "{{ domain | default('example.com') }}"
+        dnsmasq_expand_hosts: "{{ expand_hosts | default(true) }}"
+        dnsmasq_upstream_servers: "{{ upstream_dns | default(['1.1.1.1', '1.0.0.1']) }}"
+        dnsmasq_srv_hosts: "{{ srv_hosts }}"
+        dnsmasq_addn_hosts: "{{ hosts_file }}"
+
+  handlers:
+    - name: Restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
