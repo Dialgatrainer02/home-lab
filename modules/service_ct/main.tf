@@ -17,6 +17,23 @@ resource "local_sensitive_file" "service_private_key" {
   content  = local.private_key
 }
 
+module "alloy" {
+  count = var.alloy.install ? 1 : 0
+
+  depends_on = [module.service_ct]
+  source     = "../helpers/alloy"
+
+  host = module.service_ct.ansible_inventory
+  alloy_vars = {
+    config = var.alloy.config
+  }
+  helper = {
+    private_key_file = local_sensitive_file.service_private_key.filename
+    callback         = "default"
+  }
+
+}
+
 module "service_config" {
   source     = "../ansible_playbook"
   depends_on = [module.service_ct]

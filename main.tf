@@ -44,7 +44,44 @@ module "dns" {
     }
   }
   alloy = {
-    install = false
+    install = false # TODO unsure what to do here
+    # config  = <<EOF
+# prometheus.exporter.unix "host" { }
+# prometheus.exporter.self "alloy" {}
+# prometheus.scrape "host" {
+# targets    = prometheus.exporter.unix.host.targets
+# forward_to = [prometheus.remote_write..receiver]
+# }
+# prometheus.scrape "alloy" {
+# targets    = prometheus.exporter.self.alloy.targets
+# forward_to = [prometheus.remote_write..receiver]
+# }
+# prometheus.remote_write "staging" {
+  # endpoint {
+    # url = "http://tbd.internal"
+  # }
+# }
+# 
+# 
+# local.file_match "logs" {
+  # path_targets = [
+    # {__path__ = "/tmp/*.log"},
+  # ]
+# }
+# 
+# loki.source.file "tmpfiles" {
+  # targets    = local.file_match.logs.targets
+  # forward_to = [loki.write.local.receiver]
+# }
+# loki.source.journal "read"  {
+  # forward_to    = [loki.write.local.receiver]
+# }
+# loki.write "local" {
+  # endpoint {
+    # url = "http://tbd.internal"
+  # }
+# }
+    # EOF
   }
   consul = {
     install = false

@@ -9,7 +9,7 @@ resource "local_file" "inventory" {
 resource "terraform_data" "trigger_playbook" {
   triggers_replace = local_file.inventory.id
   provisioner "local-exec" {
-    command = "ansible-playbook ${var.playbook_path} -i ${local_file.inventory.filename} ${var.extra_vars != null ? "-e" : ""} \" ${var.extra_vars != null ? jsonencode(var.extra_vars) : ""} \" "
+    command = "ansible-playbook ${var.playbook_path} -i ${local_file.inventory.filename} ${var.extra_vars != null ? "-e" : ""} ' ${var.extra_vars != null ? jsonencode(var.extra_vars) : ""} ' "
     environment = {
       ANSIBLE_HOST_KEY_CHECKING = var.ansible_settings.host_key_checking
       ANSIBLE_PRIVATE_KEY_FILE  = var.ansible_settings.private_key_file
