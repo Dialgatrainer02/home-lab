@@ -24,24 +24,18 @@ variable "container" {
 
 }
 
-variable "pve_address" {
-  description = "  ip address of proxmox VE server"
-  type = string
+variable "pve_settings" {
+  description = "object containing connection properties for the pve host"
+  type = object({
+    pve_username = string
+    pve_password = string
+    pve_address  = string
+  })
 }
-variable "pve_username" {
-  description = "username of proxmox VE server"
-  type = string
-}
-
-variable "pve_password" {
-  description = "password of proxmox VE server"
-  type = string
-}
-
 locals {
   vm_id        = var.container.vm_id != 0 ? var.container.vm_id : random_integer.rng_id.result
   public_key   = var.container.gen_keypair ? tls_private_key.staging_key[0].public_key_openssh : var.container.public_key
-  pve_user     = split("@", var.pve_username)[0]
+  pve_user     = split("@", var.pve_settings.pve_username)[0]
   datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
   node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
   ipv4_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv4[0].address)

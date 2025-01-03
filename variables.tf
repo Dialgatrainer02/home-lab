@@ -63,6 +63,11 @@ variable "ipv4_cidr" {
   type        = string
 }
 
+variable "ipv4_gateway" {
+  description = "the gateway of the current subnet (ipv4)"
+  type        = string
+}
+
 variable "ipv6_network_bits" {
   description = "the network bits of the lan network (ipv6)"
   type        = string

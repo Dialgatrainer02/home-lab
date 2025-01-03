@@ -62,10 +62,10 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
 resource "terraform_data" "provision" {
   depends_on = [proxmox_virtual_environment_container.proxmox_ct]
   connection {
-    host     = var.pve_address
+    host     = var.pve_settings.pve_address
     type     = "ssh"
     user     = local.pve_user
-    password = var.pve_password
+    password = var.pve_settings.pve_password
   }
 
   provisioner "file" {

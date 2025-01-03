@@ -1,32 +1,30 @@
-module "test" {
-  source = "./modules/prmoxmox/container"
+module "testing_more" {
+  source = "./modules/service_ct"
 
-  container = {
-    os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
-    os_type     = "centos"
-    gen_keypair = true
-
+  pve_settings = {
+    pve_address  = var.pve_address
+    pve_password = var.pve_password
+    pve_username = var.pve_password
   }
-  pve_address  = var.pve_address
-  pve_username = var.pve_username
-  pve_password = var.pve_password
-}
-
-resource "proxmox_virtual_environment_download_file" "release_almalinux_9_4_lxc_img" {
-  connection { # kinda hacky way to make the directory
-    host     = var.pve_address
-    type     = "ssh"
-    user     = local.pve_user
-    password = var.pve_password
+  service = {
+    service_name        = "dns-1"
+    service_type        = "dns"
+    service_description = "dns server 1"
+    service_ipv4 = {
+      address = "${var.ipv4_network_bits}.200${var.ipv4_cidr}"
+      gateway = var.ipv4_gateway
+    }
+    custom_ct = {
+      startup = false
+    }
   }
-  provisioner "remote-exec" {
-    inline = [
-      "mkdir -p /mnt/bindmounts/terraform"
-    ]
+  alloy = {
+    install = false
   }
-  overwrite_unmanaged = true
-  content_type        = "vztmpl"
-  datastore_id        = "local"
-  node_name           = local.node
-  url                 = "http://download.proxmox.com/images/system/almalinux-9-default_20240911_amd64.tar.xz"
+  consul = {
+    install = false
+  }
+  dns = {
+    entry = false
+  }
 }
