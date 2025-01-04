@@ -2,10 +2,6 @@
 - name: Deploy alloy
   hosts: all
   become: true
-  tasks:
-    - name: Deploy alloy
-      ansible.builtin.include_role:
-        name: grafana.grafana.alloy
-      vars:
-        alloy_config: |-
-          "{{ config }}"
+  roles:
+    - grafana.grafana.alloy
+

@@ -24,9 +24,12 @@ module "alloy" {
   source     = "../helpers/alloy"
 
   host = module.service_ct.ansible_inventory
-  alloy_vars = {
-    config = var.alloy.config
-  }
+  alloy_vars = merge({
+    service_type        = var.service.service_type
+    loki_endpoint       = "127.0.0.1"
+    prometheus_endpoint = "127.0.0.1"
+
+  }, {})
   helper = {
     private_key_file = local_sensitive_file.service_private_key.filename
     callback         = "default"

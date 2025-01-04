@@ -38,7 +38,7 @@ variable "consul" {
 variable "alloy" {
   type = object({
     install = optional(bool, false)
-    config  = optional(any, {})
+    # config  = optional(any, {})
   })
 }
 
