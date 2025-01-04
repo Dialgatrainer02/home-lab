@@ -43,7 +43,7 @@ module "dns_entry" {
   source = "../helpers/update_dns"
 
   host = {
-    dns = {
+    dns-1 = {
       ansible_host = var.dns.host
     }
   }
@@ -62,8 +62,7 @@ module "service_config" {
 
   playbook_path = ".playbooks/${var.service.service_type}-playbook.yml" 
   inventory = {
-    "${var.service.service_type}" = {
-    # test ={
+    "${var.service.service_type}" = { 
       hosts = module.service_ct.ansible_inventory
     }
   }

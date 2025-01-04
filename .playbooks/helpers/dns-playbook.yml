@@ -8,10 +8,10 @@
         state: present
         path: /etc/hosts
         line: "{{ dns_entry_addr }} {{ dns_entry_name }}"
-      notify: Restart dnsmasq
-
-  handlers:
-    - name: Restart dnsmasq
-      ansible.builtin.service:
-        name: dnsmasq
-        state: restarted
+      # notify: Restart dnsmasq
+#
+  # handlers:
+    # - name: Restart dnsmasq
+      # ansible.builtin.service:
+        # name: dnsmasq
+        # state: restarted

@@ -46,8 +46,8 @@ module "dns" {
   alloy = {
     install = true
     endpoints = {
-      loki = "http://192.168.0.112:9090/api/v1/write"
-      prom = "http://192.168.0.112:3100/loki/api/v1/push"
+      prom = "http://192.168.0.112:9090/api/v1/write"
+      loki = "http://192.168.0.112:3100/loki/api/v1/push"
     }
   }
   consul = {
@@ -62,6 +62,48 @@ module "dns" {
     dnsmasq_domain = "internal"
     dnsmasq_expand_hosts = true
     dnsmasq_upstream_servers = ["1.1.1.1", "1.0.0.1"]
+    dnsmasq_addn_hosts = "/etc/hosts.d"
+    dnsmasq_blocklists = [
+      "https://raw.githubusercontent.com/StevenBlack/hosts/refs/heads/master/hosts",
+      "https://hosts.tweedge.net/malicious.txt",
+    ]
   }
 }
-
+# 
+# module "step_ca" {
+  # source = "./modules/service_ct"
+# 
+    # pve_settings = local.pve_settings
+  # service = {
+    # service_name        = "step-1"
+    # service_type        = "ca"
+    # service_description = "small step ca server 1"
+    # service_os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
+    # service_os_type     = "centos"
+    # service_ipv4 = {
+      # ipv4_address = "${var.ipv4_network_bits}.202${var.ipv4_cidr}"
+      # ipv4_gateway = var.ipv4_gateway
+    # }
+    # custom_ct = {
+      # startup = true
+      # cores   = 1
+      # dns = [module.dns.service_ipv4_address]
+    # }
+  # }
+  # alloy = {
+    # install = true
+    # endpoints = {
+      # loki = "http://192.168.0.112:9090/api/v1/write"
+      # prom = "http://192.168.0.112:3100/loki/api/v1/push"
+    # }
+  # }
+  # consul = {
+    # install = false
+  # }
+  # dns = {
+    # entry = true
+    # private_key_path = module.dns.service_private_key_path
+    # host = module.dns.service_ipv4_address
+  # }
+  # service_vars = {} 
+# }

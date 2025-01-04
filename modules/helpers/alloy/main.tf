@@ -56,11 +56,31 @@ local.file_match "tmplogs" {
   sync_period = "5s"
 }
 
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal__hostname"]
+    target_label  = "hostname"
+  }
+  rule {
+    source_labels = ["__journal__boot_id"]
+    target_label  = "boot_id"
+  }
+}
+
+
 loki.source.file "tmpfiles" {
   targets    = local.file_match.tmplogs.targets
   forward_to = [loki.write.local.receiver]
 }
 loki.source.journal "read"  {
+  relabel_rules = loki.relabel.journal.rules
   forward_to    = [loki.write.local.receiver]
 }
 loki.write "local" {
