@@ -60,9 +60,10 @@ module "service_config" {
   source     = "../ansible_playbook"
   depends_on = [module.service_ct]
 
-  playbook_path = ".playbooks/${var.service.service_type}-playbook.yml" # i hate pathing in terraform, make it based on service type
+  playbook_path = ".playbooks/${var.service.service_type}-playbook.yml" 
   inventory = {
     "${var.service.service_type}" = {
+    # test ={
       hosts = module.service_ct.ansible_inventory
     }
   }

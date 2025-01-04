@@ -60,6 +60,8 @@ module "dns" {
   }
   service_vars = {
     dnsmasq_domain = "internal"
+    dnsmasq_expand_hosts = true
+    dnsmasq_upstream_servers = ["1.1.1.1", "1.0.0.1"]
   }
 }
 

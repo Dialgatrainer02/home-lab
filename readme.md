@@ -30,3 +30,6 @@
 #### install consul_cient
     same for the consul client
 
+# troubleshoot 
+
+service_config inventory file being made incorrectly *some* of the time from a cold run
