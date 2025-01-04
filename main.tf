@@ -45,6 +45,10 @@ module "dns" {
   }
   alloy = {
     install = true
+    endpoints = {
+      loki = "http://192.168.0.112:9090/api/v1/write"
+      prom = "http://192.168.0.112:3100/loki/api/v1/push"
+    }
   }
   consul = {
     install = false

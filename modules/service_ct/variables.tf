@@ -38,7 +38,10 @@ variable "consul" {
 variable "alloy" {
   type = object({
     install = optional(bool, false)
-    # config  = optional(any, {})
+    endpoints = object({
+      loki = string
+      prom = string
+    })
   })
 }
 

@@ -26,8 +26,8 @@ module "alloy" {
   host = module.service_ct.ansible_inventory
   alloy_vars = merge({
     service_type        = var.service.service_type
-    loki_endpoint       = "127.0.0.1"
-    prometheus_endpoint = "127.0.0.1"
+    loki_endpoint       = var.alloy.endpoints.loki
+    prometheus_endpoint = var.alloy.endpoints.prom
 
   }, {})
   helper = {

@@ -17,9 +17,11 @@ module "alloy_config" {
 }
 
 locals {
-  config = { alloy_config =<<EOF
+  config = { alloy_config = <<EOF
   prometheus.exporter.unix "host" { }
-prometheus.exporter.self "alloy" {}
+
+prometheus.exporter.self "alloy" { }
+
 prometheus.scrape "host" {
 targets    = prometheus.exporter.unix.host.targets
 forward_to = [prometheus.remote_write.staging.receiver]
@@ -28,23 +30,34 @@ prometheus.scrape "alloy" {
 targets    = prometheus.exporter.self.alloy.targets
 forward_to = [prometheus.remote_write.staging.receiver]
 }
+
+{% if service_type == "dns" %}
+prometheus.exporter.dnsmasq "dns" {
+  address = "localhost:53"
+}
+
+prometheus.scrape "dnsmasq"{
+  targets  = prometheus.exporter.dnsmasq.dns.targets
+  forward_to = [prometheus.remote_write.staging.receiver]
+}
+
+{% endif %}
+
 prometheus.remote_write "staging" {
   endpoint {
     url = "{{ prometheus_endpoint }}"
   }
 }
 
-
-
-
-local.file_match "logs" {
+local.file_match "tmplogs" {
   path_targets = [
     {__path__ = "/tmp/*.log"},
   ]
+  sync_period = "5s"
 }
 
 loki.source.file "tmpfiles" {
-  targets    = local.file_match.logs.targets
+  targets    = local.file_match.tmplogs.targets
   forward_to = [loki.write.local.receiver]
 }
 loki.source.journal "read"  {
