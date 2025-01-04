@@ -54,7 +54,9 @@ module "dns" {
     install = false
   }
   dns = {
-    entry = false
+    entry = true
+    private_key_path = module.dns.service_private_key_path
+    host = module.dns.service_ipv4_address
   }
   service_vars = {
     dnsmasq_domain = "internal"

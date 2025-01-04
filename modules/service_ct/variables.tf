@@ -49,7 +49,8 @@ variable "dns" {
   type = object({
     entry  = optional(bool, false)
     domain = optional(string)
-    url    = optional(string)
+    host    = optional(string)
+    private_key_path = optional(string)
   })
 }
 

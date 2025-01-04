@@ -1,0 +1,17 @@
+---
+- name: Update dns entry
+  hosts: dns
+  tasks:
+    - name: Append to hosts file
+      ansible.builtin.lineinfile:
+        insertafter: EOF
+        state: present
+        path: /etc/hosts
+        line: "{{ dns_entry_addr }} {{ dns_entry_name }}"
+      notify: Restart dnsmasq
+
+  handlers:
+    - name: Restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
