@@ -56,9 +56,9 @@ module "acme_cert" {
   depends_on = [module.service_ct]
   source     = "../helpers/acme_cert"
 
-  host = merge( {ca = { hosts = var.acme_cert.ca_host}}, {client = {host = module.service_ct.ansible_inventory}} )
+  host = merge({ ca = { hosts = var.acme_cert.config.ca_host } }, { client = { host = module.service_ct.ansible_inventory } })
   cert_vars = {
-    step_bootstrap_ca_url = var.acme_cert.ca_url
+    step_bootstrap_ca_url = var.acme_cert.config.ca_url
   }
   helper = {
     callback = "default"

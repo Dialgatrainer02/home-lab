@@ -9,7 +9,7 @@ output "ansible_inventory" {
 
 output "private_key" {
   description = "private key of the created container"
-  value       = var.container.gen_keypair ? tls_private_key.staging_key[0].private_key_openssh : null
+  value       = local.private_key
   sensitive   = true
 }
 output "public_key" {

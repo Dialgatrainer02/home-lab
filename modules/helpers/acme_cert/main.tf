@@ -4,7 +4,7 @@ module "dns_update" {
   playbook_path = ".playbooks/helpers/cert-playbook.yml"
   inventory = {
 
-      hosts = var.host
+    hosts = var.host
   }
   ansible_settings = {
     private_key_file = var.helper.private_key_file

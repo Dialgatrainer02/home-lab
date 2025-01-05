@@ -68,7 +68,7 @@ module "dns-0" {
   }
   dns = {
     entry = true
-    host = local.dns_servers.inventory
+    host  = local.dns_servers.inventory
   }
   service_vars = {
     dnsmasq_domain           = "internal"
@@ -120,7 +120,7 @@ module "dns-1" {
   }
   dns = {
     entry = true
-    host = local.dns_servers.inventory
+    host  = local.dns_servers.inventory
   }
   service_vars = {
     dnsmasq_domain           = "internal"
@@ -167,16 +167,16 @@ module "step-1" {
   acme_cert = {
     provision = false
     # config = { # example config
-      # ca_url = "https://step-1.internal"  
-      # ca_host = module.step-1.service_inventory
+    # ca_url = "https://step-1.internal"  
+    # ca_host = module.step-1.service_inventory
     # }
   }
   consul = {
     install = false
   }
   dns = {
-    entry            = true
-    host             = local.dns_servers.inventory
+    entry = true
+    host  = local.dns_servers.inventory
   }
   service_vars = {
     step_ca_name                  = "homelab inc"
@@ -185,4 +185,27 @@ module "step-1" {
   }
 }
 
+module "wireguard" {
+  source = "./modules/oracle/compute"
 
+  oci_settings = {
+    compartment_ocid = var.compartment_ocid
+    region           = var.region
+    user_ocid        = var.user_ocid
+    fingerprint      = var.fingerprint
+    oci_private_key  = var.oci_private_key
+    tenancy_ocid     = var.tenancy_ocid
+  }
+
+  compute = {
+    egress_rules = [{
+      tcp_options = {}
+      udp_options = {}
+    }]
+    ingress_rules = [{
+      tcp_options = {}
+      udp_options = {}
+    }]
+  }
+
+}

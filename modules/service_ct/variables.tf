@@ -39,11 +39,11 @@ variable "acme_cert" {
   type = object({
     provision = optional(bool, false)
     config = optional(object({
-      ca_url = optional(string)
-      host = optional(any)
+      ca_url  = optional(string)
+      ca_host = optional(any)
     }))
   })
-  
+
 }
 
 variable "alloy" {
