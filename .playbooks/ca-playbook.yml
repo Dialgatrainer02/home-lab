@@ -1,0 +1,25 @@
+---
+- name: Install step ca
+  hosts: ca
+  become: true
+  roles:
+    - maxhoesel.smallstep.step_ca
+  pre_tasks:
+    - name: Install compression libary
+      ansible.builtin.package:
+        name: tar
+        state: present
+      become: true
+  tasks:
+    - name: Add an ACME provisioner to the CA
+      maxhoesel.smallstep.step_ca_provisioner:
+        name: ACME
+        type: ACME
+      become: true
+      become_user: step-ca
+      notify: Reload step-ca
+  handlers:
+    - name: Reload step-ca
+      ansible.builtin.systemd:
+        name: step-ca
+        state: reloaded

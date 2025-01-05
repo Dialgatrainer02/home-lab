@@ -1,7 +1,7 @@
 variable "ansible_settings" {
   type = object({
     host_key_checking = optional(string, "accept-new")
-    private_key_file  = string
+    private_key_file  = optional(string)
     ssh_user          = optional(string, "root")
     ansible_callback  = optional(string, "dense")
   })

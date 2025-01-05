@@ -47,9 +47,9 @@ variable "alloy" {
 
 variable "dns" {
   type = object({
-    entry  = optional(bool, false)
-    domain = optional(string)
-    host    = optional(string)
+    entry            = optional(bool, false)
+    domain           = optional(string)
+    host             = optional(any)
     private_key_path = optional(string)
   })
 }
