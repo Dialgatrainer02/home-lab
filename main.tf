@@ -67,7 +67,7 @@ module "dns-0" {
     install = false
   }
   dns = {
-    entry = true
+    entry = false
     host  = local.dns_servers.inventory
   }
   service_vars = {
@@ -119,7 +119,7 @@ module "dns-1" {
     install = false
   }
   dns = {
-    entry = true
+    entry = false
     host  = local.dns_servers.inventory
   }
   service_vars = {
@@ -215,7 +215,8 @@ module "step-1" {
 
 
 module "minio-1" {
-  source = "./modules/service_ct"
+  source     = "./modules/service_ct"
+  depends_on = [module.step-1]
 
   pve_settings = local.pve_settings
   service = {
@@ -230,12 +231,13 @@ module "minio-1" {
     }
     custom_ct = {
       startup = true
-      cores   = 1
+      cores   = 2
       dns     = local.dns_servers.addrs
+      memory  = 2048
       host_vars = {
         ansible_ssh_private_key_file = ".keys/minio-1_private_key"
-        acme_cert_name = "minio-1.internal"
-        acme_cert_san  = [ "localhost", "127.0.0.1"]
+        acme_cert_name               = "minio-1.internal"
+        acme_cert_san                = ["localhost", "127.0.0.1"]
       }
     }
   }
@@ -263,7 +265,7 @@ module "minio-1" {
   }
   service_vars = {
     validate_certificate = true
-    minio_alias                = "mimir"
+    minio_alias          = "mimir"
     minio_buckets = [
       {
         name   = "mimir-object"
@@ -290,11 +292,12 @@ module "minio-1" {
         password = var.pve_password
       },
     ]
-    minio_root_user     = "root"
-    minio_root_password = var.pve_password
-    minio_url           = "https://minio-1.internal:{{ server_port }}"
-    minio_enable_tls    = true
-    server_port         = "9091"
+    minio_root_user               = "root"
+    minio_root_password           = var.pve_password
+    minio_url                     = "https://minio-1.internal:{{ server_port }}"
+    minio_enable_tls              = true
+    minio_prometheus_bearer_token = true
+    server_port                   = "9091"
     object_storage = {
       storage = {
 

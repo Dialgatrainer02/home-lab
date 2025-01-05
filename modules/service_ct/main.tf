@@ -32,7 +32,7 @@ module "alloy" {
   }, {})
   helper = {
     private_key_file = local_sensitive_file.service_private_key.filename
-    # callback = "default"
+    # callback         = "default"
   }
 }
 
@@ -47,7 +47,9 @@ module "dns_entry" {
     dns_entry_name = var.service.service_name
     dns_entry_addr = module.service_ct.ipv4_address
   }
-  helper = {}
+  helper = {
+    # callback = "default"
+  }
 }
 
 module "acme_cert" {
@@ -78,7 +80,7 @@ module "service_config" {
   ansible_settings = {
     private_key_file = local_sensitive_file.service_private_key.filename # also recommend placing in hostvars for when more complex roles come in
     ssh_user         = "root"
-    # ansible_callback = "default"
+    ansible_callback = "default"
   }
   extra_vars = var.service_vars
 

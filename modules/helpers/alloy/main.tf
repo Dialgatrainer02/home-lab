@@ -43,6 +43,14 @@ prometheus.scrape "dnsmasq"{
 
 {% endif %}
 
+{% if service_type == "minio" %}
+prometheus.scrape "minio" {
+  targets = [{"__address__" = "localhost:9000"}]
+  bearer_token_file = "/etc/minio/prometheus_bearer.json"
+  forward_to = [prometheus.remote_write.staging.receiver]
+}
+{% endif %}
+
 prometheus.remote_write "staging" {
   endpoint {
     url = "{{ prometheus_endpoint }}"
