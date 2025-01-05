@@ -47,9 +47,21 @@ module "dns_entry" {
     dns_entry_name = var.service.service_name
     dns_entry_addr = module.service_ct.ipv4_address
   }
+  helper = {}
+}
+
+module "acme_cert" {
+  count = var.acme_cert.provision ? 1 : 0
+
+  depends_on = [module.service_ct]
+  source     = "../helpers/acme_cert"
+
+  host = merge( {ca = { hosts = var.acme_cert.ca_host}}, {client = {host = module.service_ct.ansible_inventory}} )
+  cert_vars = {
+    step_bootstrap_ca_url = var.acme_cert.ca_url
+  }
   helper = {
-    private_key_file = var.dns.private_key_path
-    callback         = "default"
+    callback = "default"
   }
 }
 

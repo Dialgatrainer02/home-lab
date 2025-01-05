@@ -3,3 +3,9 @@ roles:
   - version: master
     src: https://github.com/bertvv/ansible-dnsmasq
     name: bertvv.dnsmasq
+collections:
+  - name: maxhoesel.smallstep
+    version: main
+    source: git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
+    type: git
+  - name: grafana.grafana

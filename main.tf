@@ -59,12 +59,15 @@ module "dns-0" {
       loki = "http://192.168.0.112:3100/loki/api/v1/push"
     }
   }
+
+  acme_cert = {
+    provision = false
+  }
   consul = {
     install = false
   }
   dns = {
     entry = true
-    # private_key_path = module.dns-0.service_private_key_path
     host = local.dns_servers.inventory
   }
   service_vars = {
@@ -109,12 +112,14 @@ module "dns-1" {
       loki = "http://192.168.0.112:3100/loki/api/v1/push"
     }
   }
+  acme_cert = {
+    provision = false
+  }
   consul = {
     install = false
   }
   dns = {
     entry = true
-    # private_key_path = module.dns-1.service_private_key_path
     host = local.dns_servers.inventory
   }
   service_vars = {
@@ -131,7 +136,7 @@ module "dns-1" {
 
 
 
-module "step_ca" {
+module "step-1" {
   source = "./modules/service_ct"
 
   pve_settings = local.pve_settings
@@ -158,13 +163,20 @@ module "step_ca" {
       loki = "http://192.168.0.112:3100/loki/api/v1/push"
     }
   }
+
+  acme_cert = {
+    provision = false
+    # config = { # example config
+      # ca_url = "https://step-1.internal"  
+      # ca_host = module.step-1.service_inventory
+    # }
+  }
   consul = {
     install = false
   }
   dns = {
     entry            = true
-    private_key_path = module.dns-1.service_private_key_path
-    host             = module.dns-1.service_ipv4_address
+    host             = local.dns_servers.inventory
   }
   service_vars = {
     step_ca_name                  = "homelab inc"

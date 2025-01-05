@@ -8,3 +8,11 @@
         state: present
         path: /etc/hosts
         line: "{{ dns_entry_addr }} {{ dns_entry_name }}"
+      notify: Restart dnsmasq
+
+  handlers:
+    - name: Restart dnsmasq
+      ansible.builtin.service:
+        name: dnsmasq
+        state: restarted
+      failed_when: false # might fail if dnsmasq isnt installed yet so we ignore the error (there are smarter ways to do this)

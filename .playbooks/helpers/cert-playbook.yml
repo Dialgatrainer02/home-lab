@@ -1,0 +1,31 @@
+---
+# ca group has ca-1 host
+# client group has any nimber of hosts in group all wating a cert
+
+- name: Provide acme certs to client
+  hosts: all
+  pre_tasks:
+    - name: Install compression libary
+      ansible.builtin.package:
+        name: tar
+        state: present
+      become: true
+    - name: Get root CA fingerprint
+      ansible.builtin.command: "step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt"
+      register: root_ca_fp
+      changed_when: root_ca_fp.rc != 0
+      delegate_to: ca-1
+  tasks:
+    - name: Set up client
+      when: inventory_hostname in groups['client'] # not recommended but fine for this
+      block:
+        - name: Bootstrap host
+          ansible.builtin.include_role:
+            name: maxhoesel.smallstep.step_bootstrap_host
+          vars:
+            step_bootstrap_fingerprint: "{{ root_ca_fp.stdout }}"
+        - name: Configure an ACME cert + renewal
+          ansible.builtin.include_role:
+            name: maxhoesel.smallstep.step_acme_cert
+          vars:
+            step_acme_cert_ca_provisioner: ACME
