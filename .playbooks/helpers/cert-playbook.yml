@@ -14,7 +14,7 @@
       ansible.builtin.command: "step-cli certificate fingerprint /etc/step-ca/certs/root_ca.crt"
       register: root_ca_fp
       changed_when: root_ca_fp.rc != 0
-      delegate_to: ca-1
+      delegate_to: step-1
   tasks:
     - name: Set up client
       when: inventory_hostname in groups['client'] # not recommended but fine for this

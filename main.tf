@@ -154,6 +154,9 @@ module "step-1" {
       startup = true
       cores   = 1
       dns     = local.dns_servers.addrs
+      host_vars = {
+        ansible_ssh_private_key_file = ".keys/step-1_private_key"
+      }
     }
   }
   alloy = {
@@ -185,27 +188,130 @@ module "step-1" {
   }
 }
 
-module "wireguard" {
-  source = "./modules/oracle/compute"
+# module "wireguard" {
+# source = "./modules/oracle/compute"
+# 
+# oci_settings = {
+# compartment_ocid = var.compartment_ocid
+# region           = var.region
+# user_ocid        = var.user_ocid
+# fingerprint      = var.fingerprint
+# oci_private_key  = var.oci_private_key
+# tenancy_ocid     = var.tenancy_ocid
+# }
+# 
+# compute = {
+# egress_rules = [{
+# tcp_options = {}
+# udp_options = {}
+# }]
+# ingress_rules = [{
+# tcp_options = {}
+# udp_options = {}
+# }]
+# }
+# 
+# }
 
-  oci_settings = {
-    compartment_ocid = var.compartment_ocid
-    region           = var.region
-    user_ocid        = var.user_ocid
-    fingerprint      = var.fingerprint
-    oci_private_key  = var.oci_private_key
-    tenancy_ocid     = var.tenancy_ocid
+
+module "minio-1" {
+  source = "./modules/service_ct"
+
+  pve_settings = local.pve_settings
+  service = {
+    service_name        = "minio-1"
+    service_type        = "minio"
+    service_description = "minio s3 compatible storage 1"
+    service_os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
+    service_os_type     = "centos"
+    service_ipv4 = {
+      ipv4_address = "${var.ipv4_network_bits}.203${var.ipv4_cidr}"
+      ipv4_gateway = var.ipv4_gateway
+    }
+    custom_ct = {
+      startup = true
+      cores   = 1
+      dns     = local.dns_servers.addrs
+      host_vars = {
+        ansible_ssh_private_key_file = ".keys/minio-1_private_key"
+        acme_cert_name = "minio-1.internal"
+        acme_cert_san  = [ "localhost", "127.0.0.1"]
+      }
+    }
+  }
+  alloy = {
+    install = true
+    endpoints = {
+      prom = "http://192.168.0.112:9090/api/v1/write"
+      loki = "http://192.168.0.112:3100/loki/api/v1/push"
+    }
   }
 
-  compute = {
-    egress_rules = [{
-      tcp_options = {}
-      udp_options = {}
-    }]
-    ingress_rules = [{
-      tcp_options = {}
-      udp_options = {}
-    }]
+  acme_cert = {
+    provision = true
+    config = { # example config
+      ca_url  = "https://step-1.internal"
+      ca_host = module.step-1.service_inventory
+    }
   }
+  consul = {
+    install = false
+  }
+  dns = {
+    entry = true
+    host  = local.dns_servers.inventory
+  }
+  service_vars = {
+    validate_certificate = true
+    minio_alias                = "mimir"
+    minio_buckets = [
+      {
+        name   = "mimir-object"
+        policy = "read-write"
+      },
+      {
+        name   = "mimir-block"
+        policy = "read-write"
+      }
+    ]
+    minio_users = [
+      {
+        buckets_acl = [
+          {
+            name   = "mimir-object"
+            policy = "read-write"
+          },
+          {
+            name   = "mimir-block"
+            policy = "read-write"
+          }
+        ]
+        name     = "mimir"
+        password = var.pve_password
+      },
+    ]
+    minio_root_user     = "root"
+    minio_root_password = var.pve_password
+    minio_url           = "https://minio-1.internal:{{ server_port }}"
+    minio_enable_tls    = true
+    server_port         = "9091"
+    object_storage = {
+      storage = {
 
+        backend = "s3"
+        s3 = {
+          endpoint          = "minio.internal"
+          access_key_id     = "mimir"
+          secret_access_key = "${var.pve_password}"
+          insecure          = false # False when using https
+          bucket_name       = "mimir-object"
+        }
+      }
+      block_storage = {
+        s3 = {
+          bucket_name = "mimir-block"
+        }
+      }
+    }
+  }
 }

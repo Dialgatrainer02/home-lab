@@ -3,6 +3,8 @@ roles:
   - version: master
     src: https://github.com/bertvv/ansible-dnsmasq
     name: bertvv.dnsmasq
+  - name: ricsanfre.minio
+    src: https://github.com/ricsanfre/ansible-role-minio
 collections:
   - name: maxhoesel.smallstep
     version: main

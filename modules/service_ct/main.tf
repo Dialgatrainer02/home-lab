@@ -32,7 +32,7 @@ module "alloy" {
   }, {})
   helper = {
     private_key_file = local_sensitive_file.service_private_key.filename
-
+    # callback = "default"
   }
 }
 
@@ -56,12 +56,12 @@ module "acme_cert" {
   depends_on = [module.service_ct]
   source     = "../helpers/acme_cert"
 
-  host = merge({ ca = { hosts = var.acme_cert.config.ca_host } }, { client = { host = module.service_ct.ansible_inventory } })
+  host = merge({ ca = { hosts = var.acme_cert.config.ca_host } }, { client = { hosts = module.service_ct.ansible_inventory } })
   cert_vars = {
     step_bootstrap_ca_url = var.acme_cert.config.ca_url
   }
   helper = {
-    callback = "default"
+    # callback = "default"
   }
 }
 
@@ -78,7 +78,7 @@ module "service_config" {
   ansible_settings = {
     private_key_file = local_sensitive_file.service_private_key.filename # also recommend placing in hostvars for when more complex roles come in
     ssh_user         = "root"
-    ansible_callback = "default"
+    # ansible_callback = "default"
   }
   extra_vars = var.service_vars
 

@@ -30,5 +30,10 @@
 #### install consul_cient
     same for the consul client
 
-step ca cert logistics issue for dns server
-step ca root fingerprint logistics issue
+
+oci vm cant be made due to security lists error
+
+
+next up is minio, loki, mimir, grafana
+
+als0o need to do jellyfin and arr stack
