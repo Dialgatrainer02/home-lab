@@ -1,0 +1,13 @@
+---
+- name: Manage loki service
+  hosts: loki
+  become: true
+  roles:
+    - role: grafana.grafana.loki
+  pre_tasks:
+    - name: Wait for cert before starting
+      ansible.builtin.wait_for:
+        path: "/etc/ssl/step.crt"
+    - name: Wait for key before starting
+      ansible.builtin.wait_for:
+        path: "/etc/ssl/step.key"

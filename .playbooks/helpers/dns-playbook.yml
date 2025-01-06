@@ -7,7 +7,16 @@
         insertafter: EOF
         state: present
         path: /etc/hosts
-        line: "{{ dns_entry_addr }} {{ dns_entry_name }}"
+        line: "{{ dns_entry_addr_ipv4 }} {{ dns_entry_name }}"
+      when: dns_entry_addr_ipv4 is defined
+      notify: Restart dnsmasq
+    - name: Append to hosts file
+      ansible.builtin.lineinfile:
+        insertafter: EOF
+        state: present
+        path: /etc/hosts
+        line: "{{ dns_entry_addr_ipv6 }} {{ dns_entry_name }}"
+      when: dns_entry_addr_ipv6 is defined
       notify: Restart dnsmasq
 
   handlers:

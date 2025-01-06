@@ -1,0 +1,8 @@
+---
+- name: Install mimir
+  hosts: mimir
+  become: true
+  tasks:
+    - name: Install mimir
+      ansible.builtin.include_role:
+        name: grafana.grafana.mimir
