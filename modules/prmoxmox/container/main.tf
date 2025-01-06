@@ -16,6 +16,10 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
         address = var.container.ipv4_address
         gateway = var.container.ipv4_gateway != null ? var.container.ipv4_gateway : null
       }
+      ipv6 {
+        address = var.container.ipv6_address
+        gateway = var.container.ipv6_gateway != null ? var.container.ipv6_gateway : null
+      }
     }
     dns {
       servers = var.container.dns
@@ -60,7 +64,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
 }
 
 resource "terraform_data" "provision" {
-  depends_on = [proxmox_virtual_environment_container.proxmox_ct]
+  triggers_replace = [proxmox_virtual_environment_container.proxmox_ct, ]
   connection {
     host     = var.pve_settings.pve_address
     type     = "ssh"

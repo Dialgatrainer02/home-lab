@@ -19,19 +19,16 @@ variable "service" {
       ipv4_address = optional(string)
       ipv4_gateway = optional(string)
     }), {})
+    service_ipv6 = optional(object({
+      ipv6_address = optional(string)
+      ipv6_gateway = optional(string)
+    }), {})
     service_os_image    = string
     service_os_type     = string
     service_type        = string
     service_private_key = optional(string, null) # only use with custom_ct.public_key
     custom_ct           = any
     host_vars           = optional(any, {})
-  })
-}
-
-variable "consul" {
-  type = object({
-    install = optional(bool, false)
-    config  = optional(any, {})
   })
 }
 

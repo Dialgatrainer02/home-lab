@@ -8,12 +8,14 @@ variable "container" {
     dns          = optional(list(string), ["1.1.1.1", "1.0.0.1"])
     ipv4_address = optional(string, "dhcp")
     ipv4_gateway = optional(string, null)
+    ipv6_address = optional(string, "dhcp")
+    ipv6_gateway = optional(string, null)
     gen_keypair  = optional(bool, true)
     public_key   = optional(string)
 
 
     cores     = optional(number, 2)
-    disk      = optional(number, "5")
+    disk      = optional(string, "5")
     memory    = optional(number, 1024)
     swap      = optional(number, 1024)
     os_image  = string
@@ -39,6 +41,7 @@ locals {
   datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
   node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
   ipv4_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv4[0].address)[0]
+  ipv6_address = split("/", proxmox_virtual_environment_container.proxmox_ct.initialization[0].ip_config[0].ipv6[0].address)[0]
   host_vars    = merge(var.container.host_vars, { ansible_host = local.ipv4_address })
   host = {
     (proxmox_virtual_environment_container.proxmox_ct.initialization[0].hostname) = local.host_vars

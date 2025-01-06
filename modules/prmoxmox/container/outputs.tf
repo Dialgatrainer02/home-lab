@@ -2,6 +2,11 @@ output "ipv4_address" {
   description = "containers ip address"
   value       = local.ipv4_address
 }
+
+output "ipv6_address" {
+  description = "containers ipv6 address"
+  value       = local.ipv6_address
+}
 output "ansible_inventory" {
   description = "a ansible_inventoty snippet for running playbooks"
   value       = local.host

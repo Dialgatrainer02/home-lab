@@ -8,7 +8,7 @@ module "service_ct" {
     os_image    = var.service.service_os_image
     os_type     = var.service.service_os_type
     host_vars   = var.service.host_vars
-  }, var.service.service_ipv4, var.service.custom_ct)
+  }, var.service.service_ipv4, var.service.service_ipv6, var.service.custom_ct)
   pve_settings = var.pve_settings
 }
 
@@ -31,8 +31,8 @@ module "alloy" {
 
   }, {})
   helper = {
-    private_key_file = local_sensitive_file.service_private_key.filename
-    # callback         = "default"
+    # private_key_file = local_sensitive_file.service_private_key.filename
+    callback         = "default"
   }
 }
 
@@ -45,10 +45,11 @@ module "dns_entry" {
   host = var.dns.host
   dns_vars = {
     dns_entry_name = var.service.service_name
-    dns_entry_addr = module.service_ct.ipv4_address
+    dns_entry_addr_ipv4 = module.service_ct.ipv4_address
+    dns_entry_addr_ipv6 = module.service_ct.ipv6_address
   }
   helper = {
-    # callback = "default"
+    callback = "default"
   }
 }
 
@@ -63,7 +64,7 @@ module "acme_cert" {
     step_bootstrap_ca_url = var.acme_cert.config.ca_url
   }
   helper = {
-    # callback = "default"
+    callback = "default"
   }
 }
 
@@ -73,7 +74,7 @@ module "service_config" {
 
   playbook_path = ".playbooks/${var.service.service_type}-playbook.yml"
   inventory = {
-    "${var.service.service_type}" = {
+    (var.service.service_type) = { # terraform doesnt like the fix for this
       hosts = module.service_ct.ansible_inventory
     }
   }
