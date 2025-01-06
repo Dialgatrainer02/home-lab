@@ -26,11 +26,11 @@ resource "proxmox_virtual_environment_download_file" "release_almalinux_9_4_lxc_
 
 locals {
   dns_servers = {
-    inventory = merge(module.dns-1.service_inventory, module.dns-0.service_inventory)
-    addrs     = [module.dns-1.service_ipv4_address, module.dns-0.service_ipv4_address]
+    inventory = merge(module.dns_1.service_inventory, module.dns_0.service_inventory)
+    addrs     = [module.dns_1.service_ipv4_address, module.dns_0.service_ipv4_address]
   }
 }
-module "dns-0" {
+module "dns_0" {
   source = "./modules/service_ct"
 
   pve_settings = local.pve_settings
@@ -55,16 +55,13 @@ module "dns-0" {
   alloy = {
     install = true
     endpoints = {
-      prom = "http://192.168.0.112:9090/api/v1/write"
-      loki = "http://192.168.0.112:3100/loki/api/v1/push"
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
     }
   }
 
   acme_cert = {
     provision = false
-  }
-  consul = {
-    install = false
   }
   dns = {
     entry = false
@@ -83,7 +80,7 @@ module "dns-0" {
 }
 
 
-module "dns-1" {
+module "dns_1" {
   source = "./modules/service_ct"
 
   pve_settings = local.pve_settings
@@ -102,22 +99,26 @@ module "dns-1" {
       cores   = 1
       host_vars = {
         ansible_ssh_private_key_file = ".keys/dns-1_private_key"
+        step_acme_cert_name          = "dns-1.internal"
+        step_acme_cert_san           = ["${var.ipv4_network_bits}.201"]
       }
     }
   }
   alloy = {
     install = true
     endpoints = {
-      prom = "http://192.168.0.112:9090/api/v1/write"
-      loki = "http://192.168.0.112:3100/loki/api/v1/push"
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
     }
   }
   acme_cert = {
     provision = false
+    config = { # example config
+      ca_url  = "https://step-1.internal"
+      ca_host = module.step_1.service_inventory
+    }
   }
-  consul = {
-    install = false
-  }
+
   dns = {
     entry = false
     host  = local.dns_servers.inventory
@@ -136,7 +137,7 @@ module "dns-1" {
 
 
 
-module "step-1" {
+module "step_1" {
   source = "./modules/service_ct"
 
   pve_settings = local.pve_settings
@@ -162,20 +163,17 @@ module "step-1" {
   alloy = {
     install = true
     endpoints = {
-      prom = "http://192.168.0.112:9090/api/v1/write"
-      loki = "http://192.168.0.112:3100/loki/api/v1/push"
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
     }
   }
 
   acme_cert = {
     provision = false
     # config = { # example config
-    # ca_url = "https://step-1.internal"  
-    # ca_host = module.step-1.service_inventory
+    # ca_url = "https://step_1.internal"  
+    # ca_host = module.step_1.service_inventory
     # }
-  }
-  consul = {
-    install = false
   }
   dns = {
     entry = true
@@ -187,6 +185,8 @@ module "step-1" {
     step_ca_intermediate_password = var.pve_password
   }
 }
+
+
 
 # module "wireguard" {
 # source = "./modules/oracle/compute"
@@ -214,9 +214,9 @@ module "step-1" {
 # }
 
 
-module "minio-1" {
+module "minio_1" {
   source     = "./modules/service_ct"
-  depends_on = [module.step-1]
+  depends_on = [module.step_1]
 
   pve_settings = local.pve_settings
   service = {
@@ -234,30 +234,29 @@ module "minio-1" {
       cores   = 2
       dns     = local.dns_servers.addrs
       memory  = 2048
+      disk    = "10"
+
       host_vars = {
         ansible_ssh_private_key_file = ".keys/minio-1_private_key"
-        acme_cert_name               = "minio-1.internal"
-        acme_cert_san                = ["localhost", "127.0.0.1"]
+        step_acme_cert_name          = "minio-1.internal"
+        step_acme_cert_san           = ["${var.ipv4_network_bits}.203"]
       }
     }
   }
   alloy = {
     install = true
     endpoints = {
-      prom = "http://192.168.0.112:9090/api/v1/write"
-      loki = "http://192.168.0.112:3100/loki/api/v1/push"
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
     }
   }
 
   acme_cert = {
     provision = true
     config = { # example config
-      ca_url  = "https://step-1.internal"
-      ca_host = module.step-1.service_inventory
+      ca_url  = "https://step_1.internal"
+      ca_host = module.step_1.service_inventory
     }
-  }
-  consul = {
-    install = false
   }
   dns = {
     entry = true
@@ -265,14 +264,22 @@ module "minio-1" {
   }
   service_vars = {
     validate_certificate = true
-    minio_alias          = "mimir"
+    minio_alias          = "logging"
     minio_buckets = [
       {
-        name   = "mimir-object"
+        name   = "mimir-block"
         policy = "read-write"
       },
       {
-        name   = "mimir-block"
+        name   = "mimir-alert"
+        policy = "read-write"
+      },
+      {
+        name   = "mimir-ruler"
+        policy = "read-write"
+      },
+      {
+        name   = "loki-chunk"
         policy = "read-write"
       }
     ]
@@ -280,17 +287,31 @@ module "minio-1" {
       {
         buckets_acl = [
           {
-            name   = "mimir-object"
+            name   = "mimir-block"
             policy = "read-write"
           },
           {
-            name   = "mimir-block"
+            name   = "mimir-alert"
             policy = "read-write"
-          }
+          },
+          {
+            name   = "mimir-ruler"
+            policy = "read-write"
+          },
         ]
         name     = "mimir"
         password = var.pve_password
       },
+      {
+        buckets_acl = [
+          {
+            name   = "loki-chunk"
+            policy = "read-write"
+          }
+        ]
+        name     = "loki"
+        password = var.pve_password
+      }
     ]
     minio_root_user               = "root"
     minio_root_password           = var.pve_password
@@ -298,22 +319,195 @@ module "minio-1" {
     minio_enable_tls              = true
     minio_prometheus_bearer_token = true
     server_port                   = "9091"
-    object_storage = {
-      storage = {
 
-        backend = "s3"
-        s3 = {
-          endpoint          = "minio.internal"
-          access_key_id     = "mimir"
-          secret_access_key = "${var.pve_password}"
-          insecure          = false # False when using https
-          bucket_name       = "mimir-object"
+  }
+}
+
+
+module "loki_1" {
+  source = "./modules/service_ct"
+  depends_on = [module.step_1,
+  module.minio_1, ] # needs step ca for acme certs
+
+  pve_settings = local.pve_settings
+  service = {
+    service_name        = "loki-1"
+    service_type        = "loki"
+    service_description = "grafana loki server 1"
+    service_os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
+    service_os_type     = "centos"
+    service_ipv4 = {
+      ipv4_address = "${var.ipv4_network_bits}.204${var.ipv4_cidr}"
+      ipv4_gateway = var.ipv4_gateway
+    }
+    custom_ct = {
+      startup = true
+      cores   = 1
+      dns     = local.dns_servers.addrs
+      host_vars = {
+        ansible_ssh_private_key_file = ".keys/loki-1_private_key"
+        step_acme_cert_name          = "loki-1.internal"
+        step_acme_cert_san           = ["${var.ipv4_network_bits}.204"]
+      }
+    }
+  }
+  alloy = {
+    install = true
+    endpoints = {
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
+    }
+  }
+
+  acme_cert = {
+    provision = true
+    config = { # example config
+      ca_url  = "https://step_1.internal"
+      ca_host = module.step_1.service_inventory
+    }
+  }
+  dns = {
+    entry = true
+    host  = local.dns_servers.inventory
+  }
+  service_vars = {
+
+    loki_auth_enabled = false
+    loki_common = {
+      path_prefix        = "{{ loki_working_path }}"
+      replication_factor = 1
+      ring = {
+        instance_addr = "127.0.0.1"
+        kvstore = {
+          store = "inmemory"
         }
       }
-      block_storage = {
+    }
+    loki_schema_config = {
+      configs = [
+        {
+          from = "2025-01-05"
+          index = {
+            period = "24h"
+            prefix = "index_"
+          }
+          object_store = "s3"
+          schema       = "v13"
+          store        = "tsdb"
+        },
+      ]
+    }
+    loki_server = {
+      http_listen_port = 3100
+      # http_tls_config = {
+      # cert = "/etc/ssl/step.crt"
+      # key = "/etc/ssl/step.key"
+      # }
+      # grpc_tls_config = {
+      # cert = "/etc/ssl/step.crt"
+      # key = "/etc/ssl/step.key"
+      # }
+    }
+    loki_storage_config = {
+      aws = {
+        insecure         = false
+        s3               = "https://loki:${var.pve_password}@minio-1.internal:9091/loki-chunk"
+        s3forcepathstyle = true
+      }
+      tsdb_shipper = {
+        active_index_directory = "{{ loki_working_path }}/loki/index"
+        cache_location         = "{{ loki_working_path }}/loki/index_cache"
+      }
+    }
+  }
+}
+
+module "mimir_1" {
+  source = "./modules/service_ct"
+  depends_on = [module.step_1,
+  module.minio_1] # needs step ca for acme certs
+
+  pve_settings = local.pve_settings
+  service = {
+    service_name        = "mimir-1"
+    service_type        = "mimir"
+    service_description = "grafana mimir server 1"
+    service_os_image    = proxmox_virtual_environment_download_file.release_almalinux_9_4_lxc_img.id
+    service_os_type     = "centos"
+    service_ipv4 = {
+      ipv4_address = "${var.ipv4_network_bits}.205${var.ipv4_cidr}"
+      ipv4_gateway = var.ipv4_gateway
+    }
+    custom_ct = {
+      startup = true
+      cores   = 2
+      dns     = local.dns_servers.addrs
+      memory  = 2048
+      host_vars = {
+        ansible_ssh_private_key_file = ".keys/mimir-1_private_key"
+        step_acme_cert_name          = "mimir-1.internal"
+        step_acme_cert_san           = ["${var.ipv4_network_bits}.205"]
+      }
+    }
+  }
+  alloy = {
+    install = true
+    endpoints = {
+      prom = "http://mimir-1.internal:8080/api/v1/push"
+      loki = "http://loki-1.internal:3100/loki/api/v1/push"
+    }
+  }
+
+  acme_cert = {
+    provision = true
+    config = { # example config
+      ca_url  = "https://step_1.internal"
+      ca_host = module.step_1.service_inventory
+    }
+  }
+  dns = {
+    entry = true
+    host  = local.dns_servers.inventory
+  }
+  service_vars = {
+
+    mimir_server = {
+      http_listen_port = 8080
+      # http_tls_config = {
+      # cert = "/etc/ssl/step.crt"
+      # key  = "/etc/ssl/step.key"
+      # }
+      # grpc_tls_config = {
+      # cert = "/etc/ssl/step.crt"
+      # key  = "/etc/ssl/step.key"
+      # }
+    }
+    mimir_storage = {
+      storage = {
+        backend = "s3"
         s3 = {
-          bucket_name = "mimir-block"
+          endpoint          = "minio-1.internal:9091"
+          access_key_id     = "mimir"
+          secret_access_key = var.pve_password
+          insecure          = false
         }
+      }
+    }
+
+    # Blocks storage requires a prefix when using a common object storage bucket.
+    mimir_blocks_storage = {
+      s3 = {
+        bucket_name = "mimir-block"
+      }
+    }
+    mimir_alertmanager_storage = {
+      s3 = {
+        bucket_name = "mimir-alert"
+      }
+    }
+    mimir_ruler_storage = {
+      s3 = {
+        bucket_name = "mimir-ruler"
       }
     }
   }

@@ -54,6 +54,9 @@ prometheus.scrape "minio" {
 prometheus.remote_write "staging" {
   endpoint {
     url = "{{ prometheus_endpoint }}"
+    headers = {
+      "X-Scope-OrgID" = "staging",
+    }
   }
 }
 
