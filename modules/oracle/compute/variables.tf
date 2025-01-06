@@ -63,7 +63,7 @@ locals {
   ipv4_address = oci_core_instance.oci_instance.public_ip
   host_vars    = merge(var.compute.host_vars, { ansible_host = local.ipv4_address })
   host = {
-    "${var.compute.hostname}" = local.host_vars
+    var.compute.hostname = local.host_vars
   }
 }
 

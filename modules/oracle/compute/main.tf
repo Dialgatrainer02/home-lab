@@ -112,7 +112,7 @@ resource "oci_core_instance" "oci_instance" {
 
   source_details {
     source_type = "image"
-    source_id   = lookup(data.oci_core_images.images.images[0], "id") ### again unsure how to make a varible
+    source_id   = data.oci_core_images.images.images[0][id] ### again unsure how to make a varible # fixed with tflint cant test rn
   }
 
   metadata = {
