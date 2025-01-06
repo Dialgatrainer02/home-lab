@@ -2,11 +2,11 @@ terraform {
   required_version = "1.8.8"
   required_providers {
     oci = {
-      source = "hashicorp/oci"
+      source  = "hashicorp/oci"
       version = "6.21.0"
     }
     tls = {
-      source = "hashicorp/tls"
+      source  = "hashicorp/tls"
       version = "4.0.6"
     }
   }
