@@ -32,7 +32,7 @@ module "alloy" {
   }, {})
   helper = {
     # private_key_file = local_sensitive_file.service_private_key.filename
-    callback         = "default"
+    callback = "default"
   }
 }
 
@@ -44,7 +44,7 @@ module "dns_entry" {
 
   host = var.dns.host
   dns_vars = {
-    dns_entry_name = var.service.service_name
+    dns_entry_name      = var.service.service_name
     dns_entry_addr_ipv4 = module.service_ct.ipv4_address
     dns_entry_addr_ipv6 = module.service_ct.ipv6_address
   }
@@ -56,8 +56,9 @@ module "dns_entry" {
 module "acme_cert" {
   count = var.acme_cert.provision ? 1 : 0
 
-  depends_on = [module.service_ct]
-  source     = "../helpers/acme_cert"
+  depends_on = [module.service_ct,
+  module.dns_entry[0]]
+  source = "../helpers/acme_cert"
 
   host = merge({ ca = { hosts = var.acme_cert.config.ca_host } }, { client = { hosts = module.service_ct.ansible_inventory } })
   cert_vars = {
@@ -70,7 +71,7 @@ module "acme_cert" {
 
 module "service_config" {
   source     = "../ansible_playbook"
-  depends_on = [module.service_ct]
+  depends_on = [module.service_ct, module.acme_cert[0]]
 
   playbook_path = ".playbooks/${var.service.service_type}-playbook.yml"
   inventory = {

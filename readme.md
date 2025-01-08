@@ -34,6 +34,9 @@
 oci vm cant be made due to security lists error
 
 
-next up is minio, loki, mimir, grafana
+# make repeatable 
+fix haproxy
+
+clean up ha services(use for_each)
 
 als0o need to do jellyfin and arr stack

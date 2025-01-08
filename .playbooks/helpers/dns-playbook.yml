@@ -8,7 +8,7 @@
         state: present
         path: /etc/hosts
         line: "{{ dns_entry_addr_ipv4 }} {{ dns_entry_name }}"
-      when: dns_entry_addr_ipv4 is defined
+      when: dns_entry_addr_ipv4 is defined and dns_entry_addr_ipv4 != "dhcp"
       notify: Restart dnsmasq
     - name: Append to hosts file
       ansible.builtin.lineinfile:
@@ -16,7 +16,7 @@
         state: present
         path: /etc/hosts
         line: "{{ dns_entry_addr_ipv6 }} {{ dns_entry_name }}"
-      when: dns_entry_addr_ipv6 is defined
+      when: dns_entry_addr_ipv6 is defined and dns_entry_addr_ipv6 != "dhcp"
       notify: Restart dnsmasq
 
   handlers:

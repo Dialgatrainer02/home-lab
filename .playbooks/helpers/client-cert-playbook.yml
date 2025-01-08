@@ -1,0 +1,10 @@
+---
+- name: Generate client cert for host
+  hosts: client
+  tasks:
+    - name: Placeholder
+      ansible.builtin.debug:
+        msg: "fix me"
+# get root ca file
+# get client crt + key
+# auto renew crt +key

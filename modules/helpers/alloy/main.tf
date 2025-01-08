@@ -85,6 +85,20 @@ loki.relabel "journal" {
   }
 }
 
+{% if service_type == "haproxy" %}
+
+local.file_match "haproxy" {
+  path_targets = [
+    {__path__ = "/dev/log"},
+  ]
+  sync_period = "5s"
+}
+
+loki.source.file "tmpfiles" {
+  targets    = local.file_match.haproxy.targets
+  forward_to = [loki.write.local.receiver]
+
+{% endif %}
 
 loki.source.file "tmpfiles" {
   targets    = local.file_match.tmplogs.targets
