@@ -65,7 +65,7 @@ resource "proxmox_virtual_environment_container" "proxmox_ct" {
 
 resource "terraform_data" "provision" {
   # triggers_replace = [proxmox_virtual_environment_container.proxmox_ct, ]
-  depends_on = [proxmox_virtual_environment_container.proxmox_ct, ]
+  depends_on = [proxmox_virtual_environment_container.proxmox_ct, ] # breaks if the container is recreated
   connection {
     host     = var.pve_settings.pve_address
     type     = "ssh"
