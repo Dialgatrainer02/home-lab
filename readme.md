@@ -37,6 +37,6 @@ oci vm cant be made due to security lists error
 # make repeatable 
 fix haproxy
 
-clean up ha services(use for_each)
+find way to improve HA service creation
 
 als0o need to do jellyfin and arr stack
