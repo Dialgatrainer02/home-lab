@@ -638,7 +638,7 @@ module "loki_3" {
 }
 
 module "haproxy_1" {
-  source = "./modules/service_ct"
+  source     = "./modules/service_ct"
   depends_on = [module.step_1, ] # needs step ca for acme certs
 
   pve_settings = local.pve_settings
@@ -1006,7 +1006,7 @@ module "mimir_3" {
 }
 
 module "haproxy_2" {
-  source = "./modules/service_ct"
+  source     = "./modules/service_ct"
   depends_on = [module.step_1, ] # needs step ca for acme certs
 
   pve_settings = local.pve_settings
@@ -1075,6 +1075,6 @@ module "haproxy_2" {
         name    = "mimir-3"
       }
     ]
-    
+
   }
 }
