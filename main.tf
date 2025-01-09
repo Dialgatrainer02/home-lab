@@ -639,7 +639,10 @@ module "loki_3" {
 
 module "haproxy_1" {
   source     = "./modules/service_ct"
-  depends_on = [module.step_1, ] # needs step ca for acme certs
+  depends_on = [module.step_1, 
+                module.loki_1,
+                module.loki_2,
+                module.loki_3] # needs step ca for acme certs
 
   pve_settings = local.pve_settings
   service = {
@@ -804,6 +807,9 @@ module "mimir_1" {
         "mimir-2.internal:8080",
         "mimir-3.internal:8080",
       ]
+      tls_enabled = true
+      tls_cert_path = "/etc/ssl/step.crt"
+      tls_key_path = "/etc/ssl/step.key"
     }
   }
 }
@@ -902,6 +908,9 @@ module "mimir_2" {
         "mimir-2.internal:8080",
         "mimir-3.internal:8080",
       ]
+      tls_enabled = true
+      tls_cert_path = "/etc/ssl/step.crt"
+      tls_key_path = "/etc/ssl/step.key"
     }
   }
 }
@@ -1001,13 +1010,19 @@ module "mimir_3" {
         "mimir-2.internal:8080",
         "mimir-3.internal:8080",
       ]
+      tls_enabled = true
+      tls_cert_path = "/etc/ssl/step.crt"
+      tls_key_path = "/etc/ssl/step.key"
     }
   }
 }
 
 module "haproxy_2" {
   source     = "./modules/service_ct"
-  depends_on = [module.step_1, ] # needs step ca for acme certs
+  depends_on = [module.step_1, 
+                module.mimir_1,
+                module.mimir_2,
+                module.mimir_3] # needs step ca for acme certs
 
   pve_settings = local.pve_settings
   service = {

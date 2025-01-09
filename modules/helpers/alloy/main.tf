@@ -97,7 +97,7 @@ local.file_match "haproxy" {
 loki.source.file "tmpfiles" {
   targets    = local.file_match.haproxy.targets
   forward_to = [loki.write.local.receiver]
-
+}
 {% endif %}
 
 loki.source.file "tmpfiles" {
