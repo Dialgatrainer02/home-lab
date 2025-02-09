@@ -13,7 +13,7 @@ packer {
 
 
 source "lxc" "base" {
-  config_file         = "/home/olivia/.config/lxc/default.conf "
+  config_file         = "/etc/lxc/default.conf"
   template_name       = "download"
   template_parameters = ["-d", "almalinux", "-a", "amd64", "-r", 9 ]
 
