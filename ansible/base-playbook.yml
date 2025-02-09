@@ -1,0 +1,11 @@
+---
+- name: Deploy alloy
+  hosts: default
+  become: true
+  tasks:
+    - name: test
+      package:
+        name: tar
+        state: present
+  # roles:
+    # - grafana.grafana.alloy

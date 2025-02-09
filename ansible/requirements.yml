@@ -1,0 +1,16 @@
+---
+roles:
+  - version: master
+    src: https://github.com/bertvv/ansible-dnsmasq
+    name: bertvv.dnsmasq
+  - name: ricsanfre.minio
+    src: https://github.com/ricsanfre/ansible-role-minio
+  # - name: geerlingguy.haproxy
+    # src: https://github.com/geerlingguy/ansible-role-haproxy
+    # version: main
+collections:
+  - name: maxhoesel.smallstep
+    # version: main
+    source: git+https://github.com/maxhoesel-ansible/ansible-collection-smallstep
+    type: git
+  - name: grafana.grafana

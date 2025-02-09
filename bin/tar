@@ -1,0 +1,32 @@
+#!/bin/sh
+# echo runnning in wrapper
+case ${@: -1} in
+    # Export packer LXC images
+    ./rootfs)
+        # Override params to drop rootfs
+        set -- "$1" "$2/rootfs" "$3" "--exclude=./dev/log" "${@:6:$(($# - 5 - 1 ))}" "."
+
+        # Extract the image name
+        t=${2%/*}
+        name=${t##*/}
+
+        # Run the original command in uid/gid mapped enviroment - root mapped uid
+        # must have write permission in output director
+        perms=$(lxc-info -c lxc.idmap $name | sed 's/lxc.idmap = //' | awk '{printf "-m %s:%s:%s:%s ", $1, $2, $3, $4}')
+        lxc-usernsexec $perms -- /usr/bin/tar $@
+        # /usr/bin/tar $@
+        ;;
+
+    # Required for the initial tar'ing of Ubuntu-24 Packer LXC images
+    /*/rootfs) /usr/bin/tar $@ --exclude=./var/log/journal ;;
+
+    # Handles regular tar(1) usage
+    *) /usr/bin/tar $@ ;;
+esac
+
+
+############################################################################################
+##########                                                                     #############
+##########           needed to package unpriviledged lxc containers            #############
+##########           run packer using PATH=./bin:$PATH packer ...              #############
+#############################################################################################

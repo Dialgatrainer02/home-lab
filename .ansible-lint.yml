@@ -1,0 +1,13 @@
+---
+profile: production
+
+enable_list:
+  - args
+  - empty-string-compare
+  - no-log-password
+  - no-same-owner
+  - name[prefix]
+  - galaxy-version-incorrect
+  - yaml
+  - no-prompting
+  - loop-var-prefix
