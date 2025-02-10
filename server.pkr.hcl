@@ -20,7 +20,7 @@ source "lxc" "base" {
 }
 
 build {
-    name = "base"
+    name = "default"
     sources = ["lxc.base"]
 
 
@@ -28,53 +28,53 @@ build {
         script = "./scripts/ssh.sh"
     }
 
-    provisioner "breakpoint" {}
-
-    provisioner "ansible" {
-    ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    user = build.User
-    playbook_file    = "ansible/base-playbook.yml"
-    galaxy_file = "ansible/requirements.yml"
-    use_proxy       = false
-    extra_arguments = [ "-vvvv", ]
-  }
-}
-
-variables {
-  dns = {
-    dns_0 = {
-
-    } 
-    dns_1 = {
-
-    }
-  }
-
-}
-build {
-  name = "specalise"
-  // dynamic "source" {
-  //   for_each = var.dns #dont need to do this as all the configs are the same so should just be abl x3 and work.
-  //   labels = ["lxc.base"]
-  //   content {
-  //     name = source.key
-  //     output_directory = "build/${source.key}"
-  //   }
+    // provisioner "breakpoint" {}
+// 
+    // provisioner "ansible" {
+    // ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
+    // user = build.User
+    // playbook_file    = "ansible/base-playbook.yml"
+    // galaxy_file = "ansible/requirements.yml"
+    // use_proxy       = true
+    // extra_arguments = [ "-vvvv", ]
   // }
-  source "lxc.base" {
-    name = "dns"
-  }
+}
 
+// variables {
+  // dns = {
+    // dns_0 = {
+// 
+    // } 
+    // dns_1 = {
+// 
+    // }
+  // }
+// 
+// }
+// build {
+  // name = "specalise"
+  // dynamic "source" {
+    // for_each = var.dns #dont need to do this as all the configs are the same so should just be abl x3 and work.
+    // labels = ["lxc.base"]
+    // content {
+      // name = source.key
+      // output_directory = "build/${source.key}"
+    // }
+  // }
+  // source "lxc.base" {
+    // name = "step2"
+  // }
+// 
   // provisioner "shell" {
     // inline = ["cat /etc/machine-id"]
   // }
-
-  provisioner "ansible" {
-    ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    user = "root"
-    playbook_file    = "ansible/dns-playbook.yml"
-    galaxy_file = "ansible/requirements.yml"
-    use_proxy       = false
-    extra_arguments = [ "-vvvv", ]
-  }
-}
+// 
+  // provisioner "ansible" {
+    // ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
+    // user = "root"
+    // playbook_file    = "ansible/dns-playbook.yml"
+    // galaxy_file = "ansible/requirements.yml"
+    // use_proxy       = false
+    // extra_arguments = [ "-vvvv", ]
+  // }
+// }
