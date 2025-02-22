@@ -7,18 +7,6 @@ packer {
   }
 }
 
-variable "pve_endpoint" {
-  type = string
-}
-
-variable "pve_username" {
-  type    = string
-  default = "root@pam"
-}
-
-variable "pve_password" {
-  type = string
-}
 
 
 source "proxmox-iso" "alma-k8" {
@@ -43,7 +31,7 @@ source "proxmox-iso" "alma-k8" {
     pre_enrolled_keys = false
     efi_format        = "raw"
   }
-  http_directory           = ".kickstart"
+  http_directory           = "${path.root}/.kickstart"
   insecure_skip_tls_verify = true
   boot_iso {
     iso_checksum = "none"
@@ -63,9 +51,9 @@ source "proxmox-iso" "alma-k8" {
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
-  ssh_password         = "Password1"
+  ssh_password         = "${var.provision_passwd}"
   ssh_timeout          = "15m"
-  ssh_username         = "provision"
+  ssh_username         = "${var.provision_user}"
   template_description = "Almalinux, generated on ${timestamp()}. Made by Packer"
   
 }
@@ -92,7 +80,7 @@ source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using f
     pre_enrolled_keys = false
     efi_format        = "raw"
   }
-  http_directory           = ".kickstart"
+  http_directory           = "${path.root}/.kickstart"
   insecure_skip_tls_verify = true
   boot_iso {
     iso_checksum = "none"
@@ -112,9 +100,9 @@ source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using f
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
-  ssh_password         = "Password1" #@TERRAFORM lock delete or disable password auth as i dont like this
+  ssh_password         = "${var.provision_passwd}" #@TERRAFORM lock delete or disable password auth as i dont like this
   ssh_timeout          = "10m"
-  ssh_username         = "provision"
+  ssh_username         = "${var.provision_user}"
   template_description = "Almalinux, generated on ${timestamp()}. Made by Packer"
   template_name        = "almalinux-nfs"
   vm_name              = "alamlinux-nfs"
@@ -133,7 +121,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo dnf install keepalived haproxy",
+      "sudo dnf -y install keepalived haproxy",
+      "sudo systemctl enable --now haproxy", # keepalived cant start proprtly untill configured
       "sudo kubeadm config images pull"
     ]
   }
