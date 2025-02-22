@@ -17,41 +17,41 @@ variable "pve_address" {
 }
 
 
-variable "tenancy_ocid" {
-  description = "tennancy ocid for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
-
-variable "user_ocid" {
-  description = "user ocid for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
-
-variable "fingerprint" {
-  description = "the fingerpring of the private api key for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
-
-variable "compartment_ocid" {
-  description = "compartment ocid for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
-
-variable "oci_private_key" {
-  description = "the private api key for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
-
-variable "region" {
-  description = "reigion for oracle cloud infrastructure"
-  type        = string
-  sensitive   = true
-}
+# variable "tenancy_ocid" {
+# description = "tennancy ocid for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
+# 
+# variable "user_ocid" {
+# description = "user ocid for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
+# 
+# variable "fingerprint" {
+# description = "the fingerpring of the private api key for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
+# 
+# variable "compartment_ocid" {
+# description = "compartment ocid for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
+# 
+# variable "oci_private_key" {
+# description = "the private api key for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
+# 
+# variable "region" {
+# description = "reigion for oracle cloud infrastructure"
+# type        = string
+# sensitive   = true
+# }
 
 variable "ipv4_network_bits" {
   description = "the network bits of the lan network (ipv4)"

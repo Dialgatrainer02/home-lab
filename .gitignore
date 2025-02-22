@@ -1,2 +1,4 @@
 *secret*
 *downloaded*/*
+terraform/.terraform*
+terraform/*tfstate*

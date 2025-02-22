@@ -1,0 +1,1 @@
+generates a master control plane node and generates any other nodes for a ha setup
