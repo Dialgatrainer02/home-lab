@@ -100,6 +100,65 @@ source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using f
   tags                 = "almalinux;packer;nfs"
 }
 
+source "proxmox-iso" "alpine-lb" {
+  boot_command    = [
+    "root<enter><enter><wait>",
+    "ip link set eth0 up && udhcpc -i eth0<enter><wait5>",
+    "wget -O /etc/local.d/setup.start http://{{ .HTTPIP }}:{{ .HTTPPort }}/setup.sh<enter><wait1>",
+    "chmod +x /etc/local.d/setup.start<enter>",
+    "service local start<enter>"
+  ]
+  boot_wait       = "15s"
+  bios            = "ovmf"
+  machine         = "q35"
+  qemu_agent      = true
+  cpu_type        = "host"
+  cores           = 2
+  memory          = 2048
+  scsi_controller = "virtio-scsi-single"
+  disks {
+    disk_size    = "10G"
+    storage_pool = "local-zfs"
+    type         = "scsi"
+    format       = "raw"
+  }
+  efi_config {
+    efi_storage_pool  = "local-zfs"
+    efi_type          = "4m"
+    pre_enrolled_keys = false
+    efi_format        = "raw"
+  }
+  http_directory           = "${path.root}/.answers"
+  insecure_skip_tls_verify = true
+  boot_iso {
+    iso_checksum = "none"
+    iso_urls = [
+      "./downloaded_iso_path/f8616b98ce61f0fd48072be38602c01be6df7554.iso",
+    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-standard-3.21.3-x86_64.iso"]
+    // iso_download_pve = true
+    iso_storage_pool = "local"
+    unmount          = true
+  }
+  cloud_init              = true
+  cloud_init_storage_pool = "local-zfs"
+  network_adapters {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+  node                 = "pve"
+  password             = "${var.pve_password}"
+  username             = "${var.pve_username}"
+  proxmox_url          = "${var.pve_endpoint}"
+  ssh_password         = "${var.provision_passwd}"
+  ssh_timeout          = "10m"
+  ssh_username         = "${var.provision_user}"
+  template_description = "Alpine, generated on ${timestamp()}. Made by Packer"
+  template_name        = "alpine-lb"
+  vm_name              = "alpine-lb"
+  vm_id                = 903
+  tags                 = "alpine;packer;lb"
+}
+
 build {
   source "source.proxmox-iso.alma-k8" {
     name = "master"
@@ -111,8 +170,6 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo dnf -y install keepalived haproxy",
-      "sudo systemctl enable --now haproxy", # keepalived cant start proprtly untill configured
       "sudo kubeadm config images pull"
     ]
   }
@@ -130,5 +187,17 @@ build {
 }
 
 build {
-  sources = ["source.proxmox-iso.alma-nfs"]
+  sources = ["source.proxmox-iso.alma-nfs",]
 }
+// build {
+  // sources = ["source.proxmox-iso.alpine-lb"]
+// 
+  // provisioner "shell" {
+    // inline = [
+      // "apk add haproxy-openrc keepalived",
+      // "rc-update add haproxy boot",
+      // "rc-update add keepalived boot" 
+    // ]
+  // }
+// 
+// }
