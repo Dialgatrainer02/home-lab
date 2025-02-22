@@ -1,80 +1,155 @@
 packer {
   required_plugins {
-    ansible = {
-      source  = "github.com/hashicorp/ansible"
-      version = "~> 1"
-    }
-    lxc = {
-      source = "github.com/hashicorp/lxc"
-      version = "~> 1"
+    name = {
+      version = "1.2.1" # pinned due to cpu_type not being paassed
+      source  = "github.com/hashicorp/proxmox"
     }
   }
 }
 
+variable "pve_endpoint" {
+  type = string
+}
 
-source "lxc" "base" {
-  config_file         = "/etc/lxc/default.conf"
-  template_name       = "download"
-  template_parameters = ["-d", "almalinux", "-a", "amd64", "-r", 9 ]
+variable "pve_username" {
+  type    = string
+  default = "root@pam"
+}
+
+variable "pve_password" {
+  type = string
+}
+
+
+source "proxmox-iso" "alma-k8" {
+  boot_command    = ["<up><tab>e<wait><down><down><end>  ip=dhcp inst.cmdline inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks-k8.cfg<f10>"]
+  boot_wait       = "7s"
+  bios            = "ovmf"
+  machine         = "q35"
+  qemu_agent      = true
+  cpu_type        = "host"
+  cores           = 2
+  memory          = 2048
+  scsi_controller = "virtio-scsi-single"
+  disks {
+    disk_size    = "10G"
+    storage_pool = "local-zfs"
+    type         = "scsi"
+    format       = "raw"
+  }
+  efi_config {
+    efi_storage_pool  = "local-zfs"
+    efi_type          = "4m"
+    pre_enrolled_keys = false
+    efi_format        = "raw"
+  }
+  http_directory           = ".kickstart"
+  insecure_skip_tls_verify = true
+  boot_iso {
+    iso_checksum = "none"
+    iso_urls = ["./downloaded_iso_path/977ffa5c530f281d5418b688b30333cdc55877b9.iso",
+    "https://repo.almalinux.org/almalinux/9.5/isos/x86_64/AlmaLinux-9-latest-x86_64-boot.iso"]
+    // iso_download_pve = true
+    iso_storage_pool = "local"
+    unmount          = true
+  }
+  cloud_init              = true
+  cloud_init_storage_pool = "local-zfs"
+  network_adapters {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+  node                 = "pve"
+  password             = "${var.pve_password}"
+  username             = "${var.pve_username}"
+  proxmox_url          = "${var.pve_endpoint}"
+  ssh_password         = "Password1"
+  ssh_timeout          = "15m"
+  ssh_username         = "provision"
+  template_description = "Almalinux, generated on ${timestamp()}. Made by Packer"
+  
+}
+
+source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using full vm instead
+  boot_command    = ["<up><tab>e<wait><down><down><end>  ip=dhcp inst.cmdline inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks-nfs.cfg<f10>"]
+  boot_wait       = "7s"
+  bios            = "ovmf"
+  machine         = "q35"
+  qemu_agent      = true
+  cpu_type        = "host"
+  cores           = 2
+  memory          = 2048
+  scsi_controller = "virtio-scsi-single"
+  disks {
+    disk_size    = "10G"
+    storage_pool = "local-zfs"
+    type         = "scsi"
+    format       = "raw"
+  }
+  efi_config {
+    efi_storage_pool  = "local-zfs"
+    efi_type          = "4m"
+    pre_enrolled_keys = false
+    efi_format        = "raw"
+  }
+  http_directory           = ".kickstart"
+  insecure_skip_tls_verify = true
+  boot_iso {
+    iso_checksum = "none"
+    iso_urls = ["./downloaded_iso_path/977ffa5c530f281d5418b688b30333cdc55877b9.iso",
+    "https://repo.almalinux.org/almalinux/9.5/isos/x86_64/AlmaLinux-9-latest-x86_64-boot.iso"]
+    // iso_download_pve = true
+    iso_storage_pool = "local"
+    unmount          = true
+  }
+  cloud_init              = true
+  cloud_init_storage_pool = "local-zfs"
+  network_adapters {
+    bridge = "vmbr0"
+    model  = "virtio"
+  }
+  node                 = "pve"
+  password             = "${var.pve_password}"
+  username             = "${var.pve_username}"
+  proxmox_url          = "${var.pve_endpoint}"
+  ssh_password         = "Password1" #@TERRAFORM lock delete or disable password auth as i dont like this
+  ssh_timeout          = "10m"
+  ssh_username         = "provision"
+  template_description = "Almalinux, generated on ${timestamp()}. Made by Packer"
+  template_name        = "almalinux-nfs"
+  vm_name              = "alamlinux-nfs"
+  vm_id                = 902
+  tags                 = "almalinux;packer;nfs"
+}
+
+build {
+  source "source.proxmox-iso.alma-k8" {
+    name = "master"
+    tags = "almalinux;packer;k8;master"
+    template_name        = "almalinux-master"
+    vm_name              = "alamlinux-master"
+    vm_id = 900
+  }
+
+  provisioner "shell" {
+    inline = [
+      "sudo dnf install keepalived haproxy",
+      "sudo kubeadm config images pull"
+    ]
+  }
 
 }
 
 build {
-    name = "default"
-    sources = ["lxc.base"]
-
-
-    provisioner "shell" {
-        script = "./scripts/ssh.sh"
-    }
-
-    // provisioner "breakpoint" {}
-// 
-    // provisioner "ansible" {
-    // ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    // user = build.User
-    // playbook_file    = "ansible/base-playbook.yml"
-    // galaxy_file = "ansible/requirements.yml"
-    // use_proxy       = true
-    // extra_arguments = [ "-vvvv", ]
-  // }
+  source "source.proxmox-iso.alma-k8" {
+    name = "worker"
+    tags = "almalinux;packer;k8;worker"
+    template_name        = "almalinux-worker"
+    vm_name              = "alamlinux-worker"
+    vm_id = 901
+  }
 }
 
-// variables {
-  // dns = {
-    // dns_0 = {
-// 
-    // } 
-    // dns_1 = {
-// 
-    // }
-  // }
-// 
-// }
-// build {
-  // name = "specalise"
-  // dynamic "source" {
-    // for_each = var.dns #dont need to do this as all the configs are the same so should just be abl x3 and work.
-    // labels = ["lxc.base"]
-    // content {
-      // name = source.key
-      // output_directory = "build/${source.key}"
-    // }
-  // }
-  // source "lxc.base" {
-    // name = "step2"
-  // }
-// 
-  // provisioner "shell" {
-    // inline = ["cat /etc/machine-id"]
-  // }
-// 
-  // provisioner "ansible" {
-    // ansible_env_vars = ["ANSIBLE_HOST_KEY_CHECKING=False"]
-    // user = "root"
-    // playbook_file    = "ansible/dns-playbook.yml"
-    // galaxy_file = "ansible/requirements.yml"
-    // use_proxy       = false
-    // extra_arguments = [ "-vvvv", ]
-  // }
-// }
+build {
+  sources = ["source.proxmox-iso.alma-nfs"]
+}
