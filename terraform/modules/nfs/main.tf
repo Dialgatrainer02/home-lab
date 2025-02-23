@@ -1,0 +1,71 @@
+resource "tls_private_key" "ssh" {
+  algorithm = "ED25519"
+}
+
+resource "random_integer" "vm_id" {
+  min      = 100
+  max      = 800
+}
+
+resource "proxmox_virtual_environment_vm" "nfs_server" {
+
+
+  node_name = local.node
+  vm_id     = random_integer.vm_id.result
+  name      = var.vm_name
+  tags = ["almalinux","nfs","terraform"]
+
+  bios    = "ovmf"
+  machine = "q35"
+  clone {
+    vm_id        = 902
+    datastore_id = local.datastore_id
+  }
+
+  usb {
+    host = var.usb_passthrough.host
+    mapping = var.usb_passthrough.mapping
+    usb3 = var.usb_passthrough.usb3
+  }
+
+  initialization {
+    datastore_id = local.datastore_id
+
+    ip_config {
+      ipv4 {
+        address = "${var.ip_config.ipv4_subnet}.150${var.ip_config.ipv4_cidr}"
+        gateway = var.ip_config.ipv4_gateway
+      }
+    }
+    user_account {
+      username = "provision"
+      keys     = [trimspace(tls_private_key.ssh.public_key_openssh)]
+    }
+  }
+
+  connection {
+    type        = "ssh"
+    host        = self.ipv4_addresses[1][0]
+    user        = "provision"
+    private_key = trimspace(tls_private_key.ssh.private_key_openssh)
+  }
+
+  provisioner "remote-exec" {
+    inline = [ 
+      "echo '/dev/sdb1 ${var.nfs_mount_point} ${var.usb_passthrough.fstype} defaults 0 0' | sudo tee -a /etc/fstab",
+      "mount /dev/sdb1 ${var.nfs_mount_point}"
+     ]
+    
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo '${var.nfs_mount_point} ${local.exports}' | sudo tee /etc/exports",
+      "sudo exportfs -arv"
+    ]
+  }
+}
+
+locals {
+  exports = replace(join(",",[for addr in var.allowed_addresses: "${addr}(rw)"]), ",", " ")
+}
