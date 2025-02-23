@@ -8,6 +8,7 @@ source "proxmox-iso" "alma-k8" {
   cpu_type        = "host"
   cores           = 2
   memory          = 2048
+  os = "l26"
   scsi_controller = "virtio-scsi-single"
   disks {
     disk_size    = "10G"
@@ -37,7 +38,7 @@ source "proxmox-iso" "alma-k8" {
     bridge = "vmbr0"
     model  = "virtio"
   }
-  node                 = "pve"
+  node                 = "pve1"
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
@@ -57,6 +58,7 @@ source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using f
   cpu_type        = "host"
   cores           = 2
   memory          = 2048
+  os = "l26"
   scsi_controller = "virtio-scsi-single"
   disks {
     disk_size    = "10G"
@@ -86,7 +88,7 @@ source "proxmox-iso" "alma-nfs" { # lxc and packer dont mix very well so using f
     bridge = "vmbr0"
     model  = "virtio"
   }
-  node                 = "pve"
+  node                 = "${var.pve_node}"
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
@@ -115,6 +117,7 @@ source "proxmox-iso" "alpine-lb" {
   cpu_type        = "host"
   cores           = 2
   memory          = 2048
+  os = "l26"
   scsi_controller = "virtio-scsi-single"
   disks {
     disk_size    = "10G"
@@ -145,7 +148,7 @@ source "proxmox-iso" "alpine-lb" {
     bridge = "vmbr0"
     model  = "virtio"
   }
-  node                 = "pve"
+  node                 = "${var.pve_node}"
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
@@ -158,6 +161,16 @@ source "proxmox-iso" "alpine-lb" {
   vm_id                = 903
   tags                 = "alpine;packer;lb"
 }
+
+// build {
+  // sources = ["source.proxmox-iso.alma-k8"]
+  // provisioner "shell" {
+  // inline = [
+    // "setup-cloud-init",
+    // "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+  // ]
+  // }
+// }
 
 build {
   source "source.proxmox-iso.alma-k8" {
@@ -173,7 +186,12 @@ build {
       "sudo kubeadm config images pull"
     ]
   }
-
+    provisioner "shell" {
+    inline = [
+      "setup-cloud-init",
+      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+    ]
+  }
 }
 
 build {
@@ -184,11 +202,27 @@ build {
     vm_name              = "alamlinux-worker"
     vm_id = 901
   }
+
+    provisioner "shell" {
+    inline = [
+      "setup-cloud-init",
+      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+    ]
+  }
 }
 
 build {
   sources = ["source.proxmox-iso.alma-nfs",]
+
+  provisioner "shell" {
+    inline = [
+      "setup-cloud-init",
+      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+    ]
+  }
 }
+
+
 // build {
   // sources = ["source.proxmox-iso.alpine-lb"]
 // 

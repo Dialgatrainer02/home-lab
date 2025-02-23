@@ -11,6 +11,11 @@ variable "pve_password" {
   type = string
 }
 
+variable "pve_node" {
+  type = string
+  default = "pve"
+
+}
 
 variable "provision_user" {
     type = string
