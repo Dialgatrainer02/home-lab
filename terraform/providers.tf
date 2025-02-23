@@ -3,7 +3,7 @@ terraform {
   required_providers {
     proxmox = {
       source  = "bpg/proxmox"
-      version = "0.69.0"
+      version = "0.72.0"
     }
     oci = {
       source  = "hashicorp/oci"

@@ -1,3 +1,8 @@
-dont forget to chmod+x tar
+run packer then terraform
 
-run using ```PATH=./bin/:$PATH packer build server.pkr.hcl```
+
+logistical issues
+
+need to sperad vms cant do that due to template and provider restrictions
+
+kube join/init stuff
