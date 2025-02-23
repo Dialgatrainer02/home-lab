@@ -38,7 +38,7 @@ source "proxmox-iso" "alma-k8" {
     bridge = "vmbr0"
     model  = "virtio"
   }
-  node                 = "pve1"
+  node                 = "${var.pve_node}"
   password             = "${var.pve_password}"
   username             = "${var.pve_username}"
   proxmox_url          = "${var.pve_endpoint}"
@@ -180,16 +180,19 @@ build {
     vm_name              = "alamlinux-master"
     vm_id = 900
   }
+  // provisioner "breakpoint" {}
 
   provisioner "shell" {
     inline = [
       "sudo kubeadm config images pull"
     ]
   }
-    provisioner "shell" {
+
+
+  provisioner "shell" {
     inline = [
-      "setup-cloud-init",
-      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
     ]
   }
 }
@@ -203,10 +206,10 @@ build {
     vm_id = 901
   }
 
-    provisioner "shell" {
+  provisioner "shell" {
     inline = [
-      "setup-cloud-init",
-      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
     ]
   }
 }
@@ -216,8 +219,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "setup-cloud-init",
-      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
+      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
     ]
   }
 }
