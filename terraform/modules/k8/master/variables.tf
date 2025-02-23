@@ -1,5 +1,5 @@
 variable "servers" {
-  type    = set(string)
+  type    = list(string)
   default = ["master0", "master1", "master2"]
 }
 
@@ -24,7 +24,7 @@ variable "kube_config" {
   })
   description = "config options to be sent to kubeadm init"
   default = {
-    cluster_endpoint = "cluster-endpoint"
+    cluster_endpoint = "cluster-endpoint" # set to cluser endpoint to set to node ip. Swap to load balencer address/ip when needed
   }
 }
 
