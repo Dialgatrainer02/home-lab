@@ -1,0 +1,11 @@
+Host *
+    StrictHostKeyChecking no
+    User ${provision_user}
+
+%{ for server_name, server in servers ~}
+
+Host ${server_name}
+  HostName ${server.ip_address}
+  IdentityFile ${server.id_file}
+
+%{ endfor ~}

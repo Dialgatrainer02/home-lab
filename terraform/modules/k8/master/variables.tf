@@ -18,6 +18,12 @@ variable "ip_config" {
   }
 }
 
+variable "provision_user" {
+  type    = string
+  default = "kubernetes"
+
+}
+
 variable "kube_config" {
   type = object({
     cluster_endpoint = string
