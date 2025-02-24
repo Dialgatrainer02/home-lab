@@ -3,6 +3,12 @@ variable "servers" {
   default = ["worker0", "worker1", "worker2"]
 }
 
+variable "provision_user" {
+  type    = string
+  default = "kubernetes"
+
+}
+
 variable "ip_config" {
   type = object({
     ipv4_gateway      = string
@@ -18,9 +24,14 @@ variable "ip_config" {
   }
 }
 
-variable "kube_join_something" {
-    description = "subject to change"
-  
+variable "master_node_config" {
+  type = object({
+    name        = string
+    host        = string
+    private_key = string
+    user        = string
+  })
+
 }
 
 locals {

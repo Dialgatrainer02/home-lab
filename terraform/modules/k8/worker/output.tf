@@ -6,6 +6,6 @@ output "private_key" {
 
 output "ip_addresses" {
   value = {
-    for i in var.servers : "${i}" => proxmox_virtual_environment_vm.master[i].ipv4_addresses[1][0]
+    for i in var.servers : "${i}" => proxmox_virtual_environment_vm.worker[i].ipv4_addresses[1][0]
   }
 }
