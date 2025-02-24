@@ -1,32 +1,33 @@
 variable "allowed_addresses" {
-    type = list(string)
-    default = [ "192.168.0.0/24" ]
+  type    = list(string)
+  default = ["192.168.0.0/24"]
 }
 
 variable "nfs_mount_point" {
-  type = string
+  type    = string
   default = "/mnt"
+}
+
+variable "provision_user" {
+  type    = string
+  default = "nfs"
+
 }
 
 variable "usb_passthrough" {
   type = object({
-    host = optional(string)
+    host    = optional(string)
     mapping = optional(string)
-    usb3 = optional(bool)
-    fstype = optional(string)
+    usb3    = optional(bool)
+    fstype  = optional(string)
   })
-  default = {
-    host = null
-    mapping = null
-    usb3 = null
-    fstype = null
-  }
-  
+  default = null
+
 }
 
 variable "vm_name" {
-    type = string
-    default = "nfs0"
+  type    = string
+  default = "nfs0"
 }
 
 variable "ip_config" {
