@@ -53,7 +53,7 @@ variable "pve_address" {
 # sensitive   = true
 # }
 
-variable "ipv4_network_bits" {
+variable "ipv4_subnet" {
   description = "the network bits of the lan network (ipv4)"
   type        = string
 }
@@ -68,7 +68,7 @@ variable "ipv4_gateway" {
   type        = string
 }
 
-variable "ipv6_network_bits" {
+variable "ipv6_subnet" {
   description = "the network bits of the lan network (ipv6)"
   type        = string
 }
@@ -78,10 +78,14 @@ variable "ipv6_cidr" {
   type        = string
 }
 
+variable "ipv6_gateway" {
+  type = string
 
-data "proxmox_virtual_environment_nodes" "nodes" {}
-
-locals {
-  pve_user = split("@", var.pve_username)[0]
-  node     = data.proxmox_virtual_environment_nodes.nodes.names[0]
 }
+
+
+# data "proxmox_virtual_environment_nodes" "nodes" {}
+
+# locals {
+# node     = data.proxmox_virtual_environment_nodes.nodes.names[0]
+# }
