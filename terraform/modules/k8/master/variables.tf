@@ -5,16 +5,18 @@ variable "servers" {
 
 variable "ip_config" {
   type = object({
-    ipv4_gateway = string
-    ipv4_subnet  = string
-    ipv4_cidr    = string
-    ipv6_cidr    = optional(string)
-    ipv6_subnet  = optional(string)
+    ipv4_gateway     = string
+    ipv4_subnet      = string
+    ipv4_cidr        = string
+    ipv4_start_range = number
+    ipv6_cidr        = optional(string)
+    ipv6_subnet      = optional(string)
   })
   default = {
-    ipv4_cidr    = "/24"
-    ipv4_gateway = "192.168.0.1"
-    ipv4_subnet  = "192.168.0"
+    ipv4_cidr        = "/24"
+    ipv4_gateway     = "192.168.0.1"
+    ipv4_subnet      = "192.168.0"
+    ipv4_start_range = 200
   }
 }
 

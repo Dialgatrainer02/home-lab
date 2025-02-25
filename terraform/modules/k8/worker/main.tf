@@ -55,7 +55,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
 
     ip_config {
       ipv4 {
-        address = "${var.ip_config.ipv4_subnet}.${index(var.servers, each.value) + 100}${var.ip_config.ipv4_cidr}"
+        address = "${var.ip_config.ipv4_subnet}.${index(var.servers, each.value) + (var.ip_config.ipv4_start_range)}${var.ip_config.ipv4_cidr}"
         gateway = (var.ip_config.ipv4_gateway)
       }
     }
@@ -104,5 +104,23 @@ resource "terraform_data" "master_join" {
     }
 
     inline = ["sudo bash /tmp/worker-join.sh"]
+  }
+}
+
+resource "terraform_data" "nfs_setup" {
+  for_each = (local.servers)
+  connection {
+    host        = (proxmox_virtual_environment_vm.worker[each.value].ipv4_addresses[1][0])
+    user        = (var.provision_user)
+    private_key = (trimspace(tls_private_key.ssh[each.value].private_key_openssh))
+  }
+
+  provisioner "remote-exec" {
+    inline = ["sudo mkdir -p ${var.nfs_config.client_mount_point}",
+      "echo '${var.nfs_config.host}:${var.nfs_config.server_mount_point}  ${var.nfs_config.client_mount_point} nfs defaults,user,noexec,nosuid,timeo=900,retrans=5,_netdev	0 0' | sudo tee -a /etc/fstab",
+      "sudo systemctl daemon-reload",
+      "mount '${var.nfs_config.host}:${var.nfs_config.server_mount_point}'"
+    ]
+
   }
 }

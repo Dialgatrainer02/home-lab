@@ -14,13 +14,15 @@ variable "ip_config" {
     ipv4_gateway      = string
     ipv4_subnet       = string
     ipv4_cidr         = string
+    ipv4_start_range  = number
     ipv6_cidr         = optional(string)
     ipv6_network_bits = optional(string)
   })
   default = {
-    ipv4_cidr    = "/24"
-    ipv4_gateway = "192.168.0.1"
-    ipv4_subnet  = "192.168.0"
+    ipv4_cidr        = "/24"
+    ipv4_gateway     = "192.168.0.1"
+    ipv4_subnet      = "192.168.0"
+    ipv4_start_range = 100
   }
 }
 
@@ -31,6 +33,14 @@ variable "master_node_config" {
     private_key      = string
     private_key_path = string
     user             = string
+  })
+}
+
+variable "nfs_config" {
+  type = object({
+    host               = string
+    server_mount_point = string
+    client_mount_point = string
   })
 
 }
