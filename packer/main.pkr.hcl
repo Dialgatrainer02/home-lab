@@ -162,15 +162,6 @@ source "proxmox-iso" "alpine-lb" {
   tags                 = "alpine;packer;lb"
 }
 
-// build {
-  // sources = ["source.proxmox-iso.alma-k8"]
-  // provisioner "shell" {
-  // inline = [
-    // "setup-cloud-init",
-    // "echo 'datasource_list: [ NoCloud, ConfigDrive ]' > /etc/cloud/cloud.cfg.d/99_pve.cfg"
-  // ]
-  // }
-// }
 
 build {
   source "source.proxmox-iso.alma-k8" {
@@ -180,7 +171,6 @@ build {
     vm_name              = "alamlinux-master"
     vm_id = 900
   }
-  // provisioner "breakpoint" {}
 
   provisioner "shell" {
     inline = [
@@ -188,13 +178,6 @@ build {
     ]
   }
 
-
-  provisioner "shell" {
-    inline = [
-      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
-      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
-    ]
-  }
 }
 
 build {
@@ -206,35 +189,27 @@ build {
     vm_id = 901
   }
 
-  provisioner "shell" {
-    inline = [
-      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
-      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
-    ]
-  }
 }
 
 build {
   sources = ["source.proxmox-iso.alma-nfs",]
 
-  provisioner "shell" {
-    inline = [
-      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
-      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config"
-    ]
-  }
 }
 
 
-// build {
-  // sources = ["source.proxmox-iso.alpine-lb"]
-// 
-  // provisioner "shell" {
-    // inline = [
-      // "apk add haproxy-openrc keepalived",
-      // "rc-update add haproxy boot",
-      // "rc-update add keepalived boot" 
-    // ]
-  // }
-// 
-// }
+build {
+  sources = ["source.proxmox-iso.alpine-lb"]
+
+  // provisioner "breakpoint" {}
+
+  provisioner "shell" {
+    inline = [
+      "doas apk add haproxy-openrc keepalived",
+      "doas rc-update add haproxy boot",
+      "doas rc-update add keepalived boot",
+      "doas setup-cloud-init",
+      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' | doas tee -a '/etc/cloud/cloud.cfg.d/99_pve.cfg'"
+    ]
+  }
+
+}
