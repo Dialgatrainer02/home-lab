@@ -3,8 +3,8 @@ resource "tls_private_key" "ssh" {
 }
 
 resource "random_integer" "vm_id" {
-  min = 100
-  max = 800
+  min = 700
+  max = 750
 }
 
 resource "local_sensitive_file" "private_key" {
@@ -71,12 +71,13 @@ resource "proxmox_virtual_environment_vm" "nfs_server" {
   }
 
   provisioner "remote-exec" {
-    # count = var.usb_passthrough != null ? 1 : 0
     inline = [
       "sudo mkdir -p ${var.nfs_mount_points[0]}",
       "echo '/dev/sdb1 ${var.nfs_mount_points[0]} ${var.usb_passthrough.fstype} defaults 0 0' | sudo tee -a /etc/fstab",
       "sudo systemctl daemon-reload",
-      "sudo mount /dev/sdb1 ${var.nfs_mount_points[0]}"
+      "sudo mount /dev/sdb1 ${var.nfs_mount_points[0]}",
+      "sudo chown -R nobody:nobody ${var.nfs_mount_points[0]}",
+      "sudo chmod +777 ${var.nfs_mount_points[0]}"
     ]
 
   }
@@ -90,5 +91,5 @@ resource "proxmox_virtual_environment_vm" "nfs_server" {
 }
 
 locals {
-  export_server_config = {mount_points: (var.nfs_mount_points), allowed_addresses: (var.allowed_addresses) }
+  export_server_config = { mount_points : (var.nfs_mount_points), allowed_addresses : (var.allowed_addresses) }
 }

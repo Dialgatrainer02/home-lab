@@ -4,8 +4,8 @@ variable "allowed_addresses" {
 }
 
 variable "nfs_mount_points" {
-  type    = list(string)
-  default = ["/mnt"]
+  type        = list(string)
+  default     = ["/mnt"]
   description = "first in list is root fsid in nfs"
 }
 
