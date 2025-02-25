@@ -3,9 +3,10 @@ variable "allowed_addresses" {
   default = ["192.168.0.0/24"]
 }
 
-variable "nfs_mount_point" {
-  type    = string
-  default = "/mnt"
+variable "nfs_mount_points" {
+  type    = list(string)
+  default = ["/mnt"]
+  description = "first in list is root fsid in nfs"
 }
 
 variable "provision_user" {
