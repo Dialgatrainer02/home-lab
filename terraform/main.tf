@@ -1,7 +1,7 @@
 # module "load_balencers" {
-  # source = "./modules/load_balancer"
+# source = "./modules/load_balancer"
 # 
-  # control_plane_nodes = local.haproxy_servers
+# control_plane_nodes = local.haproxy_servers
 # }
 locals {
   control_plane_nodes = tolist(["master0"])

@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
   node_name = (local.node)
   vm_id     = (random_integer.vm_id[each.value].result)
   name      = (each.value)
-  tags      = ["almalinux", "k8", "worker","nfs", "terraform"]
+  tags      = ["almalinux", "k8", "worker", "nfs", "terraform"]
 
   bios    = "ovmf"
   machine = "q35"

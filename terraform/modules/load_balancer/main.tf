@@ -67,10 +67,10 @@ resource "proxmox_virtual_environment_vm" "lb" {
 
   # reboot = true1
   # connection {
-    # type        = "ssh"
-    # host        = (self.ipv4_addresses[1][0])
-    # user        = (var.provision_user)
-    # private_key = (trimspace(tls_private_key.ssh[each.value].private_key_openssh))
+  # type        = "ssh"
+  # host        = (self.ipv4_addresses[1][0])
+  # user        = (var.provision_user)
+  # private_key = (trimspace(tls_private_key.ssh[each.value].private_key_openssh))
   # }
 
 }
