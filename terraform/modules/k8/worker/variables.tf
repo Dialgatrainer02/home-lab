@@ -26,20 +26,21 @@ variable "ip_config" {
 
 variable "master_node_config" {
   type = object({
-    name        = string
-    host        = string
-    private_key = string
-    user        = string
+    name             = string
+    host             = string
+    private_key      = string
+    private_key_path = string
+    user             = string
   })
 
 }
 
 locals {
-  datastore_id = element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs")) # match to local-zfs aka vm data storage
-  node         = data.proxmox_virtual_environment_nodes.nodes.names[0]
+  datastore_id = (element(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, index(data.proxmox_virtual_environment_datastores.datastores.datastore_ids, "local-zfs"))) # match to local-zfs aka vm data storage
+  node         = (data.proxmox_virtual_environment_nodes.nodes.names[0])
 }
 
 data "proxmox_virtual_environment_nodes" "nodes" {}
 data "proxmox_virtual_environment_datastores" "datastores" {
-  node_name = data.proxmox_virtual_environment_nodes.nodes.names[0]
+  node_name = (data.proxmox_virtual_environment_nodes.nodes.names[0])
 }
