@@ -28,9 +28,9 @@ mount /dev/sda3 /mnt
 cp /mnt/etc/apk/repositories /etc/apk/repositories # easier way to get comunity repo
 
 echo iso9660 | tee /mnt/etc/modules-load.d/iso9660.conf
-sed -Ei -e '/^tty[0-9]/s/^/#/' -e '/^#ttyS0:/s/^#//' "/mnt/etc/inittab"
+# sed -Ei -e '/^tty[0-9]/s/^/#/' -e '/^#ttyS0:/s/^#//' "/mnt/etc/inittab"
 #install guest agent to fetch ip later
-apk add -p /mnt qemu-guest-agent doas cloud-init
+apk add -p /mnt qemu-guest-agent doas cloud-init e2fsprogs-extra ca-certificates
 echo 'permit nopass :wheel' > "/mnt/etc/doas.d/wheel.conf"
 chroot /mnt /sbin/rc-update add qemu-guest-agent default 
 reboot

@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
   node_name = (local.node)
   vm_id     = (random_integer.vm_id[each.value].result)
   name      = (each.value)
-  tags      = ["almalinux", "k8", "worker", "terraform"]
+  tags      = ["almalinux", "k8", "worker","nfs", "terraform"]
 
   bios    = "ovmf"
   machine = "q35"
@@ -88,12 +88,7 @@ resource "terraform_data" "master_join" {
   }
 
   provisioner "local-exec" {
-    connection {
-      host        = (proxmox_virtual_environment_vm.worker[each.value].ipv4_addresses[1][0])
-      user        = (var.provision_user)
-      private_key = (trimspace(tls_private_key.ssh[each.value].private_key_openssh))
-    } # make sure the worker node is ready to connect
-    command = "scp -o StrictHostKeyChecking=no -i ${var.master_node_config.private_key_path} -F ${local_sensitive_file.worker_ssh_config.filename} ${var.master_node_config.user}@${var.master_node_config.host}:/tmp/worker-join.sh ${each.value}:/tmp/worker-join.sh"
+    command = "for i in {1..5}; do scp -o StrictHostKeyChecking=no -i ${var.master_node_config.private_key_path} -F ${local_sensitive_file.worker_ssh_config.filename} ${var.master_node_config.user}@${var.master_node_config.host}:/tmp/worker-join.sh ${each.value}:/tmp/worker-join.sh && break || { sleep 5; }; done"
   }
   provisioner "remote-exec" {
 

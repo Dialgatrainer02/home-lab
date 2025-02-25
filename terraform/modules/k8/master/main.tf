@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_vm" "master" {
 
     ip_config {
       ipv4 {
-        address = "${var.ip_config.ipv4_subnet}.${index(var.servers, each.value) + 200}${var.ip_config.ipv4_cidr}"
+        address = "${var.ip_config.ipv4_subnet}.${index(var.servers, each.value) + (var.ip_config.ipv4_start_range)}${var.ip_config.ipv4_cidr}"
         gateway = (var.ip_config.ipv4_gateway)
       }
     }

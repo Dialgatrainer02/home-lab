@@ -197,19 +197,19 @@ build {
 }
 
 
-build {
-  sources = ["source.proxmox-iso.alpine-lb"]
-
-  // provisioner "breakpoint" {}
-
-  provisioner "shell" {
-    inline = [
-      "doas apk add haproxy-openrc keepalived",
-      "doas rc-update add haproxy boot",
-      "doas rc-update add keepalived boot",
-      "doas setup-cloud-init",
-      "echo 'datasource_list: [ NoCloud, ConfigDrive ]' | doas tee -a '/etc/cloud/cloud.cfg.d/99_pve.cfg'"
-    ]
-  }
-
-}
+// build {
+  // sources = ["source.proxmox-iso.alpine-lb"]
+// 
+// 
+  // provisioner "shell" {
+    // inline = [
+      // "doas apk add haproxy-openrc keepalived",
+      // "doas rc-update add haproxy boot",
+      // "doas rc-update add keepalived boot",
+      // "doas setup-cloud-init",
+      // "echo 'datasource_list: [ NoCloud, ConfigDrive ]' | doas tee -a '/etc/cloud/cloud.cfg.d/99_pve.cfg'",
+      // "doas service sshd restart"
+    // ]
+  // }
+// 
+// }
