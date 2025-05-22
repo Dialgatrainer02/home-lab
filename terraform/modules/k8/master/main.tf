@@ -103,9 +103,12 @@ resource "terraform_data" "kubernetes_control_plane_init" {
     ]
   }
 
+  provisioner "local-exec" {
+    command = "mkdir -p ${path.root}/secrets/.kube/ && scp -F ${local_sensitive_file.master_ssh_config.filename} ${local.leader}:/home/${var.provision_user}/.kube/config ${path.root}/secrets/.kube/config"
+  }
+
   provisioner "remote-exec" {
     inline = ["sudo systemctl restart sshd"]
-
   }
 }
 

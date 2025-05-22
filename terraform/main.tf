@@ -25,13 +25,11 @@ locals {
     private_key_path = module.control_plane.private_key_paths[local.master_name]
     user             = "kubernetes"
   }
-
   nfs_config = {
     host               = module.nfs_server.ip_address
     server_mount_point = "/"
     client_mount_point = "/srv/shared"
   }
-
   ip_config = {
     ipv4_cidr    = var.ipv4_cidr
     ipv4_gateway = var.ipv4_gateway
@@ -56,11 +54,21 @@ module "data_plane" {
 module "nfs_server" {
   source = "./modules/nfs"
   # allowed_addresses = ["192.168.0.24/32", "192.168.0.25/32"]
-
   ip_config = local.ip_config
   usb_passthrough = {
     mapping = "storage"
     usb3    = true
     fstype  = "ext4"
   }
+}
+
+resource "helm_release" "nginx" {
+  name       = "minio"
+  repository = "https://operator.min.io"
+  chart      = "minio-operator/operator"
+  create_namespace = true
+
+  # values = [
+    # file("${path.module}/nginx-values.yaml")
+  # ]
 }

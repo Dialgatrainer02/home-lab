@@ -9,6 +9,14 @@ terraform {
       source  = "hashicorp/oci"
       version = "6.21.0"
     }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "2.35.1"
+    }
+    helm = {
+      source = "hashicorp/helm"
+      version = "3.0.0-pre1"
+    }
   }
 }
 
@@ -19,4 +27,10 @@ provider "proxmox" {
   password = var.pve_password
   insecure = true
   tmp_dir  = "/tmp"
+}
+
+provider "helm" {
+  kubernetes = {
+  config_path    = "./secrets/.kube/config"
+  }
 }
